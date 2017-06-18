@@ -262,6 +262,16 @@ img {
         border-radius: 0.2rem;
         margin: 0.3rem 0.3rem 0 0;
     }
+    &__rows {
+        min-height: 10rem;
+    }
+}
+
+.row {
+
+    &__segment {
+        width: 33.33333%;
+    }
 }
 
 .image {

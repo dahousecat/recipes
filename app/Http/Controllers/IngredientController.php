@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Ingredient;
 use Illuminate\Http\Request;
+Use Neomerx\JsonApi\Encoder\Encoder;
 
-class IngredientController extends Controller
+class IngredientController extends JsonApiController
 {
     /**
      * Display a listing of the resource.
@@ -16,10 +17,16 @@ class IngredientController extends Controller
     {
         $ingredients = Ingredient::all();
 
-        return response()
-            ->json([
-                'ingredients' => $ingredients
-            ]);
+        // Encode the model data for json:api consumption
+        $encoder = Encoder::instance($this->modelSchemaMappings, $this->encoderOptions);
+        $encodedData = $encoder->encodeData($ingredients);
+        return response($encodedData)
+            ->header('Content-Type', 'application/json');
+
+//        return response()
+//            ->json([
+//                'ingredients' => $ingredients
+//            ]);
     }
 
     public function search($text)
@@ -59,10 +66,10 @@ class IngredientController extends Controller
      * @param  \App\Models\Ingredient  $ingredient
      * @return \Illuminate\Http\Response
      */
-    public function show(Ingredient $ingredient)
-    {
-        //
-    }
+//    public function show(Ingredient $ingredient)
+//    {
+//        //
+//    }
 
     /**
      * Show the form for editing the specified resource.
@@ -70,10 +77,10 @@ class IngredientController extends Controller
      * @param  \App\Models\Ingredient  $ingredient
      * @return \Illuminate\Http\Response
      */
-    public function edit(Ingredient $ingredient)
-    {
-        //
-    }
+//    public function edit(Ingredient $ingredient)
+//    {
+//        //
+//    }
 
     /**
      * Update the specified resource in storage.
@@ -82,10 +89,10 @@ class IngredientController extends Controller
      * @param  \App\Models\Ingredient  $ingredient
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Ingredient $ingredient)
-    {
-        //
-    }
+//    public function update(Request $request, Ingredient $ingredient)
+//    {
+//        //
+//    }
 
     /**
      * Remove the specified resource from storage.
@@ -93,8 +100,8 @@ class IngredientController extends Controller
      * @param  \App\Models\Ingredient  $ingredient
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Ingredient $ingredient)
-    {
-        //
-    }
+//    public function destroy(Ingredient $ingredient)
+//    {
+//        //
+//    }
 }

@@ -26,12 +26,14 @@ class IngredientSchema extends SchemaProvider
 
     public function getRelationships($ingredient, $isPrimary, array $includeList)
     {
+//        ddd($ingredient->units->all());
+
         /** @var Ingredient $ingredient */
         return [
-            'user' => [
-                self::DATA => $ingredient->user
-            ],
-//            'units' => $ingredient->units
+//            'user' => [
+//                self::DATA => $ingredient->user
+//            ],
+            'units' => $ingredient->units->all()
         ];
     }
 }

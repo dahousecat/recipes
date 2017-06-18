@@ -33,22 +33,30 @@
 			<div class="recipe__ingredients">
 				<div class="recipe__box">
 					<h3 class="recipe__sub_title">Ingredients</h3>
-					<div v-for="(row, index) in form.rows" class="recipe__form">
 
-						<!--<select class="form__control"></select>-->
+					<draggable v-model="form.rows" :options='{"group":"recipe"}' @start="dragStart" @end="dragEnd" class="recipe__rows">
+						<div v-for="(row, index) in form.rows" class="recipe__form row">
 
-						<input type="text" class="form__control" v-model="row.ingredient"
-							:class="[error[`rows.${index}.name`] ? 'error__bg' : '']">
+							<!--<select class="form__control"></select>-->
+							<div class="row__segment">
+								<input type="text" class="form__control row__ingredient" v-model="row.ingredient"
+									   :class="[error[`rows.${index}.name`] ? 'error__bg' : '']">
+							</div>
+							<div class="row__segment">
+								<input type="text" class="form__control row__amount" v-model="row.amount"
+									   :class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">
+							</div>
+							<div class="row__segment">
+								<input type="text" class="form__control row__unit" v-model="row.unit"
+									   :class="[error[`rows.${index}.unit`] ? 'error__bg' : '']">
+							</div>
+							<!--<div class="row__segment">-->
+								<!--<button @click="remove('rows', index)" class="btn btn__danger">&times;</button>								-->
+							<!--</div>-->
+						</div>
+					</draggable>
 
-						<input type="text" class="form__control form__unit" v-model="row.unit"
-							:class="[error[`rows.${index}.unit`] ? 'error__bg' : '']">
 
-						<input type="text" class="form__control form__amount" v-model="row.amount"
-							   :class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">
-
-						<button @click="remove('rows', index)" class="btn btn__danger">&times;</button>
-
-					</div>
 					<button @click="addRow" class="btn">Add Ingredient</button>
 				</div>
 			</div>
@@ -63,8 +71,8 @@
 						<input type="text" class="form__control" v-model="ingredient">
 					</div>
 
-					<draggable v-model="ingredients" :options="{group:'people'}" @start="drag=true" @end="drag=false">
-						<div v-for="ingredient in ingredients" class="recipe__ingredient">{{ingredient.name}}</div>
+					<draggable v-model="ingredients" :options='{"group":"recipe"}' @start="dragStart" @end="dragEnd">
+						<div v-for="ingredient in ingredients" class="recipe__ingredient">{{ingredient.attributes.name}}</div>
 					</draggable>
 
 					<!--<div v-for="(ingredient, index) in ingredients" class="recipe__ingredient">-->
@@ -97,6 +105,8 @@
 	import { toMulipartedForm } from '../../helpers/form'
 	import ImageUpload from '../../components/ImageUpload.vue'
 	import draggable from 'vuedraggable'
+
+	Vue.use(draggable);
 
 	export default {
 		components: {
@@ -140,10 +150,24 @@
 
 			get('/api/ingredients')
 					.then((res) => {
-				Vue.set(this.$data, 'ingredients', res.data.ingredients);
+				Vue.set(this.$data, 'ingredients', res.data.data);
 			})
 		},
 		methods: {
+			dragStart(evt){
+				var ingredient = this.ingredients[evt.oldIndex];
+				if(typeof ingredient.ingredient == 'undefined') {
+					ingredient.ingredient = ingredient.attributes.name;
+				}
+				if(typeof ingredient.quantity == 'undefined') {
+					ingredient.quantity = 1;
+				}
+				console.log(ingredient);
+			},
+			dragEnd(evt){
+//				var row = this.form.rows[evt.newIndex];
+//				console.log(row);
+			},
 			save() {
 				const form = toMulipartedForm(this.form, this.$route.meta.mode)
 				post(this.storeURL, form)

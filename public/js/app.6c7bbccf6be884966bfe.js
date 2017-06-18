@@ -12108,6 +12108,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -12115,6 +12123,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+
+__WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vuedraggable___default.a);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	components: {
@@ -12160,11 +12170,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		});
 
 		__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/ingredients').then(function (res) {
-			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'ingredients', res.data.ingredients);
+			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'ingredients', res.data.data);
 		});
 	},
 
 	methods: {
+		dragStart: function dragStart(evt) {
+			var ingredient = this.ingredients[evt.oldIndex];
+			if (typeof ingredient.ingredient == 'undefined') {
+				ingredient.ingredient = ingredient.attributes.name;
+			}
+			if (typeof ingredient.quantity == 'undefined') {
+				ingredient.quantity = 1;
+			}
+			console.log(ingredient);
+		},
+		dragEnd: function dragEnd(evt) {
+			//				var row = this.form.rows[evt.newIndex];
+			//				console.log(row);
+		},
 		save: function save() {
 			var _this3 = this;
 
@@ -14670,9 +14694,29 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "recipe__box"
   }, [_c('h3', {
     staticClass: "recipe__sub_title"
-  }, [_vm._v("Ingredients")]), _vm._v(" "), _vm._l((_vm.form.rows), function(row, index) {
+  }, [_vm._v("Ingredients")]), _vm._v(" "), _c('draggable', {
+    staticClass: "recipe__rows",
+    attrs: {
+      "options": {
+        "group": "recipe"
+      }
+    },
+    on: {
+      "start": _vm.dragStart,
+      "end": _vm.dragEnd
+    },
+    model: {
+      value: (_vm.form.rows),
+      callback: function($$v) {
+        _vm.form.rows = $$v
+      },
+      expression: "form.rows"
+    }
+  }, _vm._l((_vm.form.rows), function(row, index) {
     return _c('div', {
-      staticClass: "recipe__form"
+      staticClass: "recipe__form row"
+    }, [_c('div', {
+      staticClass: "row__segment"
     }, [_c('input', {
       directives: [{
         name: "model",
@@ -14680,7 +14724,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         value: (row.ingredient),
         expression: "row.ingredient"
       }],
-      staticClass: "form__control",
+      staticClass: "form__control row__ingredient",
       class: [_vm.error[("rows." + index + ".name")] ? 'error__bg' : ''],
       attrs: {
         "type": "text"
@@ -14694,35 +14738,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
           row.ingredient = $event.target.value
         }
       }
-    }), _vm._v(" "), _c('input', {
-      directives: [{
-        name: "model",
-        rawName: "v-model",
-        value: (row.unit),
-        expression: "row.unit"
-      }],
-      staticClass: "form__control form__unit",
-      class: [_vm.error[("rows." + index + ".unit")] ? 'error__bg' : ''],
-      attrs: {
-        "type": "text"
-      },
-      domProps: {
-        "value": (row.unit)
-      },
-      on: {
-        "input": function($event) {
-          if ($event.target.composing) { return; }
-          row.unit = $event.target.value
-        }
-      }
-    }), _vm._v(" "), _c('input', {
+    })]), _vm._v(" "), _c('div', {
+      staticClass: "row__segment"
+    }, [_c('input', {
       directives: [{
         name: "model",
         rawName: "v-model",
         value: (row.amount),
         expression: "row.amount"
       }],
-      staticClass: "form__control form__amount",
+      staticClass: "form__control row__amount",
       class: [_vm.error[("rows." + index + ".amount")] ? 'error__bg' : ''],
       attrs: {
         "type": "text"
@@ -14736,20 +14761,36 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
           row.amount = $event.target.value
         }
       }
-    }), _vm._v(" "), _c('button', {
-      staticClass: "btn btn__danger",
+    })]), _vm._v(" "), _c('div', {
+      staticClass: "row__segment"
+    }, [_c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: (row.unit),
+        expression: "row.unit"
+      }],
+      staticClass: "form__control row__unit",
+      class: [_vm.error[("rows." + index + ".unit")] ? 'error__bg' : ''],
+      attrs: {
+        "type": "text"
+      },
+      domProps: {
+        "value": (row.unit)
+      },
       on: {
-        "click": function($event) {
-          _vm.remove('rows', index)
+        "input": function($event) {
+          if ($event.target.composing) { return; }
+          row.unit = $event.target.value
         }
       }
-    }, [_vm._v("×")])])
-  }), _vm._v(" "), _c('button', {
+    })])])
+  })), _vm._v(" "), _c('button', {
     staticClass: "btn",
     on: {
       "click": _vm.addRow
     }
-  }, [_vm._v("Add Ingredient")])], 2)]), _vm._v(" "), _c('div', {
+  }, [_vm._v("Add Ingredient")])], 1)]), _vm._v(" "), _c('div', {
     staticClass: "recipe__pantry"
   }, [_c('div', {
     staticClass: "recipe__pantry_inner"
@@ -14780,16 +14821,12 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   })]), _vm._v(" "), _c('draggable', {
     attrs: {
       "options": {
-        group: 'people'
+        "group": "recipe"
       }
     },
     on: {
-      "start": function($event) {
-        _vm.drag = true
-      },
-      "end": function($event) {
-        _vm.drag = false
-      }
+      "start": _vm.dragStart,
+      "end": _vm.dragEnd
     },
     model: {
       value: (_vm.ingredients),
@@ -14801,7 +14838,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, _vm._l((_vm.ingredients), function(ingredient) {
     return _c('div', {
       staticClass: "recipe__ingredient"
-    }, [_vm._v(_vm._s(ingredient.name))])
+    }, [_vm._v(_vm._s(ingredient.attributes.name))])
   }))], 1)])]), _vm._v(" "), _c('div', {
     staticClass: "recipe__row"
   }, [_c('div', {

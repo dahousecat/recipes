@@ -7,6 +7,8 @@ namespace App\Http\Controllers;
 use App\Models\Recipe;
 use App\Models\Api\RecipeSchema;
 use App\Models\User;
+use App\Models\Ingredient;
+use App\Models\Api\IngredientSchema;
 use App\Models\Api\UserSchema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -20,6 +22,7 @@ class JsonApiController extends Controller
     protected $modelSchemaMappings = [
         Recipe::class => RecipeSchema::class,
         User::class => UserSchema::class,
+        Ingredient::class => IngredientSchema::class,
     ];
 
     protected $encoderOptions;

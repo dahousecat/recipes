@@ -37,14 +37,10 @@ class Recipe extends Model
             'name' => '',
             'image' => '',
             'description' => '',
-            'pantry_ingredients' => [
-                Ingredient::all(),
-            ],
             'rows' => [
-                Row::form()
+                //Row::form()
             ],
             'directions' => [
-                RecipeDirection::form(),
                 RecipeDirection::form()
             ]
         ];
