@@ -31,6 +31,10 @@ class UnitsTableSeeder extends Seeder
                 'type' => 'volume',
                 'ml' => 29.57353,
             ],
+            'pint' => [
+                'type' => 'volume',
+                'ml' => 473.176,
+            ],
 
             'gram' => [
                 'type' => 'weight',

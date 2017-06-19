@@ -13,6 +13,7 @@ class Ingredient extends Model
         'description',
         'image',
         'user_id',
+        'default_unit_id',
     ];
 
     use SoftDeletes;

@@ -6,6 +6,7 @@ Route::post('register', 'AuthController@register');
 
 Route::resource('recipes', 'RecipeController');
 Route::resource('ingredients', 'IngredientController');
+Route::resource('units', 'UnitController');
 
 //Route::post('ingredients/search/{str}', function ($str) {
 //

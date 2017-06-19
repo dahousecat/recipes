@@ -6,7 +6,7 @@ use Neomerx\JsonApi\Schema\SchemaProvider;
 
 class UnitSchema extends SchemaProvider
 {
-    protected $resourceType = 'ingredient';
+    protected $resourceType = 'unit';
 
     public function getId($unit)
     {
@@ -26,7 +26,7 @@ class UnitSchema extends SchemaProvider
     {
         /** @var Unit $unit */
         return [
-            'ingredient' => $unit->ingredients,
+//            'ingredient' => $unit->ingredients,
         ];
     }
 }

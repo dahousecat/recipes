@@ -39,6 +39,10 @@ class Unit extends Model
         return self::whereIn('type', $type)->get();
     }
 
+    public static function loadByName($name) {
+        return self::where('name', $name)->first();
+    }
+
     public static function getAllKeyed() {
         $units = [];
         foreach(self::all() as $unit) {

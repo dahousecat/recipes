@@ -12116,6 +12116,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -12138,16 +12149,21 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 				directions: []
 			},
 			ingredients: [],
+			units: [],
 			error: {},
 			isProcessing: false,
 			initializeURL: '/api/recipes/create',
 			storeURL: '/api/recipes',
+			ingredientsURL: '/api/ingredients',
+			unitsURL: '/api/units',
 			action: 'Create',
-			ingredient: ''
+			ingredient: '',
+			isDragging: false
 		};
 	},
 
 	watch: {
+		// For ingredient filter
 		ingredient: function ingredient(str) {
 			var _this = this;
 
@@ -12157,6 +12173,8 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			});
 		}
 	},
+
+	// Run on initialization
 	created: function created() {
 		var _this2 = this;
 
@@ -12169,13 +12187,18 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'form', res.data.form);
 		});
 
-		__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/ingredients').then(function (res) {
+		__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])(this.ingredientsURL).then(function (res) {
 			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'ingredients', res.data.data);
+		});
+
+		__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])(this.unitsURL).then(function (res) {
+			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'units', res.data.data);
 		});
 	},
 
 	methods: {
 		dragStart: function dragStart(evt) {
+			this.isDragging = true;
 			var ingredient = this.ingredients[evt.oldIndex];
 			if (typeof ingredient.ingredient == 'undefined') {
 				ingredient.ingredient = ingredient.attributes.name;
@@ -12183,11 +12206,36 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			if (typeof ingredient.quantity == 'undefined') {
 				ingredient.quantity = 1;
 			}
-			console.log(ingredient);
+			if (typeof ingredient.unit == 'undefined') {
+				ingredient.unit = ingredient.attributes.default_unit_id;
+			}
+			// Set the ingredients unit array
+			this.setUnitsArray(ingredient);
+
+			console.log(ingredient, 'ingredient');
 		},
 		dragEnd: function dragEnd(evt) {
+			this.isDragging = false;
 			//				var row = this.form.rows[evt.newIndex];
 			//				console.log(row);
+		},
+		setUnitsArray: function setUnitsArray(ingredient) {
+			ingredient.units = [];
+			for (var i = 0; i < ingredient.relationships.units.data.length; i++) {
+				var id = ingredient.relationships.units.data[i].id;
+				ingredient.units.push({
+					id: id,
+					name: this.getUnitName(id)
+				});
+			}
+		},
+		getUnitName: function getUnitName(id) {
+			for (var i = 0; i < this.units.length; i++) {
+				if (this.units[i].id == id) {
+					var name = this.units[i].attributes.name;
+					return name == 'quantity' ? 'whole' : name;
+				}
+			}
 		},
 		save: function save() {
 			var _this3 = this;
@@ -12209,13 +12257,6 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 		addDirection: function addDirection() {
 			this.form.directions.push({
 				description: ''
-			});
-		},
-		addRow: function addRow() {
-			this.form.rows.push({
-				amount: '',
-				ingredient: '',
-				unit: ''
 			});
 		},
 		remove: function remove(type, index) {
@@ -14696,9 +14737,14 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "recipe__sub_title"
   }, [_vm._v("Ingredients")]), _vm._v(" "), _c('draggable', {
     staticClass: "recipe__rows",
+    class: {
+      'drop-zone': this.isDragging, 'recipe__rows--empty': !_vm.form.rows.length
+    },
     attrs: {
       "options": {
-        "group": "recipe"
+        group: "recipe",
+        handle: ".row__handle",
+        filter: ".empty-message"
       }
     },
     on: {
@@ -14715,37 +14761,18 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, _vm._l((_vm.form.rows), function(row, index) {
     return _c('div', {
       staticClass: "recipe__form row"
-    }, [_c('div', {
+    }, [_c('i', {
+      staticClass: "fa fa-arrows row__handle"
+    }), _vm._v(" "), _c('div', {
+      staticClass: "row__segment"
+    }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(row.ingredient) + "\n\t\t\t\t\t\t")]), _vm._v(" "), _c('div', {
       staticClass: "row__segment"
     }, [_c('input', {
       directives: [{
         name: "model",
         rawName: "v-model",
-        value: (row.ingredient),
-        expression: "row.ingredient"
-      }],
-      staticClass: "form__control row__ingredient",
-      class: [_vm.error[("rows." + index + ".name")] ? 'error__bg' : ''],
-      attrs: {
-        "type": "text"
-      },
-      domProps: {
-        "value": (row.ingredient)
-      },
-      on: {
-        "input": function($event) {
-          if ($event.target.composing) { return; }
-          row.ingredient = $event.target.value
-        }
-      }
-    })]), _vm._v(" "), _c('div', {
-      staticClass: "row__segment"
-    }, [_c('input', {
-      directives: [{
-        name: "model",
-        rawName: "v-model",
-        value: (row.amount),
-        expression: "row.amount"
+        value: (row.quantity),
+        expression: "row.quantity"
       }],
       staticClass: "form__control row__amount",
       class: [_vm.error[("rows." + index + ".amount")] ? 'error__bg' : ''],
@@ -14753,17 +14780,17 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         "type": "text"
       },
       domProps: {
-        "value": (row.amount)
+        "value": (row.quantity)
       },
       on: {
         "input": function($event) {
           if ($event.target.composing) { return; }
-          row.amount = $event.target.value
+          row.quantity = $event.target.value
         }
       }
     })]), _vm._v(" "), _c('div', {
       staticClass: "row__segment"
-    }, [_c('input', {
+    }, [_c('select', {
       directives: [{
         name: "model",
         rawName: "v-model",
@@ -14771,26 +14798,25 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         expression: "row.unit"
       }],
       staticClass: "form__control row__unit",
-      class: [_vm.error[("rows." + index + ".unit")] ? 'error__bg' : ''],
-      attrs: {
-        "type": "text"
-      },
-      domProps: {
-        "value": (row.unit)
-      },
       on: {
-        "input": function($event) {
-          if ($event.target.composing) { return; }
-          row.unit = $event.target.value
+        "change": function($event) {
+          var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
+            return o.selected
+          }).map(function(o) {
+            var val = "_value" in o ? o._value : o.value;
+            return val
+          });
+          row.unit = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
         }
       }
-    })])])
-  })), _vm._v(" "), _c('button', {
-    staticClass: "btn",
-    on: {
-      "click": _vm.addRow
-    }
-  }, [_vm._v("Add Ingredient")])], 1)]), _vm._v(" "), _c('div', {
+    }, _vm._l((row.units), function(unit, index) {
+      return _c('option', {
+        domProps: {
+          "value": unit.id
+        }
+      }, [_vm._v(_vm._s(unit.name))])
+    }))])])
+  }))], 1)]), _vm._v(" "), _c('div', {
     staticClass: "recipe__pantry"
   }, [_c('div', {
     staticClass: "recipe__pantry_inner"
@@ -14841,7 +14867,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }, [_vm._v(_vm._s(ingredient.attributes.name))])
   }))], 1)])]), _vm._v(" "), _c('div', {
     staticClass: "recipe__row"
-  }, [_c('div', {
+  }, [_vm._m(0), _vm._v(" "), _c('div', {
     staticClass: "recipe__directions"
   }, [_c('div', {
     staticClass: "recipe__directions_inner"
@@ -14882,7 +14908,15 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "click": _vm.addDirection
     }
   }, [_vm._v("Add Direction")])], 2)])])])
-},staticRenderFns: []}
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "recipe__nutrition"
+  }, [_c('div', {
+    staticClass: "recipe__box"
+  }, [_c('h3', {
+    staticClass: "recipe__sub_title"
+  }, [_vm._v("Nutrition")])])])
+}]}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()

@@ -20,57 +20,71 @@ class IngredientsTableSeeder extends Seeder
 
         $ingredients = [
             [
-                'name' =>'Melon',
-                'units' => ['quantity', 'weight'],
+                'name' => 'Melon',
+                'unit_types' => ['quantity', 'weight'],
+                'default_unit' => 'quantity',
             ],
             [
-                'name' =>'Carrot',
-                'units' => ['quantity', 'weight'],
+                'name' => 'Carrot',
+                'unit_types' => ['quantity', 'weight'],
+                'default_unit' => 'quantity',
             ],
             [
-                'name' =>'Potato',
-                'units' => ['quantity', 'weight'],
+                'name' => 'Potato',
+                'unit_types' => ['quantity', 'weight'],
+                'default_unit' => 'quantity',
             ],
             [
-                'name' =>'Orange',
-                'units' => ['quantity', 'weight'],
+                'name' => 'Orange',
+                'unit_types' => ['quantity', 'weight'],
+                'default_unit' => 'quantity',
             ],
             [
-                'name' =>'Banana',
-                'units' => ['quantity', 'weight'],
+                'name' => 'Banana',
+                'unit_types' => ['quantity', 'weight'],
+                'default_unit' => 'quantity',
             ],
             [
-                'name' =>'Milk',
-                'units' => ['volume'],
+                'name' => 'Milk',
+                'unit_types' => ['volume'],
+                'default_unit' => 'pint',
             ],
             [
-                'name' =>'Coconut Water',
-                'units' => ['volume'],
+                'name' => 'Coconut Water',
+                'unit_types' => ['volume'],
+                'default_unit' => 'litre',
             ],
             [
-                'name' =>'Peach',
-                'units' => ['quantity', 'weight'],
+                'name' => 'Peach',
+                'unit_types' => ['quantity', 'weight'],
+                'default_unit' => 'quantity',
             ],
             [
-                'name' =>'Turnip',
-                'units' => ['quantity', 'weight'],
+                'name' => 'Turnip',
+                'unit_types' => ['quantity', 'weight'],
+                'default_unit' => 'quantity',
+            ],
+            [
+                'name' => 'Flour',
+                'unit_types' => ['volume', 'weight'],
+                'default_unit' => 'kilogram',
             ],
         ];
 
         $units_by_type = [];
-//        $units = Unit::getAllKeyed();
-//        $unit_types = Unit::getTypes(); // volume, weight, length, quantity
 
         foreach($ingredients as $i => $data) {
+            $default_unit = Unit::loadByName($data['default_unit']);
             $ingredient = Ingredient::create([
                 'user_id' => $i,
                 'name' => $data['name'],
                 'description' => $faker->paragraph(mt_rand(10, 20)),
-                'image' => 'test.png'
+                'image' => 'test.png',
+                'default_unit_id' => empty($default_unit) ? NULL : $default_unit->id,
             ]);
 
-            if(!empty($data['units'])) {
-                foreach($data['units'] as $type) {
+            if(!empty($data['unit_types'])) {
+                foreach($data['unit_types'] as $type) {
                     if(!isset($units_by_type[$type])) {
                         $units_by_type[$type] = Unit::loadByType($type);
                     }

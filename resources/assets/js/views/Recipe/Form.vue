@@ -34,30 +34,36 @@
 				<div class="recipe__box">
 					<h3 class="recipe__sub_title">Ingredients</h3>
 
-					<draggable v-model="form.rows" :options='{"group":"recipe"}' @start="dragStart" @end="dragEnd" class="recipe__rows">
+					<draggable v-model="form.rows" v-bind:class="{ 'drop-zone': this.isDragging, 'recipe__rows--empty': !form.rows.length }"
+							   :options='{group:"recipe", handle:".row__handle", filter: ".empty-message"}'
+							   @start="dragStart" @end="dragEnd"
+							   class="recipe__rows">
+
+						<!--<div v-if="!form.rows.length" class="empty-message">Drag some ingredients here to start your recipe.</div>-->
+
 						<div v-for="(row, index) in form.rows" class="recipe__form row">
 
-							<!--<select class="form__control"></select>-->
+							<i class="fa fa-arrows row__handle"></i>
+
 							<div class="row__segment">
-								<input type="text" class="form__control row__ingredient" v-model="row.ingredient"
-									   :class="[error[`rows.${index}.name`] ? 'error__bg' : '']">
+								{{row.ingredient}}
 							</div>
 							<div class="row__segment">
-								<input type="text" class="form__control row__amount" v-model="row.amount"
+								<input type="text" class="form__control row__amount" v-model="row.quantity"
 									   :class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">
 							</div>
 							<div class="row__segment">
-								<input type="text" class="form__control row__unit" v-model="row.unit"
-									   :class="[error[`rows.${index}.unit`] ? 'error__bg' : '']">
+								<select v-model="row.unit" class="form__control row__unit">
+									<option v-for="(unit, index) in row.units" :value="unit.id">{{unit.name}}</option>
+								</select>
 							</div>
+
 							<!--<div class="row__segment">-->
 								<!--<button @click="remove('rows', index)" class="btn btn__danger">&times;</button>								-->
 							<!--</div>-->
 						</div>
 					</draggable>
 
-
-					<button @click="addRow" class="btn">Add Ingredient</button>
 				</div>
 			</div>
 
@@ -75,14 +81,19 @@
 						<div v-for="ingredient in ingredients" class="recipe__ingredient">{{ingredient.attributes.name}}</div>
 					</draggable>
 
-					<!--<div v-for="(ingredient, index) in ingredients" class="recipe__ingredient">-->
-						<!--<div>{{ ingredient.name }}</div>-->
-					<!--</div>-->
 				</div>
 			</div>
 
 		</div>
 		<div class="recipe__row">
+
+			<div class="recipe__nutrition">
+				<div class="recipe__box">
+					<h3 class="recipe__sub_title">Nutrition</h3>
+
+				</div>
+			</div>
+
 			<div class="recipe__directions">
 				<div class="recipe__directions_inner">
 					<h3 class="recipe__sub_title">Directions</h3>
@@ -120,15 +131,20 @@
 					directions: []
 				},
 				ingredients: [],
+				units: [],
 				error: {},
 				isProcessing: false,
 				initializeURL: `/api/recipes/create`,
 				storeURL: `/api/recipes`,
+				ingredientsURL: `/api/ingredients`,
+				unitsURL: `/api/units`,
 				action: 'Create',
-				ingredient: ''
+				ingredient: '',
+				isDragging: false
 			}
 		},
 		watch: {
+			// For ingredient filter
 			ingredient: function(str){
 				var url = str.length > 1 ? '/api/ingredients/search/' + str : '/api/ingredients';
 				get(url)
@@ -137,6 +153,8 @@
 						})
 			}
 		},
+
+		// Run on initialization
 		created() {
 			if(this.$route.meta.mode === 'edit') {
 				this.initializeURL = `/api/recipes/${this.$route.params.id}/edit`
@@ -148,13 +166,19 @@
 					Vue.set(this.$data, 'form', res.data.form);
 				})
 
-			get('/api/ingredients')
+			get(this.ingredientsURL)
 					.then((res) => {
 				Vue.set(this.$data, 'ingredients', res.data.data);
 			})
+
+			get(this.unitsURL)
+					.then((res) => {
+						Vue.set(this.$data, 'units', res.data.data);
+					})
 		},
 		methods: {
 			dragStart(evt){
+				this.isDragging = true;
 				var ingredient = this.ingredients[evt.oldIndex];
 				if(typeof ingredient.ingredient == 'undefined') {
 					ingredient.ingredient = ingredient.attributes.name;
@@ -162,11 +186,36 @@
 				if(typeof ingredient.quantity == 'undefined') {
 					ingredient.quantity = 1;
 				}
-				console.log(ingredient);
+				if(typeof ingredient.unit == 'undefined') {
+					ingredient.unit = ingredient.attributes.default_unit_id;
+				}
+				// Set the ingredients unit array
+				this.setUnitsArray(ingredient);
+
+				console.log(ingredient, 'ingredient');
 			},
 			dragEnd(evt){
+				this.isDragging = false;
 //				var row = this.form.rows[evt.newIndex];
 //				console.log(row);
+			},
+			setUnitsArray(ingredient) {
+				ingredient.units = [];
+				for (var i = 0; i < ingredient.relationships.units.data.length; i++) {
+					var id = ingredient.relationships.units.data[i].id;
+					ingredient.units.push({
+						id: id,
+						name: this.getUnitName(id),
+					});
+				}
+			},
+			getUnitName(id) {
+				for (var i = 0; i < this.units.length; i++) {
+					if(this.units[i].id == id) {
+						var name = this.units[i].attributes.name;
+						return name == 'quantity' ? 'whole' : name;
+					}
+				}
 			},
 			save() {
 				const form = toMulipartedForm(this.form, this.$route.meta.mode)
@@ -188,13 +237,6 @@
 			addDirection() {
 				this.form.directions.push({
 					description: ''
-				})
-			},
-			addRow() {
-				this.form.rows.push({
-					amount: '',
-					ingredient: '',
-					unit: '',
 				})
 			},
 			remove(type, index) {

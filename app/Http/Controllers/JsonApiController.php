@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-//use App\Models\Api\IngredientSchema;
-//use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\Api\RecipeSchema;
 use App\Models\User;
+use App\Models\Api\UserSchema;
 use App\Models\Ingredient;
 use App\Models\Api\IngredientSchema;
-use App\Models\Api\UserSchema;
+use App\Models\Unit;
+use App\Models\Api\UnitSchema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Neomerx\JsonApi\Encoder\Encoder;
 use Neomerx\JsonApi\Encoder\EncoderOptions;
 
@@ -23,6 +22,7 @@ class JsonApiController extends Controller
         Recipe::class => RecipeSchema::class,
         User::class => UserSchema::class,
         Ingredient::class => IngredientSchema::class,
+        Unit::class => UnitSchema::class,
     ];
 
     protected $encoderOptions;

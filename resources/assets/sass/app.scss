@@ -1,3 +1,5 @@
+@import "~font-awesome/scss/font-awesome.scss";
+
 * {
     box-sizing: border-box;
 }
@@ -264,13 +266,62 @@ img {
     }
     &__rows {
         min-height: 10rem;
+        position: relative;
+    }
+    &__rows--empty::after {
+        content: 'Drag some ingredients here to start your recipe.';
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        height: 4rem;
+        text-align: center;
+    }
+    &__nutrition {
+        width: 40%;
     }
 }
 
+.drop-zone {
+    border: 0.3rem dashed #002b36;
+    animation-name: pulse;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}
+
+.sortable-ghost {
+    margin: 1rem;
+}
+
+@keyframes pulse {
+    0%   {border-color: #002b36;}
+    25%  {border-color: lighten(#002b36, 15%);}
+    50%  {border-color: #002b36;}
+    75%  {border-color: lighten(#002b36, 15%);}
+    100% {border-color: #002b36;}
+}
+
+.empty-message {
+    text-align: center;
+    width: 100%;
+    margin-top: 2rem;
+}
+
 .row {
+    background-color: #fafafa;
+    padding: 0.4rem;
+    border: 1px solid #eee;
+    border-radius: 0.2rem;
 
     &__segment {
         width: 33.33333%;
+        line-height: 2;
+    }
+
+    &__handle {
+        padding: 0.4rem 0.4rem 0.4rem 0;
     }
 }
 

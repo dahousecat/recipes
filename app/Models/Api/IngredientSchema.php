@@ -21,19 +21,17 @@ class IngredientSchema extends SchemaProvider
             'name' => $ingredient->name,
             'description' => $ingredient->description,
             'image' => $ingredient->image,
+            'default_unit_id' => $ingredient->default_unit_id,
         ];
     }
 
     public function getRelationships($ingredient, $isPrimary, array $includeList)
     {
-//        ddd($ingredient->units->all());
-
         /** @var Ingredient $ingredient */
         return [
-//            'user' => [
-//                self::DATA => $ingredient->user
-//            ],
-            'units' => $ingredient->units->all()
+            'units' => [
+                self::DATA => $ingredient->units,
+            ],
         ];
     }
 }

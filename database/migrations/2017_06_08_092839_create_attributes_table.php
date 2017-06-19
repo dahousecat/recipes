@@ -15,8 +15,11 @@ class CreateAttributesTable extends Migration
     {
         Schema::create('attributes', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->enum('unit', ['kJ', 'g', 'mg']);
+            $table->integer('unit_id')->unsigned();
+            $table->integer('ingredient_id')->unsigned();
+            $table->float('value', 10, 5)->unsigned()->nullable();
+            $table->integer('ingredient_id')->unsigned();
+            $table->integer('attribute_type_id')->unsigned();
         });
     }
 
