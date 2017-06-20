@@ -25,6 +25,13 @@ class Unit extends Model
     }
 
     /**
+     * The attributes with this unit.
+     */
+    public function attributes() {
+        return $this->hasMany('App\Models\Attributes');
+    }
+
+    /**
      * Return an array of possible types of unit
      */
     public static function getTypes() {

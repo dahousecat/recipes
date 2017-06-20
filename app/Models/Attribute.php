@@ -9,15 +9,33 @@ class Attribute extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name',
+        'unit_id',
+        'ingredient_id',
+        'value',
+        'attribute_type_id',
     ];
 
     /**
-     * The ingredients that have this attribute.
+     * The ingredient that has this attribute.
      */
-    public function ingredients()
+    public function ingredient()
     {
-        return $this->belongsToMany('App\Models\Ingredient');
+        return $this->belongsTo('App\Models\Ingredient');
+    }
+
+    /**
+     * The unit for this attribute.
+     */
+    public function unit() {
+        return $this->belongsTo('App\Models\Unit');
+    }
+
+    /**
+     * The type of this attribute.
+     */
+    public function attributeType()
+    {
+        return $this->belongsTo('App\Models\AttributeType');
     }
 
     public static function form()

@@ -4,6 +4,8 @@ use Illuminate\Database\Seeder;
 use App\Models\Ingredient;
 use Faker\Factory;
 use App\Models\Unit;
+use App\Models\Attribute;
+Use App\Models\AttributeType;
 
 class IngredientsTableSeeder extends Seeder
 {
@@ -16,18 +18,52 @@ class IngredientsTableSeeder extends Seeder
     {
         $faker = Factory::create();
 
-//        Ingredient::truncate();
+        Ingredient::truncate();
 
         $ingredients = [
             [
                 'name' => 'Melon',
                 'unit_types' => ['quantity', 'weight'],
                 'default_unit' => 'quantity',
+                'attributes' => [
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'energy',
+                        'value' => 1.50624,
+                    ],
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'sugar',
+                        'value' => 0.08,
+                    ],
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'protein',
+                        'value' => 0.005,
+                    ],
+                ],
             ],
             [
                 'name' => 'Carrot',
                 'unit_types' => ['quantity', 'weight'],
                 'default_unit' => 'quantity',
+                'attributes' => [
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'energy',
+                        'value' => 1.71544,
+                    ],
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'sugar',
+                        'value' => 0.047,
+                    ],
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'protein',
+                        'value' => 0.009,
+                    ],
+                ],
             ],
             [
                 'name' => 'Potato',
@@ -89,6 +125,22 @@ class IngredientsTableSeeder extends Seeder
                         $units_by_type[$type] = Unit::loadByType($type);
                     }
                     $ingredient->units()->saveMany($units_by_type[$type]);
+                }
+            }
+
+            if(!empty($data['attributes'])) {
+                foreach($data['attributes'] as $attribute) {
+
+                    $unit = Unit::loadByName($attribute['unit']);
+                    $attribute_type = AttributeType::loadByName($attribute['unit']);
+
+                    Attribute::create([
+                        'unit_id' => $unit->id,
+                        'ingredient_id' => $ingredient->id,
+                        'value' => $attribute['value'],
+                        'attribute_type_id' => $attribute_type->id,
+                    ]);
+
                 }
             }
 

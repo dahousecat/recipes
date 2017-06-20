@@ -4,7 +4,6 @@ use Illuminate\Database\Seeder;
 use Faker\Factory;
 use App\Models\Recipe;
 use App\Models\RecipeDirection;
-use App\Models\RecipeIngredient;
 
 class RecipesTableSeeder extends Seeder
 {
@@ -18,7 +17,6 @@ class RecipesTableSeeder extends Seeder
         $faker = Factory::create();
 
         Recipe::truncate();
-        RecipeIngredient::truncate();
         RecipeDirection::truncate();
 
         foreach(range(1, 10) as $i) {
@@ -29,13 +27,13 @@ class RecipesTableSeeder extends Seeder
         		'image' => 'test.png'
         	]);
 
-        	foreach(range(1, mt_rand(3, 12)) as $j) {
-        		RecipeIngredient::create([
-        			'recipe_id' => $recipe->id,
-        			'name' => $faker->word,
-        			'qty' => mt_rand(1, 12).' Kg'
-        		]);
-        	}
+//        	foreach(range(1, mt_rand(3, 12)) as $j) {
+//        		RecipeIngredient::create([
+//        			'recipe_id' => $recipe->id,
+//        			'name' => $faker->word,
+//        			'qty' => mt_rand(1, 12).' Kg'
+//        		]);
+//        	}
 
         	foreach(range(1, mt_rand(5, 12)) as $k) {
         		RecipeDirection::create([

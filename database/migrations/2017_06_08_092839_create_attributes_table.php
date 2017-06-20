@@ -16,10 +16,12 @@ class CreateAttributesTable extends Migration
         Schema::create('attributes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('unit_id')->unsigned();
+//            $table->foreign('unit_id')->references('id')->on('units');
             $table->integer('ingredient_id')->unsigned();
+//            $table->foreign('ingredient_id')->references('id')->on('ingredients');
             $table->float('value', 10, 5)->unsigned()->nullable();
-            $table->integer('ingredient_id')->unsigned();
             $table->integer('attribute_type_id')->unsigned();
+//            $table->foreign('attribute_type_id')->references('id')->on('attribute_type');
         });
     }
 

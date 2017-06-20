@@ -16,12 +16,9 @@ class CreateIngredientUnitTable extends Migration
         Schema::create('ingredient_unit', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ingredient_id')->unsigned();
-//            $table->foreign('ingredient_id')->references('id')
-//                ->on('ingredients')->onDelete('cascade');
-
+//            $table->foreign('ingredient_id')->references('id')->on('ingredients');
             $table->integer('unit_id')->unsigned();
-//            $table->foreign('unit_id')->references('id')
-//                ->on('units')->onDelete('cascade');
+//            $table->foreign('unit_id')->references('id')->on('units');
         });
     }
 

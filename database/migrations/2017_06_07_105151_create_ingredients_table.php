@@ -19,9 +19,11 @@ class CreateIngredientsTable extends Migration
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->integer('user_id')->unsigned();
+//            $table->foreign('user_id')->references('id')->on('users');
             $table->integer('default_unit_id')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
+//            $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
         });
     }
 

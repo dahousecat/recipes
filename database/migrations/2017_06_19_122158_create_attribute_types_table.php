@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRecipeIngredientsTable extends Migration
+class CreateAttributeTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateRecipeIngredientsTable extends Migration
      */
     public function up()
     {
-        Schema::create('recipe_ingredients', function (Blueprint $table) {
+        Schema::create('attribute_types', function (Blueprint $table) {
+
+            // unit_id ingredient_id value attribute_type
             $table->increments('id');
-            $table->integer('recipe_id')->unsigned();
             $table->string('name');
-            $table->string('qty');
+            $table->enum('unit', ['kJ', 'g', 'mg']);
         });
     }
 
@@ -28,6 +29,6 @@ class CreateRecipeIngredientsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('recipe_ingredients');
+        Schema::dropIfExists('attribute_types');
     }
 }

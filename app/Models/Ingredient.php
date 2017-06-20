@@ -13,7 +13,6 @@ class Ingredient extends Model
         'description',
         'image',
         'user_id',
-        'default_unit_id',
     ];
 
     use SoftDeletes;
@@ -38,7 +37,7 @@ class Ingredient extends Model
      */
     public function attributes()
     {
-        return $this->belongsToMany('App\Models\Attribute');
+        return $this->hasMany('App\Models\Attribute');
     }
 
     /**

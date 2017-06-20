@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class AttributeTypesSeeder extends Seeder
+class AttributeTypesTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,17 +11,17 @@ class AttributeTypesSeeder extends Seeder
      */
     public function run()
     {
-        AttributeTypes::truncate();
+        AttributeType::truncate();
 
         $attribute_types = [
-            'Energy' => 'kJ',
-            'Protein' => 'g',
-            'Total fat' => 'g',
-            'Saturated fat' => 'g',
-            'Carbohydrate' => 'g',
-            'Sugars' => 'g',
-            'Fibre' => 'g',
-            'Sodium' => 'mg',
+            'energy' => 'kJ',
+            'protein' => 'g',
+            'total fat' => 'g',
+            'saturated fat' => 'g',
+            'carbohydrate' => 'g',
+            'sugar' => 'g',
+            'fibre' => 'g',
+            'sodium' => 'mg',
         ];
 
         foreach($attribute_types as $name => $unit) {

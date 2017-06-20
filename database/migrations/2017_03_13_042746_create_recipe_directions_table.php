@@ -17,6 +17,8 @@ class CreateRecipeDirectionsTable extends Migration
             $table->increments('id');
             $table->integer('recipe_id')->unsigned();
             $table->text('description');
+            // When I delete a direction I don't want to delete the recipe.
+//            $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
         });
     }
 
