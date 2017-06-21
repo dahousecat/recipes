@@ -132,7 +132,7 @@ class IngredientsTableSeeder extends Seeder
                 foreach($data['attributes'] as $attribute) {
 
                     $unit = Unit::loadByName($attribute['unit']);
-                    $attribute_type = AttributeType::loadByName($attribute['unit']);
+                    $attribute_type = AttributeType::loadByName($attribute['attribute_type']);
 
                     Attribute::create([
                         'unit_id' => $unit->id,
