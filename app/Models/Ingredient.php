@@ -37,7 +37,8 @@ class Ingredient extends Model
      */
     public function attributes()
     {
-        return $this->hasMany('App\Models\Attribute');
+        $attributes = $this->hasMany('App\Models\Attribute');
+        return $attributes;
     }
 
     /**

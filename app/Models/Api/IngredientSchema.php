@@ -17,12 +17,13 @@ class IngredientSchema extends SchemaProvider
     public function getAttributes($ingredient)
     {
         /** @var Ingredient $ingredient */
-        return [
+        $attrs = [
             'name' => $ingredient->name,
             'description' => $ingredient->description,
             'image' => $ingredient->image,
             'default_unit_id' => $ingredient->default_unit_id,
         ];
+        return $attrs;
     }
 
     public function getRelationships($ingredient, $isPrimary, array $includeList)
@@ -31,6 +32,9 @@ class IngredientSchema extends SchemaProvider
         return [
             'units' => [
                 self::DATA => $ingredient->units,
+            ],
+            'attributes' => [
+                self::DATA => $ingredient->attributes,
             ],
         ];
     }

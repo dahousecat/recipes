@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttributeType;
 use App\Models\Recipe;
 use App\Models\Api\RecipeSchema;
 use App\Models\User;
@@ -10,6 +11,8 @@ use App\Models\Ingredient;
 use App\Models\Api\IngredientSchema;
 use App\Models\Unit;
 use App\Models\Api\UnitSchema;
+use App\Models\Attribute;
+use App\Models\Api\AttributeSchema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Neomerx\JsonApi\Encoder\Encoder;
@@ -23,6 +26,7 @@ class JsonApiController extends Controller
         User::class => UserSchema::class,
         Ingredient::class => IngredientSchema::class,
         Unit::class => UnitSchema::class,
+        Attribute::class => AttributeSchema::class,
     ];
 
     protected $encoderOptions;

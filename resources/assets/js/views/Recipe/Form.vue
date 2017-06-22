@@ -91,6 +91,22 @@
 				<div class="recipe__box">
 					<h3 class="recipe__sub_title">Nutrition</h3>
 
+					<div class="form__group">
+						<label>Amount per</label>
+						<select v-model="amountPer" v-on:change="recalculateEnergy()" class="form__control row__unit">
+							<option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
+						</select>
+					</div>
+
+					<div class="form__group nutrition-row">
+						<select v-model="energyUnit" v-on:change="recalculateEnergy()" class="form__control row__unit">
+							<option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
+						</select>
+
+						<div class="nutritional-value">{{ nutritions.energy.displayValue }}</div>
+
+					</div>
+
 				</div>
 			</div>
 
@@ -131,7 +147,24 @@
 					directions: []
 				},
 				ingredients: [],
+				nutritions: {
+					energy: {
+						displayValue: '0',
+					},
+				},
 				units: [],
+				amountPer: '100',
+				amountPerOptions: [
+					{'value': 1, 'name': '1 gram'},
+					{'value': 10, 'name': '10 grams'},
+					{'value': 100, 'name': '100 grams'},
+					{'value': 1000, 'name': '1 kg'},
+				],
+				energyUnit: 'calorie',
+				energyUnitOptions: [
+					{'value': 'calorie', 'name': 'Calories'},
+					{'value': 'Kj', 'name': 'Kilojoule'},
+				],
 				error: {},
 				isProcessing: false,
 				initializeURL: `/api/recipes/create`,
@@ -180,24 +213,36 @@
 			dragStart(evt){
 				this.isDragging = true;
 				var ingredient = this.ingredients[evt.oldIndex];
+
+				// Set ingredient for the row
 				if(typeof ingredient.ingredient == 'undefined') {
 					ingredient.ingredient = ingredient.attributes.name;
 				}
+
+				// Set default quantity for the row
 				if(typeof ingredient.quantity == 'undefined') {
 					ingredient.quantity = 1;
 				}
+
+				// Set default type of unit
 				if(typeof ingredient.unit == 'undefined') {
 					ingredient.unit = ingredient.attributes.default_unit_id;
 				}
-				// Set the ingredients unit array
-				this.setUnitsArray(ingredient);
 
-				console.log(ingredient, 'ingredient');
+				// Set the ingredients unit array
+				if(typeof ingredient.units == 'undefined') {
+					this.setUnitsArray(ingredient);
+				}
+
 			},
 			dragEnd(evt){
+
 				this.isDragging = false;
-//				var row = this.form.rows[evt.newIndex];
-//				console.log(row);
+				var row = this.form.rows[evt.newIndex];
+
+				// Set attributes array (ingredient attributes, not json api attributes)
+				this.setAttributesArray(row, this.updateNutrition);
+
 			},
 			setUnitsArray(ingredient) {
 				ingredient.units = [];
@@ -209,13 +254,85 @@
 					});
 				}
 			},
-			getUnitName(id) {
-				for (var i = 0; i < this.units.length; i++) {
-					if(this.units[i].id == id) {
-						var name = this.units[i].attributes.name;
-						return name == 'quantity' ? 'whole' : name;
+			setAttributesArray(ingredient, callback) {
+
+				if(typeof ingredient.ingredientAttributes == 'undefined') {
+					// Load the attributes for this ingredient
+					get('/api/ingredient/' + ingredient.id + '/attributes')
+							.then((res) => {
+								var attributes = res.data.data;
+								// Attach the name of the unit from the units array
+								for (var i = 0; i < attributes.length; i++) {
+									var unit = this.getUnit(attributes[i].relationships.unit.data.id);
+									attributes[i].attributes.unit = unit.attributes.name;
+								}
+								ingredient.ingredientAttributes = attributes;
+
+								if(typeof callback == 'function') {
+									callback();
+								}
+							})
+				} else {
+					if(typeof callback == 'function') {
+						callback();
 					}
 				}
+
+			},
+			getUnit(id) {
+				for (var i = 0; i < this.units.length; i++) {
+					if(this.units[i].id == id) {
+						return this.units[i];
+					}
+				}
+			},
+			getUnitName(id) {
+				var unit = this.getUnit(id);
+				var name = unit.attributes.name;
+				return name == 'quantity' ? 'whole' : name;
+			},
+			updateNutrition() {
+				// Yes, nutritions is not a word but I can't handle using the word attribute any more!
+				var nutritions = {};
+
+				for (var i = 0; i < this.form.rows.length; i++) {
+					var row = this.form.rows[i];
+
+					for (var x = 0; x < row.ingredientAttributes.length; x++) {
+						var attribute = row.ingredientAttributes[x];
+						var nutritionType = attribute.attributes.attributeType.name;
+						var nutritionUnit = attribute.attributes.attributeType.unit;
+						var value = attribute.attributes.value;
+						var unit_value = attribute.attributes.unit;
+
+						if(typeof nutritions[nutritionType] == 'undefined') {
+							nutritions[nutritionType] = {
+								nutritionUnit: nutritionUnit,
+								value: value,
+								unit_value: unit_value,
+							};
+						} else {
+							nutritions[nutritionType].value += value;
+						}
+					}
+				}
+
+				this.nutritions = nutritions;
+
+				this.recalculateEnergy();
+
+			},
+			recalculateEnergy() {
+				if(typeof this.nutritions.energy != 'undefined') {
+					var energy = parseFloat(this.nutritions.energy.value);
+					var amountPer = parseFloat(this.amountPer);
+					var conversionFactor = this.energyUnit == 'calorie' ? 0.239006 : 1;
+					this.nutritions.energy.displayValue = this.formatNumber(energy * amountPer * conversionFactor);
+				}
+			},
+			formatNumber(number) {
+				var dp = number < 1 ? 1 : 0;
+				return number.toFixed(dp);
 			},
 			save() {
 				const form = toMulipartedForm(this.form, this.$route.meta.mode)

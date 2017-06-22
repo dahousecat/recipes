@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ingredient;
 use Illuminate\Http\Request;
 Use Neomerx\JsonApi\Encoder\Encoder;
+use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 
 class IngredientController extends JsonApiController
 {
@@ -20,13 +21,9 @@ class IngredientController extends JsonApiController
         // Encode the model data for json:api consumption
         $encoder = Encoder::instance($this->modelSchemaMappings, $this->encoderOptions);
         $encodedData = $encoder->encodeData($ingredients);
+
         return response($encodedData)
             ->header('Content-Type', 'application/json');
-
-//        return response()
-//            ->json([
-//                'ingredients' => $ingredients
-//            ]);
     }
 
     public function search($text)
@@ -37,6 +34,18 @@ class IngredientController extends JsonApiController
             ->json([
                 'ingredients' => $ingredients
             ]);
+    }
+
+    public function attributes($id) {
+        $ingredient = Ingredient::find($id);
+
+        $encoder = Encoder::instance($this->modelSchemaMappings, $this->encoderOptions);
+        $encodedData = $encoder->encodeData($ingredient->attributes);
+
+        return response($encodedData)
+            ->header('Content-Type', 'application/json');
+
+        ddd($ingredient);
     }
 
     /**

@@ -6,8 +6,6 @@ use App\Models\Unit;
 use Illuminate\Http\Request;
 Use Neomerx\JsonApi\Encoder\Encoder;
 
-use App\Models\AttributeType;
-
 class UnitController extends JsonApiController
 {
     /**
@@ -17,9 +15,6 @@ class UnitController extends JsonApiController
      */
     public function index()
     {
-        $attribute_type = AttributeType::loadByName('gram');
-        ddd($attribute_type);
-
         $units = Unit::all();
 
         // Encode the model data for json:api consumption

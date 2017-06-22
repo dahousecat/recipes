@@ -38,6 +38,10 @@ class Attribute extends Model
         return $this->belongsTo('App\Models\AttributeType');
     }
 
+    public function loadByIngredient($ingredient_id) {
+        return DB::table('attributes')->where('ingredient_id', '=', $ingredient_id)->get();
+    }
+
     public static function form()
     {
         return [

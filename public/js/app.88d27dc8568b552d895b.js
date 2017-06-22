@@ -12127,6 +12127,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -12149,7 +12165,16 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 				directions: []
 			},
 			ingredients: [],
+			nutritions: {
+				energy: {
+					displayValue: '0'
+				}
+			},
 			units: [],
+			amountPer: '100',
+			amountPerOptions: [{ 'value': 1, 'name': '1 gram' }, { 'value': 10, 'name': '10 grams' }, { 'value': 100, 'name': '100 grams' }, { 'value': 1000, 'name': '1 kg' }],
+			energyUnit: 'calorie',
+			energyUnitOptions: [{ 'value': 'calorie', 'name': 'Calories' }, { 'value': 'Kj', 'name': 'Kilojoule' }],
 			error: {},
 			isProcessing: false,
 			initializeURL: '/api/recipes/create',
@@ -12200,24 +12225,34 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 		dragStart: function dragStart(evt) {
 			this.isDragging = true;
 			var ingredient = this.ingredients[evt.oldIndex];
+
+			// Set ingredient for the row
 			if (typeof ingredient.ingredient == 'undefined') {
 				ingredient.ingredient = ingredient.attributes.name;
 			}
+
+			// Set default quantity for the row
 			if (typeof ingredient.quantity == 'undefined') {
 				ingredient.quantity = 1;
 			}
+
+			// Set default type of unit
 			if (typeof ingredient.unit == 'undefined') {
 				ingredient.unit = ingredient.attributes.default_unit_id;
 			}
-			// Set the ingredients unit array
-			this.setUnitsArray(ingredient);
 
-			console.log(ingredient, 'ingredient');
+			// Set the ingredients unit array
+			if (typeof ingredient.units == 'undefined') {
+				this.setUnitsArray(ingredient);
+			}
 		},
 		dragEnd: function dragEnd(evt) {
+
 			this.isDragging = false;
-			//				var row = this.form.rows[evt.newIndex];
-			//				console.log(row);
+			var row = this.form.rows[evt.newIndex];
+
+			// Set attributes array (ingredient attributes, not json api attributes)
+			this.setAttributesArray(row, this.updateNutrition);
 		},
 		setUnitsArray: function setUnitsArray(ingredient) {
 			ingredient.units = [];
@@ -12229,29 +12264,99 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 				});
 			}
 		},
-		getUnitName: function getUnitName(id) {
-			for (var i = 0; i < this.units.length; i++) {
-				if (this.units[i].id == id) {
-					var name = this.units[i].attributes.name;
-					return name == 'quantity' ? 'whole' : name;
+		setAttributesArray: function setAttributesArray(ingredient, callback) {
+			var _this3 = this;
+
+			if (typeof ingredient.ingredientAttributes == 'undefined') {
+				// Load the attributes for this ingredient
+				__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/ingredient/' + ingredient.id + '/attributes').then(function (res) {
+					var attributes = res.data.data;
+					// Attach the name of the unit from the units array
+					for (var i = 0; i < attributes.length; i++) {
+						var unit = _this3.getUnit(attributes[i].relationships.unit.data.id);
+						attributes[i].attributes.unit = unit.attributes.name;
+					}
+					ingredient.ingredientAttributes = attributes;
+
+					if (typeof callback == 'function') {
+						callback();
+					}
+				});
+			} else {
+				if (typeof callback == 'function') {
+					callback();
 				}
 			}
 		},
+		getUnit: function getUnit(id) {
+			for (var i = 0; i < this.units.length; i++) {
+				if (this.units[i].id == id) {
+					return this.units[i];
+				}
+			}
+		},
+		getUnitName: function getUnitName(id) {
+			var unit = this.getUnit(id);
+			var name = unit.attributes.name;
+			return name == 'quantity' ? 'whole' : name;
+		},
+		updateNutrition: function updateNutrition() {
+			// Yes, nutritions is not a word but I can't handle using the word attribute any more!
+			var nutritions = {};
+
+			for (var i = 0; i < this.form.rows.length; i++) {
+				var row = this.form.rows[i];
+
+				for (var x = 0; x < row.ingredientAttributes.length; x++) {
+					var attribute = row.ingredientAttributes[x];
+					var nutritionType = attribute.attributes.attributeType.name;
+					var nutritionUnit = attribute.attributes.attributeType.unit;
+					var value = attribute.attributes.value;
+					var unit_value = attribute.attributes.unit;
+
+					if (typeof nutritions[nutritionType] == 'undefined') {
+						nutritions[nutritionType] = {
+							nutritionUnit: nutritionUnit,
+							value: value,
+							unit_value: unit_value
+						};
+					} else {
+						nutritions[nutritionType].value += value;
+					}
+				}
+			}
+
+			this.nutritions = nutritions;
+
+			this.recalculateEnergy();
+		},
+		recalculateEnergy: function recalculateEnergy() {
+			if (typeof this.nutritions.energy != 'undefined') {
+				var energy = parseFloat(this.nutritions.energy.value);
+				var amountPer = parseFloat(this.amountPer);
+				var conversionFactor = this.energyUnit == 'calorie' ? 0.239006 : 1;
+				this.nutritions.energy.displayValue = this.formatNumber(energy * amountPer * conversionFactor);
+			}
+		},
+		formatNumber: function formatNumber(number) {
+			var dp = number < 1 ? 1 : 0;
+			return number.toFixed(dp);
+		},
 		save: function save() {
-			var _this3 = this;
+			var _this4 = this;
 
 			var form = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__helpers_form__["a" /* toMulipartedForm */])(this.form, this.$route.meta.mode);
 			__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["a" /* post */])(this.storeURL, form).then(function (res) {
 				if (res.data.saved) {
 					__WEBPACK_IMPORTED_MODULE_1__helpers_flash__["a" /* default */].setSuccess(res.data.message);
-					_this3.$router.push('/recipes/' + res.data.id);
+					_this4.$router.push('/recipes/' + res.data.id);
 				}
-				_this3.isProcessing = false;
+				_this4.isProcessing = false;
 			}).catch(function (err) {
 				if (err.response.status === 422) {
-					_this3.error = err.response.data;
+					_this4.error = err.response.data;
 				}
-				_this3.isProcessing = false;
+				_this4.isProcessing = false;
 			});
 		},
 		addDirection: function addDirection() {
@@ -14867,7 +14972,73 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }, [_vm._v(_vm._s(ingredient.attributes.name))])
   }))], 1)])]), _vm._v(" "), _c('div', {
     staticClass: "recipe__row"
-  }, [_vm._m(0), _vm._v(" "), _c('div', {
+  }, [_c('div', {
+    staticClass: "recipe__nutrition"
+  }, [_c('div', {
+    staticClass: "recipe__box"
+  }, [_c('h3', {
+    staticClass: "recipe__sub_title"
+  }, [_vm._v("Nutrition")]), _vm._v(" "), _c('div', {
+    staticClass: "form__group"
+  }, [_c('label', [_vm._v("Amount per")]), _vm._v(" "), _c('select', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.amountPer),
+      expression: "amountPer"
+    }],
+    staticClass: "form__control row__unit",
+    on: {
+      "change": [function($event) {
+        var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
+          return o.selected
+        }).map(function(o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val
+        });
+        _vm.amountPer = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+      }, function($event) {
+        _vm.recalculateEnergy()
+      }]
+    }
+  }, _vm._l((_vm.amountPerOptions), function(option, index) {
+    return _c('option', {
+      domProps: {
+        "value": option.value
+      }
+    }, [_vm._v(_vm._s(option.name))])
+  }))]), _vm._v(" "), _c('div', {
+    staticClass: "form__group nutrition-row"
+  }, [_c('select', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.energyUnit),
+      expression: "energyUnit"
+    }],
+    staticClass: "form__control row__unit",
+    on: {
+      "change": [function($event) {
+        var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
+          return o.selected
+        }).map(function(o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val
+        });
+        _vm.energyUnit = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+      }, function($event) {
+        _vm.recalculateEnergy()
+      }]
+    }
+  }, _vm._l((_vm.energyUnitOptions), function(option, index) {
+    return _c('option', {
+      domProps: {
+        "value": option.value
+      }
+    }, [_vm._v(_vm._s(option.name))])
+  })), _vm._v(" "), _c('div', {
+    staticClass: "nutritional-value"
+  }, [_vm._v(_vm._s(_vm.nutritions.energy.displayValue))])])])]), _vm._v(" "), _c('div', {
     staticClass: "recipe__directions"
   }, [_c('div', {
     staticClass: "recipe__directions_inner"
@@ -14908,15 +15079,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "click": _vm.addDirection
     }
   }, [_vm._v("Add Direction")])], 2)])])])
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "recipe__nutrition"
-  }, [_c('div', {
-    staticClass: "recipe__box"
-  }, [_c('h3', {
-    staticClass: "recipe__sub_title"
-  }, [_vm._v("Nutrition")])])])
-}]}
+},staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()

@@ -284,6 +284,10 @@ img {
     }
 }
 
+.nutrition-row {
+    display: Flex;
+}
+
 .drop-zone {
     border: 0.3rem dashed #002b36;
     animation-name: pulse;

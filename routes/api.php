@@ -13,5 +13,6 @@ Route::resource('units', 'UnitController');
 //})->where('name', '[A-Za-z]+');
 
 Route::get('ingredients/search/{str}', 'IngredientController@search');
+Route::get('ingredient/{id}/attributes', 'IngredientController@attributes');
 
 //Route::get('/search',['uses' => 'SearchController@getSearch','as' => 'search']);
