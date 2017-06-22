@@ -23,6 +23,7 @@ class IngredientsTableSeeder extends Seeder
         $ingredients = [
             [
                 'name' => 'Melon',
+                'weight' => 2000,
                 'unit_types' => ['quantity', 'weight'],
                 'default_unit' => 'quantity',
                 'attributes' => [
@@ -45,6 +46,7 @@ class IngredientsTableSeeder extends Seeder
             ],
             [
                 'name' => 'Carrot',
+                'weight' => 60,
                 'unit_types' => ['quantity', 'weight'],
                 'default_unit' => 'quantity',
                 'attributes' => [
@@ -66,29 +68,49 @@ class IngredientsTableSeeder extends Seeder
                 ],
             ],
             [
+                'name' => 'Coconut Water',
+                'unit_types' => ['volume'],
+                'default_unit' => 'litre',
+                'attributes' => [
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'energy',
+                        'value' => 0.79496,
+                    ],
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'sugar',
+                        'value' => 0.05,
+                    ],
+                    [
+                        'unit' => 'gram',
+                        'attribute_type' => 'protein',
+                        'value' => 0.007,
+                    ],
+                ],
+            ],
+            [
                 'name' => 'Potato',
                 'unit_types' => ['quantity', 'weight'],
                 'default_unit' => 'quantity',
+                'weight' => 150,
             ],
             [
                 'name' => 'Orange',
                 'unit_types' => ['quantity', 'weight'],
                 'default_unit' => 'quantity',
+                'weight' => 200,
             ],
             [
                 'name' => 'Banana',
                 'unit_types' => ['quantity', 'weight'],
                 'default_unit' => 'quantity',
+                'weight' => 120,
             ],
             [
                 'name' => 'Milk',
                 'unit_types' => ['volume'],
                 'default_unit' => 'pint',
-            ],
-            [
-                'name' => 'Coconut Water',
-                'unit_types' => ['volume'],
-                'default_unit' => 'litre',
             ],
             [
                 'name' => 'Peach',
@@ -114,6 +136,7 @@ class IngredientsTableSeeder extends Seeder
             $ingredient = Ingredient::create([
                 'user_id' => $i,
                 'name' => $data['name'],
+                'weight' => isset($data['weight']) ? $data['weight'] : NULL,
                 'description' => $faker->paragraph(mt_rand(10, 20)),
                 'image' => 'test.png',
                 'default_unit_id' => empty($default_unit) ? NULL : $default_unit->id,

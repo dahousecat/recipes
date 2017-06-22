@@ -263,6 +263,7 @@ img {
         color: white;
         border-radius: 0.2rem;
         margin: 0.3rem 0.3rem 0 0;
+        cursor: -webkit-grab;
     }
     &__rows {
         min-height: 10rem;
@@ -285,7 +286,24 @@ img {
 }
 
 .nutrition-row {
+    border-bottom: 2px solid black;
+    padding-bottom: 0.4rem;
     display: Flex;
+    line-height: 2.2;
+
+    &__unit {
+        white-space: nowrap;
+        flex-grow: 0;
+        flex-shrink: 0;
+    }
+    &__value {
+        text-align: right;
+        width: 100%;
+    }
+    select {
+        max-width: 10rem;
+        display: inline-block;
+    }
 }
 
 .drop-zone {

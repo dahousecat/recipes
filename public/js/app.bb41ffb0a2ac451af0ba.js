@@ -12143,6 +12143,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -14979,15 +14986,19 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('h3', {
     staticClass: "recipe__sub_title"
   }, [_vm._v("Nutrition")]), _vm._v(" "), _c('div', {
-    staticClass: "form__group"
-  }, [_c('label', [_vm._v("Amount per")]), _vm._v(" "), _c('select', {
+    staticClass: "form__group nutrition-row"
+  }, [_c('div', {
+    staticClass: "nutrition-row__unit"
+  }, [_vm._v("\n\t\t\t\t\t\tAmount per\n\t\t\t\t\t")]), _vm._v(" "), _c('div', {
+    staticClass: "nutrition-row__value"
+  }, [_c('select', {
     directives: [{
       name: "model",
       rawName: "v-model",
       value: (_vm.amountPer),
       expression: "amountPer"
     }],
-    staticClass: "form__control row__unit",
+    staticClass: "form__control",
     on: {
       "change": [function($event) {
         var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
@@ -15007,8 +15018,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         "value": option.value
       }
     }, [_vm._v(_vm._s(option.name))])
-  }))]), _vm._v(" "), _c('div', {
+  }))])]), _vm._v(" "), _c('div', {
     staticClass: "form__group nutrition-row"
+  }, [_c('div', {
+    staticClass: "nutrition-row__unit"
   }, [_c('select', {
     directives: [{
       name: "model",
@@ -15016,7 +15029,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       value: (_vm.energyUnit),
       expression: "energyUnit"
     }],
-    staticClass: "form__control row__unit",
+    staticClass: "form__control",
     on: {
       "change": [function($event) {
         var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
@@ -15036,9 +15049,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         "value": option.value
       }
     }, [_vm._v(_vm._s(option.name))])
-  })), _vm._v(" "), _c('div', {
-    staticClass: "nutritional-value"
-  }, [_vm._v(_vm._s(_vm.nutritions.energy.displayValue))])])])]), _vm._v(" "), _c('div', {
+  }))]), _vm._v(" "), _c('div', {
+    staticClass: "nutrition-row__value"
+  }, [_vm._v("\n\t\t\t\t\t\t" + _vm._s(_vm.nutritions.energy.displayValue) + "\n\t\t\t\t\t")])])])]), _vm._v(" "), _c('div', {
     staticClass: "recipe__directions"
   }, [_c('div', {
     staticClass: "recipe__directions_inner"

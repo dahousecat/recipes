@@ -91,20 +91,27 @@
 				<div class="recipe__box">
 					<h3 class="recipe__sub_title">Nutrition</h3>
 
-					<div class="form__group">
-						<label>Amount per</label>
-						<select v-model="amountPer" v-on:change="recalculateEnergy()" class="form__control row__unit">
-							<option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
-						</select>
+					<div class="form__group nutrition-row">
+						<div class="nutrition-row__unit">
+							Amount per
+						</div>
+						<div class="nutrition-row__value">
+							<select v-model="amountPer" v-on:change="recalculateEnergy()" class="form__control">
+								<option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
+							</select>
+						</div>
 					</div>
 
+
 					<div class="form__group nutrition-row">
-						<select v-model="energyUnit" v-on:change="recalculateEnergy()" class="form__control row__unit">
-							<option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
-						</select>
-
-						<div class="nutritional-value">{{ nutritions.energy.displayValue }}</div>
-
+						<div class="nutrition-row__unit">
+							<select v-model="energyUnit" v-on:change="recalculateEnergy()" class="form__control">
+								<option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
+							</select>
+						</div>
+						<div class="nutrition-row__value">
+							{{ nutritions.energy.displayValue }}
+						</div>
 					</div>
 
 				</div>
@@ -153,8 +160,9 @@
 					},
 				},
 				units: [],
-				amountPer: '100',
+				amountPer: 'recipe',
 				amountPerOptions: [
+					{'value': 'recipe', 'name': 'Recipe'},
 					{'value': 1, 'name': '1 gram'},
 					{'value': 10, 'name': '10 grams'},
 					{'value': 100, 'name': '100 grams'},
@@ -298,6 +306,8 @@
 				for (var i = 0; i < this.form.rows.length; i++) {
 					var row = this.form.rows[i];
 
+
+
 					for (var x = 0; x < row.ingredientAttributes.length; x++) {
 						var attribute = row.ingredientAttributes[x];
 						var nutritionType = attribute.attributes.attributeType.name;
@@ -325,7 +335,7 @@
 			recalculateEnergy() {
 				if(typeof this.nutritions.energy != 'undefined') {
 					var energy = parseFloat(this.nutritions.energy.value);
-					var amountPer = parseFloat(this.amountPer);
+//					var amountPer = parseFloat(this.amountPer);
 					var conversionFactor = this.energyUnit == 'calorie' ? 0.239006 : 1;
 					this.nutritions.energy.displayValue = this.formatNumber(energy * amountPer * conversionFactor);
 				}

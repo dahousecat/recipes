@@ -12,6 +12,7 @@ class Ingredient extends Model
         'name',
         'description',
         'image',
+        'weight',
         'user_id',
     ];
 
@@ -69,6 +70,7 @@ class Ingredient extends Model
             'name' => '',
             'image' => '',
             'description' => '',
+            'weight' => '',
             'units' => [
                 Unit::form()
             ],

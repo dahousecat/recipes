@@ -21,6 +21,7 @@ class IngredientSchema extends SchemaProvider
             'name' => $ingredient->name,
             'description' => $ingredient->description,
             'image' => $ingredient->image,
+            'weight' => $ingredient->weight,
             'default_unit_id' => $ingredient->default_unit_id,
         ];
         return $attrs;
