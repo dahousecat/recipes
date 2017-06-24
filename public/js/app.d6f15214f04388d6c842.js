@@ -12150,6 +12150,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -12178,10 +12179,14 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 				}
 			},
 			units: [],
-			amountPer: '100',
-			amountPerOptions: [{ 'value': 1, 'name': '1 gram' }, { 'value': 10, 'name': '10 grams' }, { 'value': 100, 'name': '100 grams' }, { 'value': 1000, 'name': '1 kg' }],
+			amountPer: 'recipe',
+			amountPerOptions: [{ 'value': 'recipe', 'name': 'Recipe' }, { 'value': 1, 'name': '1 gram' }, { 'value': 10, 'name': '10 grams' }, { 'value': 100, 'name': '100 grams' }, { 'value': 1000, 'name': '1 kg' }],
 			energyUnit: 'calorie',
 			energyUnitOptions: [{ 'value': 'calorie', 'name': 'Calories' }, { 'value': 'Kj', 'name': 'Kilojoule' }],
+			conversions: {
+				caloriesInKj: 0.239006
+			},
+			totalWeight: 0,
 			error: {},
 			isProcessing: false,
 			initializeURL: '/api/recipes/create',
@@ -12234,22 +12239,22 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			var ingredient = this.ingredients[evt.oldIndex];
 
 			// Set ingredient for the row
-			if (typeof ingredient.ingredient == 'undefined') {
+			if (typeof ingredient.ingredient === 'undefined') {
 				ingredient.ingredient = ingredient.attributes.name;
 			}
 
-			// Set default quantity for the row
-			if (typeof ingredient.quantity == 'undefined') {
-				ingredient.quantity = 1;
+			// Set default amount for the row
+			if (typeof ingredient.amount === 'undefined') {
+				ingredient.amount = 1;
 			}
 
 			// Set default type of unit
-			if (typeof ingredient.unit == 'undefined') {
+			if (typeof ingredient.unit === 'undefined') {
 				ingredient.unit = ingredient.attributes.default_unit_id;
 			}
 
 			// Set the ingredients unit array
-			if (typeof ingredient.units == 'undefined') {
+			if (typeof ingredient.units === 'undefined') {
 				this.setUnitsArray(ingredient);
 			}
 		},
@@ -12274,7 +12279,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 		setAttributesArray: function setAttributesArray(ingredient, callback) {
 			var _this3 = this;
 
-			if (typeof ingredient.ingredientAttributes == 'undefined') {
+			if (typeof ingredient.ingredientAttributes === 'undefined') {
 				// Load the attributes for this ingredient
 				__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/ingredient/' + ingredient.id + '/attributes').then(function (res) {
 					var attributes = res.data.data;
@@ -12285,19 +12290,20 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 					}
 					ingredient.ingredientAttributes = attributes;
 
-					if (typeof callback == 'function') {
+					if (typeof callback === 'function') {
 						callback();
 					}
 				});
 			} else {
-				if (typeof callback == 'function') {
+				if (typeof callback === 'function') {
 					callback();
 				}
 			}
 		},
 		getUnit: function getUnit(id) {
+			id = parseInt(id);
 			for (var i = 0; i < this.units.length; i++) {
-				if (this.units[i].id == id) {
+				if (parseInt(this.units[i].id) === id) {
 					return this.units[i];
 				}
 			}
@@ -12305,44 +12311,106 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 		getUnitName: function getUnitName(id) {
 			var unit = this.getUnit(id);
 			var name = unit.attributes.name;
-			return name == 'quantity' ? 'whole' : name;
+			return name === 'quantity' ? 'whole' : name;
 		},
 		updateNutrition: function updateNutrition() {
 			// Yes, nutritions is not a word but I can't handle using the word attribute any more!
 			var nutritions = {};
+			var totalWeight = 0;
 
 			for (var i = 0; i < this.form.rows.length; i++) {
+
 				var row = this.form.rows[i];
+				this.setRowWeight(row);
+				totalWeight += parseInt(row.weight);
 
 				for (var x = 0; x < row.ingredientAttributes.length; x++) {
-					var attribute = row.ingredientAttributes[x];
-					var nutritionType = attribute.attributes.attributeType.name;
-					var nutritionUnit = attribute.attributes.attributeType.unit;
-					var value = attribute.attributes.value;
-					var unit_value = attribute.attributes.unit;
+					var attributes = row.ingredientAttributes[x].attributes;
+					var nutritionType = attributes.attributeType.name;
+					var nutritionUnit = attributes.attributeType.unit;
+					var value = attributes.value;
+					var unit_value = attributes.unit;
 
-					if (typeof nutritions[nutritionType] == 'undefined') {
+					if (typeof nutritions[nutritionType] === 'undefined') {
 						nutritions[nutritionType] = {
 							nutritionUnit: nutritionUnit,
-							value: value,
+							value: value * row.weight,
 							unit_value: unit_value
 						};
 					} else {
-						nutritions[nutritionType].value += value;
+						nutritions[nutritionType].value += value * row.weight;
 					}
 				}
 			}
 
+			// Now we have the total of each nutrition for the recipe.
 			this.nutritions = nutritions;
 
-			this.recalculateEnergy();
+			// Divide by serving size
+			for (var _nutritionType in this.nutritions) {
+				if (this.nutritions.hasOwnProperty(_nutritionType)) {
+					var nutrition = this.nutritions[_nutritionType];
+
+					var portionDivisor = this.amountPer === 'recipe' ? 1 : parseInt(this.amountPer) / totalWeight;
+
+					nutrition.displayValue = nutrition.value * portionDivisor;
+
+					if (_nutritionType === 'energy') {
+						// Convert to display unit
+						var conversionFactor = this.energyUnit === 'calorie' ? this.conversions.caloriesInKj : 1;
+						nutrition.displayValue = nutrition.displayValue * conversionFactor;
+					}
+
+					nutrition.exactValue = nutrition.displayValue;
+					nutrition.displayValue = this.formatNumber(nutrition.displayValue);
+				}
+			}
 		},
 		recalculateEnergy: function recalculateEnergy() {
-			if (typeof this.nutritions.energy != 'undefined') {
-				var energy = parseFloat(this.nutritions.energy.value);
-				var amountPer = parseFloat(this.amountPer);
-				var conversionFactor = this.energyUnit == 'calorie' ? 0.239006 : 1;
-				this.nutritions.energy.displayValue = this.formatNumber(energy * amountPer * conversionFactor);
+			var energy = this.nutritions.energy.exactValue;
+			if (this.energyUnit === 'calorie') {
+				// convert from Kj to calorie
+				energy = energy * this.conversions.caloriesInKj;
+			} else {
+				// convert from calorie to Kj
+				energy = energy / this.conversions.caloriesInKj;
+			}
+			this.nutritions.energy.exactValue = energy;
+			this.nutritions.energy.displayValue = this.formatNumber(energy);
+		},
+		setRowWeight: function setRowWeight(row) {
+
+			var rowUnit = this.getUnit(row.unit);
+
+			console.log(rowUnit, 'rowUnit');
+
+			switch (rowUnit.attributes.unitType) {
+				case 'weight':
+					// Convert to grams
+					var grams = void 0;
+					if (rowUnit.attributes.name === 'grams') {
+						grams = row.amount;
+					} else {
+						grams = row.amount * rowUnit.attributes.gram;
+					}
+					row.weight = grams;
+					break;
+				case 'length':
+
+					break;
+				case 'volume':
+
+					break;
+				case 'quantity':
+					if (typeof row.attributes.weight !== 'undefined') {
+						// The attribute weight is the weight of one whole ingredient
+
+						row.weight = row.attributes.weight * row.amount;
+					} else {
+						console.log('ERROR: No weight for ' + row.ingredient);
+						row.weight = 0;
+					}
+					break;
 			}
 		},
 		formatNumber: function formatNumber(number) {
@@ -14883,8 +14951,8 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       directives: [{
         name: "model",
         rawName: "v-model",
-        value: (row.quantity),
-        expression: "row.quantity"
+        value: (row.amount),
+        expression: "row.amount"
       }],
       staticClass: "form__control row__amount",
       class: [_vm.error[("rows." + index + ".amount")] ? 'error__bg' : ''],
@@ -14892,12 +14960,15 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         "type": "text"
       },
       domProps: {
-        "value": (row.quantity)
+        "value": (row.amount)
       },
       on: {
+        "change": function($event) {
+          _vm.updateNutrition()
+        },
         "input": function($event) {
           if ($event.target.composing) { return; }
-          row.quantity = $event.target.value
+          row.amount = $event.target.value
         }
       }
     })]), _vm._v(" "), _c('div', {
@@ -14911,7 +14982,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }],
       staticClass: "form__control row__unit",
       on: {
-        "change": function($event) {
+        "change": [function($event) {
           var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
             return o.selected
           }).map(function(o) {
@@ -14919,7 +14990,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
             return val
           });
           row.unit = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-        }
+        }, function($event) {
+          _vm.updateNutrition()
+        }]
       }
     }, _vm._l((row.units), function(unit, index) {
       return _c('option', {
@@ -15009,7 +15082,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         });
         _vm.amountPer = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
       }, function($event) {
-        _vm.recalculateEnergy()
+        _vm.updateNutrition()
       }]
     }
   }, _vm._l((_vm.amountPerOptions), function(option, index) {

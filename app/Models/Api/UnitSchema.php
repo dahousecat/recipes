@@ -19,6 +19,10 @@ class UnitSchema extends SchemaProvider
         /** @var Unit $unit */
         return [
             'name' => $unit->name,
+            'unitType' => $unit->type,
+            'mm' => $unit->mm,
+            'gram' => $unit->gram,
+            'ml' => $unit->ml,
         ];
     }
 

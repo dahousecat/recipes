@@ -65,6 +65,7 @@ class UnitsTableSeeder extends Seeder
                 'type' => 'length',
                 'mm' => 25.4,
             ],
+
             'quantity' => [
                 'type' => 'quantity',
             ],

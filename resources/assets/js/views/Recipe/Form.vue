@@ -34,12 +34,11 @@
 				<div class="recipe__box">
 					<h3 class="recipe__sub_title">Ingredients</h3>
 
-					<draggable v-model="form.rows" v-bind:class="{ 'drop-zone': this.isDragging, 'recipe__rows--empty': !form.rows.length }"
+					<draggable v-model="form.rows"
+							   v-bind:class="{ 'drop-zone': this.isDragging, 'recipe__rows--empty': !form.rows.length }"
 							   :options='{group:"recipe", handle:".row__handle", filter: ".empty-message"}'
 							   @start="dragStart" @end="dragEnd"
 							   class="recipe__rows">
-
-						<!--<div v-if="!form.rows.length" class="empty-message">Drag some ingredients here to start your recipe.</div>-->
 
 						<div v-for="(row, index) in form.rows" class="recipe__form row">
 
@@ -49,11 +48,13 @@
 								{{row.ingredient}}
 							</div>
 							<div class="row__segment">
-								<input type="text" class="form__control row__amount" v-model="row.quantity"
+								<input type="text" class="form__control row__amount"
+									   v-model="row.amount"
+									   v-on:change="updateNutrition()"
 									   :class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">
 							</div>
 							<div class="row__segment">
-								<select v-model="row.unit" class="form__control row__unit">
+								<select v-model="row.unit" v-on:change="updateNutrition()" class="form__control row__unit">
 									<option v-for="(unit, index) in row.units" :value="unit.id">{{unit.name}}</option>
 								</select>
 							</div>
@@ -96,7 +97,7 @@
 							Amount per
 						</div>
 						<div class="nutrition-row__value">
-							<select v-model="amountPer" v-on:change="recalculateEnergy()" class="form__control">
+							<select v-model="amountPer" v-on:change="updateNutrition()" class="form__control">
 								<option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
 							</select>
 						</div>
@@ -173,6 +174,10 @@
 					{'value': 'calorie', 'name': 'Calories'},
 					{'value': 'Kj', 'name': 'Kilojoule'},
 				],
+				conversions: {
+				    caloriesInKj: 0.239006,
+				},
+				totalWeight: 0,
 				error: {},
 				isProcessing: false,
 				initializeURL: `/api/recipes/create`,
@@ -187,7 +192,7 @@
 		watch: {
 			// For ingredient filter
 			ingredient: function(str){
-				var url = str.length > 1 ? '/api/ingredients/search/' + str : '/api/ingredients';
+				let url = str.length > 1 ? '/api/ingredients/search/' + str : '/api/ingredients';
 				get(url)
 						.then((res) => {
 							Vue.set(this.$data, 'ingredients', res.data.ingredients);
@@ -198,47 +203,47 @@
 		// Run on initialization
 		created() {
 			if(this.$route.meta.mode === 'edit') {
-				this.initializeURL = `/api/recipes/${this.$route.params.id}/edit`
-				this.storeURL = `/api/recipes/${this.$route.params.id}?_method=PUT`
-				this.action = 'Update'
+				this.initializeURL = `/api/recipes/${this.$route.params.id}/edit`;
+				this.storeURL = `/api/recipes/${this.$route.params.id}?_method=PUT`;
+				this.action = 'Update';
 			}
 			get(this.initializeURL)
 				.then((res) => {
 					Vue.set(this.$data, 'form', res.data.form);
-				})
+				});
 
 			get(this.ingredientsURL)
 					.then((res) => {
 				Vue.set(this.$data, 'ingredients', res.data.data);
-			})
+			});
 
 			get(this.unitsURL)
 					.then((res) => {
 						Vue.set(this.$data, 'units', res.data.data);
-					})
+					});
 		},
 		methods: {
 			dragStart(evt){
 				this.isDragging = true;
-				var ingredient = this.ingredients[evt.oldIndex];
+				let ingredient = this.ingredients[evt.oldIndex];
 
 				// Set ingredient for the row
-				if(typeof ingredient.ingredient == 'undefined') {
+				if(typeof ingredient.ingredient === 'undefined') {
 					ingredient.ingredient = ingredient.attributes.name;
 				}
 
-				// Set default quantity for the row
-				if(typeof ingredient.quantity == 'undefined') {
-					ingredient.quantity = 1;
+				// Set default amount for the row
+				if(typeof ingredient.amount === 'undefined') {
+					ingredient.amount = 1;
 				}
 
 				// Set default type of unit
-				if(typeof ingredient.unit == 'undefined') {
+				if(typeof ingredient.unit === 'undefined') {
 					ingredient.unit = ingredient.attributes.default_unit_id;
 				}
 
 				// Set the ingredients unit array
-				if(typeof ingredient.units == 'undefined') {
+				if(typeof ingredient.units === 'undefined') {
 					this.setUnitsArray(ingredient);
 				}
 
@@ -246,7 +251,7 @@
 			dragEnd(evt){
 
 				this.isDragging = false;
-				var row = this.form.rows[evt.newIndex];
+				let row = this.form.rows[evt.newIndex];
 
 				// Set attributes array (ingredient attributes, not json api attributes)
 				this.setAttributesArray(row, this.updateNutrition);
@@ -254,8 +259,8 @@
 			},
 			setUnitsArray(ingredient) {
 				ingredient.units = [];
-				for (var i = 0; i < ingredient.relationships.units.data.length; i++) {
-					var id = ingredient.relationships.units.data[i].id;
+				for (let i = 0; i < ingredient.relationships.units.data.length; i++) {
+					let id = ingredient.relationships.units.data[i].id;
 					ingredient.units.push({
 						id: id,
 						name: this.getUnitName(id),
@@ -264,92 +269,155 @@
 			},
 			setAttributesArray(ingredient, callback) {
 
-				if(typeof ingredient.ingredientAttributes == 'undefined') {
+				if(typeof ingredient.ingredientAttributes === 'undefined') {
 					// Load the attributes for this ingredient
 					get('/api/ingredient/' + ingredient.id + '/attributes')
 							.then((res) => {
-								var attributes = res.data.data;
+								let attributes = res.data.data;
 								// Attach the name of the unit from the units array
-								for (var i = 0; i < attributes.length; i++) {
-									var unit = this.getUnit(attributes[i].relationships.unit.data.id);
+								for (let i = 0; i < attributes.length; i++) {
+									let unit = this.getUnit(attributes[i].relationships.unit.data.id);
 									attributes[i].attributes.unit = unit.attributes.name;
 								}
 								ingredient.ingredientAttributes = attributes;
 
-								if(typeof callback == 'function') {
+								if(typeof callback === 'function') {
 									callback();
 								}
 							})
 				} else {
-					if(typeof callback == 'function') {
+					if(typeof callback === 'function') {
 						callback();
 					}
 				}
 
 			},
 			getUnit(id) {
-				for (var i = 0; i < this.units.length; i++) {
-					if(this.units[i].id == id) {
+			    id = parseInt(id);
+				for (let i = 0; i < this.units.length; i++) {
+					if(parseInt(this.units[i].id) === id) {
 						return this.units[i];
 					}
 				}
 			},
 			getUnitName(id) {
-				var unit = this.getUnit(id);
-				var name = unit.attributes.name;
-				return name == 'quantity' ? 'whole' : name;
+				let unit = this.getUnit(id);
+				let name = unit.attributes.name;
+				return name === 'quantity' ? 'whole' : name;
 			},
 			updateNutrition() {
 				// Yes, nutritions is not a word but I can't handle using the word attribute any more!
-				var nutritions = {};
+				let nutritions = {};
+				let totalWeight = 0;
 
-				for (var i = 0; i < this.form.rows.length; i++) {
-					var row = this.form.rows[i];
+				for (let i = 0; i < this.form.rows.length; i++) {
 
+					let row = this.form.rows[i];
+					this.setRowWeight(row);
+					totalWeight += parseInt(row.weight);
 
+					for (let x = 0; x < row.ingredientAttributes.length; x++) {
+						let attributes = row.ingredientAttributes[x].attributes;
+						let nutritionType = attributes.attributeType.name;
+						let nutritionUnit = attributes.attributeType.unit;
+						let value = attributes.value;
+						let unit_value = attributes.unit;
 
-					for (var x = 0; x < row.ingredientAttributes.length; x++) {
-						var attribute = row.ingredientAttributes[x];
-						var nutritionType = attribute.attributes.attributeType.name;
-						var nutritionUnit = attribute.attributes.attributeType.unit;
-						var value = attribute.attributes.value;
-						var unit_value = attribute.attributes.unit;
-
-						if(typeof nutritions[nutritionType] == 'undefined') {
+						if(typeof nutritions[nutritionType] === 'undefined') {
 							nutritions[nutritionType] = {
 								nutritionUnit: nutritionUnit,
-								value: value,
+								value: value * row.weight,
 								unit_value: unit_value,
 							};
 						} else {
-							nutritions[nutritionType].value += value;
+							nutritions[nutritionType].value += (value  * row.weight);
 						}
 					}
 				}
 
+				// Now we have the total of each nutrition for the recipe.
 				this.nutritions = nutritions;
 
-				this.recalculateEnergy();
+				// Divide by serving size
+				for (let nutritionType in this.nutritions) {
+					if (this.nutritions.hasOwnProperty(nutritionType)) {
+						let nutrition = this.nutritions[nutritionType];
+
+						let portionDivisor = this.amountPer === 'recipe' ? 1 :  parseInt(this.amountPer) / totalWeight;
+
+						nutrition.displayValue = nutrition.value * portionDivisor;
+
+						if(nutritionType === 'energy') {
+							// Convert to display unit
+							let conversionFactor = this.energyUnit === 'calorie' ? this.conversions.caloriesInKj : 1;
+							nutrition.displayValue = nutrition.displayValue * conversionFactor;
+						}
+
+                        nutrition.exactValue = nutrition.displayValue;
+						nutrition.displayValue = this.formatNumber(nutrition.displayValue);
+
+					}
+				}
 
 			},
-			recalculateEnergy() {
-				if(typeof this.nutritions.energy != 'undefined') {
-					var energy = parseFloat(this.nutritions.energy.value);
-//					var amountPer = parseFloat(this.amountPer);
-					var conversionFactor = this.energyUnit == 'calorie' ? 0.239006 : 1;
-					this.nutritions.energy.displayValue = this.formatNumber(energy * amountPer * conversionFactor);
+            recalculateEnergy() {
+			    let energy = this.nutritions.energy.exactValue;
+			    if(this.energyUnit === 'calorie') {
+			        // convert from Kj to calorie
+                    energy = energy * this.conversions.caloriesInKj;
+				} else {
+			        // convert from calorie to Kj
+					energy = energy / this.conversions.caloriesInKj;
 				}
+                this.nutritions.energy.exactValue = energy;
+                this.nutritions.energy.displayValue = this.formatNumber(energy);
+			},
+			setRowWeight(row) {
+
+			    let rowUnit = this.getUnit(row.unit);
+
+			    console.log(rowUnit, 'rowUnit');
+
+			    switch(rowUnit.attributes.unitType) {
+					case 'weight':
+						// Convert to grams
+						let grams;
+						if(rowUnit.attributes.name === 'grams') {
+                            grams = row.amount;
+                        } else {
+                            grams = row.amount * rowUnit.attributes.gram;
+                        }
+                        row.weight = grams;
+					    break;
+					case 'length':
+
+					    break;
+					case 'volume':
+
+					    break;
+					case 'quantity':
+                        if(typeof row.attributes.weight !== 'undefined') {
+                            // The attribute weight is the weight of one whole ingredient
+
+                            row.weight = row.attributes.weight * row.amount;
+                        } else {
+                            console.log('ERROR: No weight for ' + row.ingredient);
+                            row.weight = 0;
+                        }
+					    break;
+				}
+
 			},
 			formatNumber(number) {
-				var dp = number < 1 ? 1 : 0;
+				let dp = number < 1 ? 1 : 0;
 				return number.toFixed(dp);
 			},
 			save() {
-				const form = toMulipartedForm(this.form, this.$route.meta.mode)
+				const form = toMulipartedForm(this.form, this.$route.meta.mode);
 				post(this.storeURL, form)
 				    .then((res) => {
 				        if(res.data.saved) {
-				            Flash.setSuccess(res.data.message)
+				            Flash.setSuccess(res.data.message);
 				            this.$router.push(`/recipes/${res.data.id}`)
 				        }
 				        this.isProcessing = false
