@@ -72,7 +72,7 @@ class RecipeController extends JsonApiController
             $ingredients[] = new RecipeIngredient($ingredient);
         }
 
-	   $directions = [];
+	    $directions = [];
 
         foreach($request->directions as $direction) {
             $directions[] = new RecipeDirection($direction);

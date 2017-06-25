@@ -19,6 +19,7 @@ class AttributeTypeSchema extends SchemaProvider
         /** @var Attribute $attributeType */
         $attrs = [
             'name' => $attributeType->name,
+            'safe_name' => str_replace(' ', '_', $attributeType->name),
             'unit' => $attributeType->unit,
         ];
         return $attrs;

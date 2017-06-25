@@ -43,6 +43,16 @@ class Ingredient extends Model
     }
 
     /**
+     * Return an array of this ingredients attributes ids
+     *
+     * @return mixed
+     */
+    public function attributeIds() {
+
+        return $this->attributes()->pluck('id')->toArray();
+    }
+
+    /**
      * Return a json array of this ingredients units
      */
     public function jsonUnits() {

@@ -17,10 +17,16 @@
                                 <small class="error__control" v-if="error.name">{{error.name[0]}}</small>
                             </div>
                             <div class="form__group">
-                                <label>Description</label>
-                                <textarea class="form__control form__description" v-model="ingredient.attributes.description"></textarea>
-                                <small class="error__control" v-if="error.description">{{error.description[0]}}</small>
+                                <label>Weight (grams)</label>
+                                <input type="text" class="form__control" v-model="ingredient.attributes.weight">
+                                <small class="error__control" v-if="error.weight">{{error.weight[0]}}</small>
                             </div>
+
+                            <!--<div class="form__group">-->
+                                <!--<label>Description</label>-->
+                                <!--<textarea class="form__control form__description" v-model="ingredient.attributes.description"></textarea>-->
+                                <!--<small class="error__control" v-if="error.description">{{error.description[0]}}</small>-->
+                            <!--</div>-->
                         </div>
 
                         <div class="form__container">
@@ -28,19 +34,26 @@
 
                             <div class="form__group form__group--inline">
                                 <label>Volume (Litres or cups)</label>
-                                <input type="checkbox" class="form__control" v-model="ingredient.volume">
+                                <input type="checkbox" class="form__control" v-model="ingredient.volume" @change="updateDefaultUnitOptions()">
                             </div>
                             <div class="form__group form__group--inline">
                                 <label>Weight (Kilograms or pounds)</label>
-                                <input type="checkbox" class="form__control" v-model="ingredient.weight">
+                                <input type="checkbox" class="form__control" v-model="ingredient.weight" @change="updateDefaultUnitOptions()">
                             </div>
                             <div class="form__group form__group--inline">
                                 <label>Distance (Centimeters or inches)</label>
-                                <input type="checkbox" class="form__control" v-model="ingredient.distance">
+                                <input type="checkbox" class="form__control" v-model="ingredient.distance" @change="updateDefaultUnitOptions()">
                             </div>
                             <div class="form__group form__group--inline">
                                 <label>Quantity (Count how many)</label>
-                                <input type="checkbox" class="form__control" v-model="ingredient.quantity">
+                                <input type="checkbox" class="form__control" v-model="ingredient.quantity" @change="updateDefaultUnitOptions()">
+                            </div>
+
+                            <div class="form__group">
+                                <label>Default unit id</label>
+                                <select type="text" class="form__control" v-model="ingredient.attributes.default_unit_id">
+                                    <option v-for="(unit, index) in default_unit_options" :value="unit.id">{{unit.name}}</option>
+                                </select>
                             </div>
                         </div>
 
@@ -48,8 +61,18 @@
                             <p>Nutritional information (per {{nutritionPer}}g)</p>
                             <div v-for="(type, index) in attribute_types" class="form__group">
                                 <div class="form__group form__group--inline">
-                                    <label>{{capitalize(type.attributes.name)}} ({{type.attributes.unit}})</label>
-                                    <input type="text" class="form__control" v-model="attributes[type.id]">
+
+                                    <label v-if="type.attributes.name==='energy'">
+                                        <select v-model="energyUnit" @change="convertIngredientFormEnergyUnit()">
+                                            <option value="calorie">Calories</option>
+                                            <option value="kj">Kj</option>
+                                        </select>
+                                    </label>
+                                    <label v-else>{{capitalize(type.attributes.name)}} ({{type.attributes.unit}})</label>
+
+                                    <input type="text" class="form__control"
+                                           v-model="attributes[type.attributes.safe_name]"
+                                           @change="updateIngredientAttribute(type.attributes.safe_name)">
                                 </div>
                             </div>
                         </div>
@@ -58,7 +81,7 @@
 
                     <div class="modal-footer">
                         <slot name="footer">
-                            <button class="modal-default-button" @click="$emit('close')">
+                            <button class="modal-default-button" @click="save()">
                                 Save
                             </button>
                         </slot>
@@ -69,6 +92,8 @@
     </transition>
 </template>
 <script type="text/javascript">
+    import { convertEnergyUnit } from '../../helpers/convert';
+    import { get, post } from '../../helpers/api';
 
     export default {
         components: {
@@ -86,12 +111,17 @@
                 quantity: false,
             },
             attribute_types: Array,
+            units: Array
         },
         data() {
             return {
                 error: {},
                 attributes: {},
                 nutritionPer: 100, // grams
+                energyUnit: 'calorie',
+                storeURL: '/api/ingredients/%',
+                energyExactValue: 0,
+                default_unit_options: [],
             }
         },
         created() {
@@ -102,6 +132,8 @@
             this.ingredient.weight = false;
             this.ingredient.distance = false;
             this.ingredient.quantity = false;
+
+            this.storeURL = '/api/ingredients/' + this.ingredient.id;
 
             // Set unit type default values
             for (let i = 0; i < this.ingredient.units.length; i++) {
@@ -117,13 +149,142 @@
             // Set attributes default values
             for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
                 let attribute = this.ingredient.ingredientAttributes[i];
-                this.attributes[attribute.id] = attribute.attributes.value * this.nutritionPer;
+
+                let attributeType = attribute.attributes.attributeType;
+
+                if(attributeType.safe_name == 'energy') {
+                    // default energy unit it calorie so convert from Kj
+                    let value = attribute.attributes.value * this.nutritionPer;
+                    this.energyExactValue = convertEnergyUnit(value, 'calorie');
+                    this.attributes[attributeType.safe_name] = this.energyExactValue.toFixed(0);
+                } else {
+                    this.attributes[attributeType.safe_name] = attribute.attributes.value * this.nutritionPer;
+                }
             }
+
+            this.updateDefaultUnitOptions();
 
         },
         methods: {
             capitalize(string) {
                 return string.charAt(0).toUpperCase() + string.slice(1);
+            },
+            convertIngredientFormEnergyUnit() {
+                this.energyExactValue  = convertEnergyUnit(this.energyExactValue, this.energyUnit);
+                this.attributes['energy'] = this.energyExactValue.toFixed(0);
+            },
+            save() {
+
+                let data = {
+                    id: this.ingredient.id,
+                    name: this.ingredient.attributes.name,
+                    description: this.ingredient.attributes.description,
+                    weight: this.ingredient.attributes.weight,
+                    default_unit_id: this.ingredient.attributes.default_unit_id,
+                    units: [],
+                    ingredientAttributes: [],
+                    _method: 'PUT',
+                };
+
+                // Set units
+                for (let x = 0; x < this.ingredient.units.length; x++) {
+                    let ingredientUnitType = this.ingredient.units[x].unitType;
+                    for (let i = 0; i < this.units.length; i++) {
+                        let unit = this.units[i];
+                        if(unit.attributes.unitType == ingredientUnitType) {
+                            data.units.push(unit.id);
+                        }
+                    }
+                }
+
+                // Set attributes
+                for (let x = 0; x < this.ingredient.ingredientAttributes.length; x++) {
+                    let attribute = this.ingredient.ingredientAttributes[x];
+                    let attributeType = attribute.attributes.attributeType;
+                    let value = attributeType.name == 'energy' ? this.energyExactValue : attribute.attributes.value;
+                    data.ingredientAttributes.push({
+                        id: attribute.id,
+                        unit_id: attribute.relationships.unit.data.id,
+                        value: value,
+                        attribute_type_id: attribute.attributes.attributeType.id,
+                    });
+                }
+
+                console.log(data, 'data');
+
+                post(this.storeURL, data)
+                    .then((res) => {
+
+                        if(res.data.saved) {
+                            console.log('emit close');
+                            this.$emit('close');
+                        }
+                        this.isProcessing = false
+                    })
+                    .catch((err) => {
+                        if(typeof err.response !== 'undefined' && err.response.status === 422) {
+                            this.error = err.response.data
+                        }
+                        this.isProcessing = false
+                    })
+
+            },
+            updateDefaultUnitOptions() {
+                this.default_unit_options = [];
+                for (let i = 0; i < this.ingredient.units.length; i++) {
+                    let unit = this.ingredient.units[i];
+                    if(this.ingredient[unit.unitType]) {
+                        let name = unit.name == 'whole' ? 'quantity' : unit.name;
+                        this.default_unit_options.push({id: unit.id, name: name});
+                    }
+                }
+            },
+            updateIngredientAttribute(safe_name) {
+                let foundAttribute = false;
+                let newValue = this.attributes[safe_name] / this.nutritionPer;
+                for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
+                    let ingredientAttribute = this.ingredient.ingredientAttributes[i];
+                    if(ingredientAttribute.attributes.attributeType.safe_name == safe_name) {
+                        foundAttribute = true;
+                        ingredientAttribute.attributes.value = newValue;
+                    }
+                }
+
+                if(!foundAttribute) {
+
+                    let attributeType = this.getAttributeType(safe_name);
+
+                    let unitGramID = 6; // do we really need to pass this around if it's always gram
+
+                    this.ingredient.ingredientAttributes.push({
+                        attributes: {
+                            attributeType: {
+                                id: attributeType.id,
+                                name: attributeType.attributes.name,
+                                safe_name: attributeType.attributes.safe_name,
+                                unit: attributeType.attributes.unit,
+                            },
+                            unit: 'gram',
+                            value: newValue,
+                        },
+                        relationships: {
+                            ingredient: {
+                                data: {id: this.ingredient.id, type: 'ingredient'},
+                            },
+                            unit: {
+                                data: {id: unitGramID, type: 'unit'},
+                            },
+                        },
+                    });
+                }
+            },
+            getAttributeType(safe_name) {
+                for (let i = 0; i < this.attribute_types.length; i++) {
+                    let attributeType = this.attribute_types[i];
+                    if(attributeType.attributes.safe_name === safe_name) {
+                        return attributeType;
+                    }
+                }
             }
         }
     }

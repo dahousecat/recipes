@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attribute;
+use App\Models\AttributeType;
 use App\Models\Ingredient;
+use App\Models\Unit;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\In;
 Use Neomerx\JsonApi\Encoder\Encoder;
 use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 
@@ -45,7 +49,6 @@ class IngredientController extends JsonApiController
         return response($encodedData)
             ->header('Content-Type', 'application/json');
 
-        ddd($ingredient);
     }
 
     /**
@@ -66,7 +69,28 @@ class IngredientController extends JsonApiController
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required|max:255',
+            'description' => 'required|max:3000',
+            'image' => 'image',
+            'weight' => 'required|numeric|min:0',
+            'units' => 'array',
+            'units.*.id' => 'required|numeric|min:1',
+            'attributes' => 'array',
+            'attributes.*.unit_id' => 'required|numeric|min:1',
+            'attributes.*.value' => 'required|numeric',
+            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
+        ]);
+
+        die('STORE');
+
+//        $user = $request->user();
+
+//        'name',
+//        'description',
+//        'image',
+//        'weight',
+
     }
 
     /**
@@ -94,14 +118,102 @@ class IngredientController extends JsonApiController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Ingredient  $ingredient
+     * @param int $id
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-//    public function update(Request $request, Ingredient $ingredient)
-//    {
-//        //
-//    }
+    public function update($id, Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required|max:255',
+            'description' => 'required|max:3000',
+            'image' => 'image',
+            'weight' => 'required|numeric|min:0',
+            'units_types' => 'array',
+            'units_types.*.name' => 'required|string',
+            'units' => 'array',
+            'units.*' => 'required|numeric|min:1',
+            'ingredientAttributes' => 'array',
+            'ingredientAttributes.*.id' => 'numeric|min:1',
+            'ingredientAttributes.*.unit_id' => 'required|numeric|min:1',
+            'ingredientAttributes.*.value' => 'required|numeric',
+            'ingredientAttributes.*.attribute_type_id' => 'required|numeric|min:1',
+        ]);
+
+        $response = [];
+
+        $ingredient = Ingredient::find($id);
+
+        $ingredient->name = $request->name;
+        $ingredient->description = $request->description;
+        $ingredient->weight = $request->weight;
+        $ingredient->default_unit_id = $request->default_unit_id;
+
+        $ingredient->save();
+
+        $ingredient->units()->sync($request->units);
+
+        // Get a list of all existing attribute ids
+        $existingAttributeIds = $ingredient->attributeIds();
+        $existingAttributeIds = array_combine($existingAttributeIds, $existingAttributeIds);
+
+        if(!empty($request->ingredientAttributes)) {
+
+            foreach($request->ingredientAttributes as $attributeData) {
+
+                // Try and load an existing attribute
+                if(!empty($attributeData['id'])) {
+                    $attribute = Attribute::find($attributeData['id']);
+
+                    // Once we loaded an attribute remove it from the list of all ids
+                    unset($existingAttributeIds[$attribute->is]);
+                }
+
+                // Create a new attribute if necessary
+                if(empty($attribute)) {
+                    $attribute = new Attribute;
+                }
+
+                $attribute->value = $attributeData['value'];
+                $attribute->ingredient_id = $ingredient->id;
+
+                $attributeType = AttributeType::find($attributeData['attribute_type_id']);
+                if(!empty($attributeType)) {
+                    $attribute->attribute_type_id = $attributeType->id;
+                } else {
+                    $response['error'] = 'Invalid attribute type id';
+                }
+
+                $unit = Unit::find($attributeData['unit_id']);
+                if(!empty($unit)) {
+//                    $attribute->unit()->save($unit);
+                    $attribute->unit_id = $unit->id;
+                } else {
+                    $response['error'] = 'Invalid unit id';
+                }
+
+                $attribute->save();
+
+            }
+
+        }
+
+        // If there are any attribute ids left in here then they have been deleted
+        if(!empty($existingAttributeIds)) {
+            Attribute::whereIn('id', $existingAttributeIds)->delete();
+        }
+
+        if(empty($response)) {
+            $response = [
+                'saved' => true,
+                'id' => $ingredient->id,
+                'message' => 'Saved changes to ' . $ingredient->name
+            ];
+        }
+
+        return response()
+            ->json($response);
+    }
 
     /**
      * Remove the specified resource from storage.

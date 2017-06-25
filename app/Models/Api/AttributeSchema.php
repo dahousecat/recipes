@@ -20,7 +20,9 @@ class AttributeSchema extends SchemaProvider
         $attrs = [
             'value' => $attribute->value,
             'attributeType' => [
+                'id' => $attribute->attributeType->id,
                 'name' => $attribute->attributeType->name,
+                'safe_name' => str_replace(' ', '_', $attribute->attributeType->name),
                 'unit' => $attribute->attributeType->unit,
             ],
         ];

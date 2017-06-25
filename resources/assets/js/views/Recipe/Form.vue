@@ -160,7 +160,6 @@
 						  },
 					  	filter: ".message"
 					}'
-				   :clone="cloneCallback"
 				   :class="{ 'active': this.isDragging }"
 					v-model="editIngredient">
 			<div class="inner">
@@ -171,8 +170,9 @@
 		<ingredient-form
 				:ingredient="editIngredient[0]"
 				:attribute_types="attribute_types"
+				:units="this.units"
 				v-if="showIngredientModal"
-				@close="showIngredientModal = false">
+				@close="ingredientSaved()">
 		</ingredient-form>
 
 	</div>
@@ -182,6 +182,7 @@
 	import Vue from 'vue';
 	import Flash from '../../helpers/flash';
 	import { get, post } from '../../helpers/api';
+	import { convertEnergyUnit } from '../../helpers/convert';
 	import { toMulipartedForm } from '../../helpers/form';
 	import ImageUpload from '../../components/ImageUpload.vue';
 	import draggable from 'vuedraggable';
@@ -312,9 +313,6 @@
 
 				if(this.editIngredient.length === 1) {
 				    // Ingredient dropped on the edit ingredient zone
-
-                    // put ingredient back into pantry
-                    this.ingredients.push(this.editIngredient[0]);
 
                     // Only show the modal once the ingredients attributes array has been built and we've fetched the
 					// array of unit types
@@ -472,14 +470,7 @@
 
 			},
             recalculateEnergy() {
-			    let energy = this.nutritions.energy.exactValue;
-			    if(this.energyUnit === 'calorie') {
-			        // convert from Kj to calorie
-                    energy = energy * this.conversions.caloriesInKj;
-				} else {
-			        // convert from calorie to Kj
-					energy = energy / this.conversions.caloriesInKj;
-				}
+                let energy = convertEnergyUnit(this.nutritions.energy.exactValue, this.energyUnit);
                 this.nutritions.energy.exactValue = energy;
                 this.nutritions.energy.displayValue = this.formatNumber(energy);
 			},
@@ -550,12 +541,15 @@
 					this.form[type].splice(index, 1)
 				}
 			},
-            editZoneDrop(evt) {
-			    console.log(evt, 'editZoneDrop');
+            ingredientSaved() {
+                this.showIngredientModal = false;
+
+                // put ingredient back into pantry
+                this.ingredients.push(this.editIngredient[0]);
+
+                // Remove this ingredient from the edit list.
+                this.editIngredient = [];
 			},
-            cloneCallback(evt) {
-                console.log(evt, 'cloneCallback');
-			}
 		}
 	}
 </script>
