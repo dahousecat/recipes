@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Api\UserSchema;
 use App\Models\Ingredient;
 use App\Models\Api\IngredientSchema;
+use App\Models\Api\AttributeTypeSchema;
 use App\Models\Unit;
 use App\Models\Api\UnitSchema;
 use App\Models\Attribute;
@@ -27,6 +28,7 @@ class JsonApiController extends Controller
         Ingredient::class => IngredientSchema::class,
         Unit::class => UnitSchema::class,
         Attribute::class => AttributeSchema::class,
+        AttributeType::class => AttributeTypeSchema::class,
     ];
 
     protected $encoderOptions;

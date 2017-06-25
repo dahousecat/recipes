@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "./";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 65);
+/******/ 	return __webpack_require__(__webpack_require__.s = 68);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -10527,7 +10527,7 @@ Vue$3.compile = compileToFunctions;
 
 module.exports = Vue$3;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(64)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(67)))
 
 /***/ }),
 /* 8 */
@@ -10802,9 +10802,9 @@ module.exports = function bind(fn, thisArg) {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__App_vue__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__App_vue__ = __webpack_require__(45);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__App_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__App_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__router__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__router__ = __webpack_require__(43);
 
 
 
@@ -11827,7 +11827,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ImagePreview_vue__ = __webpack_require__(45);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ImagePreview_vue__ = __webpack_require__(46);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ImagePreview_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__ImagePreview_vue__);
 //
 //
@@ -12007,15 +12007,156 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    components: {},
+    props: {
+        ingredient: {
+            name: '',
+            description: '',
+            default_unit_id: '',
+            units: [],
+            attributes: [],
+            volume: false,
+            weight: false,
+            distance: false,
+            quantity: false
+        },
+        attribute_types: Array
+    },
+    data: function data() {
+        return {
+            error: {},
+            attributes: {},
+            nutritionPer: 100 // grams
+        };
+    },
+    created: function created() {
+
+        console.log(this.ingredient, 'this.ingredient created');
+
+        this.ingredient.volume = false;
+        this.ingredient.weight = false;
+        this.ingredient.distance = false;
+        this.ingredient.quantity = false;
+
+        // Set unit type default values
+        for (var i = 0; i < this.ingredient.units.length; i++) {
+            var unit = this.ingredient.units[i];
+            switch (unit.unitType) {
+                case 'volume':
+                    this.ingredient.volume = true;break;
+                case 'weight':
+                    this.ingredient.weight = true;break;
+                case 'distance':
+                    this.ingredient.distance = true;break;
+                case 'quantity':
+                    this.ingredient.quantity = true;break;
+            }
+        }
+
+        // Set attributes default values
+        for (var _i = 0; _i < this.ingredient.ingredientAttributes.length; _i++) {
+            var attribute = this.ingredient.ingredientAttributes[_i];
+            this.attributes[attribute.id] = attribute.attributes.value * this.nutritionPer;
+        }
+    },
+
+    methods: {
+        capitalize: function capitalize(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+    }
+});
+
+/***/ }),
+/* 39 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_flash__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_api__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_form__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ImageUpload_vue__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_form__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ImageUpload_vue__ = __webpack_require__(47);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_ImageUpload_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_ImageUpload_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vuedraggable__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vuedraggable__ = __webpack_require__(66);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vuedraggable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_vuedraggable__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Ingredient_IngredientForm_vue__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Ingredient_IngredientForm_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__Ingredient_IngredientForm_vue__);
 //
 //
 //
@@ -12151,6 +12292,52 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -12164,7 +12351,8 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 /* harmony default export */ __webpack_exports__["default"] = ({
 	components: {
 		ImageUpload: __WEBPACK_IMPORTED_MODULE_4__components_ImageUpload_vue___default.a,
-		draggable: __WEBPACK_IMPORTED_MODULE_5_vuedraggable___default.a
+		draggable: __WEBPACK_IMPORTED_MODULE_5_vuedraggable___default.a,
+		ingredientForm: __WEBPACK_IMPORTED_MODULE_6__Ingredient_IngredientForm_vue___default.a
 	},
 	data: function data() {
 		return {
@@ -12175,6 +12363,12 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			ingredients: [],
 			nutritions: {
 				energy: {
+					displayValue: '0'
+				},
+				protein: {
+					displayValue: '0'
+				},
+				sugar: {
 					displayValue: '0'
 				}
 			},
@@ -12195,25 +12389,29 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			unitsURL: '/api/units',
 			action: 'Create',
 			ingredient: '',
-			isDragging: false
+			isDragging: false,
+			nutritionUpdating: false,
+			editIngredient: [],
+			showIngredientModal: false,
+			attribute_types: []
 		};
 	},
 
 	watch: {
 		// For ingredient filter
 		ingredient: function ingredient(str) {
-			var _this = this;
+			var _this2 = this;
 
 			var url = str.length > 1 ? '/api/ingredients/search/' + str : '/api/ingredients';
 			__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])(url).then(function (res) {
-				__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this.$data, 'ingredients', res.data.ingredients);
+				__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'ingredients', res.data.ingredients);
 			});
 		}
 	},
 
 	// Run on initialization
 	created: function created() {
-		var _this2 = this;
+		var _this3 = this;
 
 		if (this.$route.meta.mode === 'edit') {
 			this.initializeURL = '/api/recipes/' + this.$route.params.id + '/edit';
@@ -12221,20 +12419,21 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			this.action = 'Update';
 		}
 		__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])(this.initializeURL).then(function (res) {
-			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'form', res.data.form);
+			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this3.$data, 'form', res.data.form);
 		});
 
 		__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])(this.ingredientsURL).then(function (res) {
-			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'ingredients', res.data.data);
+			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this3.$data, 'ingredients', res.data.data);
 		});
 
 		__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])(this.unitsURL).then(function (res) {
-			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this2.$data, 'units', res.data.data);
+			__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this3.$data, 'units', res.data.data);
 		});
 	},
 
 	methods: {
 		dragStart: function dragStart(evt) {
+
 			this.isDragging = true;
 			var ingredient = this.ingredients[evt.oldIndex];
 
@@ -12261,10 +12460,36 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 		dragEnd: function dragEnd(evt) {
 
 			this.isDragging = false;
-			var row = this.form.rows[evt.newIndex];
 
-			// Set attributes array (ingredient attributes, not json api attributes)
-			this.setAttributesArray(row, this.updateNutrition);
+			if (this.editIngredient.length === 1) {
+				// Ingredient dropped on the edit ingredient zone
+
+				// put ingredient back into pantry
+				this.ingredients.push(this.editIngredient[0]);
+
+				// Only show the modal once the ingredients attributes array has been built and we've fetched the
+				// array of unit types
+				var promises = [this.setAttributesArray(this.editIngredient[0]), this.fetchAttributeTypes()];
+				var _this = this;
+				document.body.classList.add('loading');
+				Promise.all(promises).then(function () {
+					_this.showIngredientModal = true;
+					document.body.classList.remove('loading');
+				});
+			} else {
+				// Ingredient added to the recipe
+				var row = this.form.rows[evt.newIndex];
+
+				// If there is no row then the ingredient was dropped back in the pantry
+				if (typeof row !== 'undefined') {
+					// Set attributes array (ingredient attributes, not json api attributes)
+					this.nutritionUpdating = true;
+					var _this4 = this;
+					this.setAttributesArray(row).then(function () {
+						_this4.updateNutrition();
+					});
+				}
+			}
 		},
 		setUnitsArray: function setUnitsArray(ingredient) {
 			ingredient.units = [];
@@ -12272,33 +12497,50 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 				var id = ingredient.relationships.units.data[i].id;
 				ingredient.units.push({
 					id: id,
-					name: this.getUnitName(id)
+					name: this.getUnitName(id),
+					unitType: this.getUnitType(id)
 				});
 			}
 		},
-		setAttributesArray: function setAttributesArray(ingredient, callback) {
-			var _this3 = this;
-
-			if (typeof ingredient.ingredientAttributes === 'undefined') {
-				// Load the attributes for this ingredient
-				__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/ingredient/' + ingredient.id + '/attributes').then(function (res) {
-					var attributes = res.data.data;
-					// Attach the name of the unit from the units array
-					for (var i = 0; i < attributes.length; i++) {
-						var unit = _this3.getUnit(attributes[i].relationships.unit.data.id);
-						attributes[i].attributes.unit = unit.attributes.name;
-					}
-					ingredient.ingredientAttributes = attributes;
-
-					if (typeof callback === 'function') {
-						callback();
-					}
-				});
-			} else {
-				if (typeof callback === 'function') {
-					callback();
+		setAttributesArray: function setAttributesArray(ingredient) {
+			var _this = this;
+			return new Promise(function (resolve, reject) {
+				if (typeof ingredient.ingredientAttributes === 'undefined') {
+					// Load the attributes for this ingredient
+					__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/ingredient/' + ingredient.id + '/attributes').then(function (res) {
+						var attributes = res.data.data;
+						// Attach the name of the unit from the units array
+						for (var i = 0; i < attributes.length; i++) {
+							var unit = _this.getUnit(attributes[i].relationships.unit.data.id);
+							attributes[i].attributes.unit = unit.attributes.name;
+						}
+						ingredient.ingredientAttributes = attributes;
+						resolve();
+					}).catch(function (error) {
+						console.log(error);
+						reject();
+					});
+				} else {
+					resolve();
 				}
-			}
+			});
+		},
+		fetchAttributeTypes: function fetchAttributeTypes() {
+			var _this = this;
+			return new Promise(function (resolve, reject) {
+				if (_this.attribute_types.length) {
+					resolve();
+				} else {
+					// Fetch all possible attribute types
+					__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/attribute-types').then(function (res) {
+						__WEBPACK_IMPORTED_MODULE_0_vue___default.a.set(_this.$data, 'attribute_types', res.data.data);
+						resolve();
+					}).catch(function (error) {
+						console.log(error);
+						reject();
+					});
+				}
+			});
 		},
 		getUnit: function getUnit(id) {
 			id = parseInt(id);
@@ -12312,6 +12554,10 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			var unit = this.getUnit(id);
 			var name = unit.attributes.name;
 			return name === 'quantity' ? 'whole' : name;
+		},
+		getUnitType: function getUnitType(id) {
+			var unit = this.getUnit(id);
+			return unit.attributes.unitType;
 		},
 		updateNutrition: function updateNutrition() {
 			// Yes, nutritions is not a word but I can't handle using the word attribute any more!
@@ -12365,6 +12611,8 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 					nutrition.displayValue = this.formatNumber(nutrition.displayValue);
 				}
 			}
+
+			this.nutritionUpdating = false;
 		},
 		recalculateEnergy: function recalculateEnergy() {
 			var energy = this.nutritions.energy.exactValue;
@@ -12418,20 +12666,20 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			return number.toFixed(dp);
 		},
 		save: function save() {
-			var _this4 = this;
+			var _this5 = this;
 
 			var form = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__helpers_form__["a" /* toMulipartedForm */])(this.form, this.$route.meta.mode);
 			__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["a" /* post */])(this.storeURL, form).then(function (res) {
 				if (res.data.saved) {
 					__WEBPACK_IMPORTED_MODULE_1__helpers_flash__["a" /* default */].setSuccess(res.data.message);
-					_this4.$router.push('/recipes/' + res.data.id);
+					_this5.$router.push('/recipes/' + res.data.id);
 				}
-				_this4.isProcessing = false;
+				_this5.isProcessing = false;
 			}).catch(function (err) {
 				if (err.response.status === 422) {
-					_this4.error = err.response.data;
+					_this5.error = err.response.data;
 				}
-				_this4.isProcessing = false;
+				_this5.isProcessing = false;
 			});
 		},
 		addDirection: function addDirection() {
@@ -12443,12 +12691,18 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vued
 			if (this.form[type].length > 1) {
 				this.form[type].splice(index, 1);
 			}
+		},
+		editZoneDrop: function editZoneDrop(evt) {
+			console.log(evt, 'editZoneDrop');
+		},
+		cloneCallback: function cloneCallback(evt) {
+			console.log(evt, 'cloneCallback');
 		}
 	}
 });
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12482,7 +12736,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12582,7 +12836,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12625,24 +12879,24 @@ function objectToFormData(obj, form, namespace) {
 }
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_router__ = __webpack_require__(62);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__views_Auth_Login_vue__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_router__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__views_Auth_Login_vue__ = __webpack_require__(48);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__views_Auth_Login_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__views_Auth_Login_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__views_Auth_Register_vue__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__views_Auth_Register_vue__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__views_Auth_Register_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__views_Auth_Register_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__views_Recipe_Index_vue__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__views_Recipe_Index_vue__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__views_Recipe_Index_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__views_Recipe_Index_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__views_Recipe_Show_vue__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__views_Recipe_Show_vue__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__views_Recipe_Show_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__views_Recipe_Show_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__views_Recipe_Form_vue__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__views_Recipe_Form_vue__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__views_Recipe_Form_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__views_Recipe_Form_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__views_NotFound_vue__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__views_NotFound_vue__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__views_NotFound_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__views_NotFound_vue__);
 
 
@@ -12664,7 +12918,7 @@ var router = new __WEBPACK_IMPORTED_MODULE_1_vue_router__["a" /* default */]({
 /* harmony default export */ __webpack_exports__["a"] = (router);
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
@@ -14165,14 +14419,14 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(33),
   /* template */
-  __webpack_require__(55),
+  __webpack_require__(57),
   /* scopeId */
   null,
   /* cssModules */
@@ -14199,14 +14453,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(34),
   /* template */
-  __webpack_require__(58),
+  __webpack_require__(60),
   /* scopeId */
   null,
   /* cssModules */
@@ -14233,14 +14487,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(35),
   /* template */
-  __webpack_require__(57),
+  __webpack_require__(59),
   /* scopeId */
   null,
   /* cssModules */
@@ -14267,14 +14521,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(36),
   /* template */
-  __webpack_require__(56),
+  __webpack_require__(58),
   /* scopeId */
   null,
   /* cssModules */
@@ -14301,14 +14555,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(37),
   /* template */
-  __webpack_require__(54),
+  __webpack_require__(56),
   /* scopeId */
   null,
   /* cssModules */
@@ -14335,14 +14589,48 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 49 */
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(38),
+  /* template */
+  __webpack_require__(63),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "C:\\Users\\dahou\\PhpstormProjects\\recipes\\resources\\assets\\js\\views\\Ingredient\\IngredientForm.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] IngredientForm.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-e4332db4", Component.options)
+  } else {
+    hotAPI.reload("data-v-e4332db4", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   null,
   /* template */
-  __webpack_require__(53),
+  __webpack_require__(55),
   /* scopeId */
   null,
   /* cssModules */
@@ -14369,14 +14657,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(38),
+  __webpack_require__(39),
   /* template */
-  __webpack_require__(59),
+  __webpack_require__(61),
   /* scopeId */
   null,
   /* cssModules */
@@ -14403,14 +14691,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(39),
+  __webpack_require__(40),
   /* template */
-  __webpack_require__(60),
+  __webpack_require__(62),
   /* scopeId */
   null,
   /* cssModules */
@@ -14437,14 +14725,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(40),
+  __webpack_require__(41),
   /* template */
-  __webpack_require__(61),
+  __webpack_require__(64),
   /* scopeId */
   null,
   /* cssModules */
@@ -14471,7 +14759,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -14490,7 +14778,7 @@ if (false) {
 }
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -14616,7 +14904,7 @@ if (false) {
 }
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -14674,7 +14962,7 @@ if (false) {
 }
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -14754,7 +15042,7 @@ if (false) {
 }
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -14790,7 +15078,7 @@ if (false) {
 }
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -14816,7 +15104,7 @@ if (false) {
 }
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -14940,9 +15228,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, _vm._l((_vm.form.rows), function(row, index) {
     return _c('div', {
-      staticClass: "recipe__form row"
-    }, [_c('i', {
-      staticClass: "fa fa-arrows row__handle"
+      staticClass: "recipe__ingredient row"
+    }, [_c('div', {
+      staticClass: "grabber row__handle"
     }), _vm._v(" "), _c('div', {
       staticClass: "row__segment"
     }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(row.ingredient) + "\n\t\t\t\t\t\t")]), _vm._v(" "), _c('div', {
@@ -15032,7 +15320,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   })]), _vm._v(" "), _c('draggable', {
     attrs: {
       "options": {
-        "group": "recipe"
+        group: "recipe"
       }
     },
     on: {
@@ -15048,21 +15336,24 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, _vm._l((_vm.ingredients), function(ingredient) {
     return _c('div', {
-      staticClass: "recipe__ingredient"
-    }, [_vm._v(_vm._s(ingredient.attributes.name))])
+      staticClass: "recipe__pantry__ingredient grabber"
+    }, [_vm._v("\n\t\t\t\t\t\t" + _vm._s(ingredient.attributes.name) + "\n\t\t\t\t\t")])
   }))], 1)])]), _vm._v(" "), _c('div', {
     staticClass: "recipe__row"
   }, [_c('div', {
-    staticClass: "recipe__nutrition"
+    staticClass: "recipe__nutrition",
+    class: [_vm.nutritionUpdating ? 'loading' : '']
   }, [_c('div', {
     staticClass: "recipe__box"
   }, [_c('h3', {
     staticClass: "recipe__sub_title"
   }, [_vm._v("Nutrition")]), _vm._v(" "), _c('div', {
+    staticClass: "recipe__nutrition__inner"
+  }, [_c('div', {
     staticClass: "form__group nutrition-row"
   }, [_c('div', {
     staticClass: "nutrition-row__unit"
-  }, [_vm._v("\n\t\t\t\t\t\tAmount per\n\t\t\t\t\t")]), _vm._v(" "), _c('div', {
+  }, [_vm._v("\n\t\t\t\t\t\t\tAmount per\n\t\t\t\t\t\t")]), _vm._v(" "), _c('div', {
     staticClass: "nutrition-row__value"
   }, [_c('select', {
     directives: [{
@@ -15124,7 +15415,19 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }, [_vm._v(_vm._s(option.name))])
   }))]), _vm._v(" "), _c('div', {
     staticClass: "nutrition-row__value"
-  }, [_vm._v("\n\t\t\t\t\t\t" + _vm._s(_vm.nutritions.energy.displayValue) + "\n\t\t\t\t\t")])])])]), _vm._v(" "), _c('div', {
+  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.nutritions.energy.displayValue) + "\n\t\t\t\t\t\t")])]), _vm._v(" "), _c('div', {
+    staticClass: "form__group nutrition-row"
+  }, [_c('div', {
+    staticClass: "nutrition-row__unit"
+  }, [_vm._v("\n\t\t\t\t\t\t\tProtein\n\t\t\t\t\t\t")]), _vm._v(" "), _c('div', {
+    staticClass: "nutrition-row__value"
+  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.nutritions.protein.displayValue) + "\n\t\t\t\t\t\t")])]), _vm._v(" "), _c('div', {
+    staticClass: "form__group nutrition-row"
+  }, [_c('div', {
+    staticClass: "nutrition-row__unit"
+  }, [_vm._v("\n\t\t\t\t\t\t\tSugar\n\t\t\t\t\t\t")]), _vm._v(" "), _c('div', {
+    staticClass: "nutrition-row__value"
+  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.nutritions.sugar.displayValue) + "\n\t\t\t\t\t\t")])])])])]), _vm._v(" "), _c('div', {
     staticClass: "recipe__directions"
   }, [_c('div', {
     staticClass: "recipe__directions_inner"
@@ -15164,7 +15467,42 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     on: {
       "click": _vm.addDirection
     }
-  }, [_vm._v("Add Direction")])], 2)])])])
+  }, [_vm._v("Add Direction")])], 2)])]), _vm._v(" "), _c('draggable', {
+    staticClass: "edit-ingredient-bar drop-zone",
+    class: {
+      'active': this.isDragging
+    },
+    attrs: {
+      "options": {
+        group: {
+          name: "recipe",
+        },
+        filter: ".message"
+      },
+      "clone": _vm.cloneCallback
+    },
+    model: {
+      value: (_vm.editIngredient),
+      callback: function($$v) {
+        _vm.editIngredient = $$v
+      },
+      expression: "editIngredient"
+    }
+  }, [_c('div', {
+    staticClass: "inner"
+  }, [_c('div', {
+    staticClass: "message"
+  }, [_vm._v("Edit ingredient")])])]), _vm._v(" "), (_vm.showIngredientModal) ? _c('ingredient-form', {
+    attrs: {
+      "ingredient": _vm.editIngredient[0],
+      "attribute_types": _vm.attribute_types
+    },
+    on: {
+      "close": function($event) {
+        _vm.showIngredientModal = false
+      }
+    }
+  }) : _vm._e()], 1)
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
@@ -15175,7 +15513,7 @@ if (false) {
 }
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -15207,7 +15545,264 @@ if (false) {
 }
 
 /***/ }),
-/* 61 */
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('transition', {
+    attrs: {
+      "name": "modal"
+    }
+  }, [_c('div', {
+    staticClass: "modal-mask"
+  }, [_c('div', {
+    staticClass: "modal-wrapper"
+  }, [_c('div', {
+    staticClass: "modal-container"
+  }, [_c('div', {
+    staticClass: "modal-header"
+  }, [_vm._v("\n                    Edit " + _vm._s(_vm.ingredient.attributes.name) + "\n                ")]), _vm._v(" "), _c('div', {
+    staticClass: "modal-body"
+  }, [_c('div', {
+    staticClass: "form__container"
+  }, [_c('div', {
+    staticClass: "form__group"
+  }, [_c('label', [_vm._v("Name")]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.ingredient.attributes.name),
+      expression: "ingredient.attributes.name"
+    }],
+    staticClass: "form__control",
+    attrs: {
+      "type": "text"
+    },
+    domProps: {
+      "value": (_vm.ingredient.attributes.name)
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.ingredient.attributes.name = $event.target.value
+      }
+    }
+  }), _vm._v(" "), (_vm.error.name) ? _c('small', {
+    staticClass: "error__control"
+  }, [_vm._v(_vm._s(_vm.error.name[0]))]) : _vm._e()]), _vm._v(" "), _c('div', {
+    staticClass: "form__group"
+  }, [_c('label', [_vm._v("Description")]), _vm._v(" "), _c('textarea', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.ingredient.attributes.description),
+      expression: "ingredient.attributes.description"
+    }],
+    staticClass: "form__control form__description",
+    domProps: {
+      "value": (_vm.ingredient.attributes.description)
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.ingredient.attributes.description = $event.target.value
+      }
+    }
+  }), _vm._v(" "), (_vm.error.description) ? _c('small', {
+    staticClass: "error__control"
+  }, [_vm._v(_vm._s(_vm.error.description[0]))]) : _vm._e()])]), _vm._v(" "), _c('div', {
+    staticClass: "form__container"
+  }, [_c('p', [_vm._v("Would you measure " + _vm._s(_vm.ingredient.attributes.name) + " using...")]), _vm._v(" "), _c('div', {
+    staticClass: "form__group form__group--inline"
+  }, [_c('label', [_vm._v("Volume (Litres or cups)")]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.ingredient.volume),
+      expression: "ingredient.volume"
+    }],
+    staticClass: "form__control",
+    attrs: {
+      "type": "checkbox"
+    },
+    domProps: {
+      "checked": Array.isArray(_vm.ingredient.volume) ? _vm._i(_vm.ingredient.volume, null) > -1 : (_vm.ingredient.volume)
+    },
+    on: {
+      "__c": function($event) {
+        var $$a = _vm.ingredient.volume,
+          $$el = $event.target,
+          $$c = $$el.checked ? (true) : (false);
+        if (Array.isArray($$a)) {
+          var $$v = null,
+            $$i = _vm._i($$a, $$v);
+          if ($$c) {
+            $$i < 0 && (_vm.ingredient.volume = $$a.concat($$v))
+          } else {
+            $$i > -1 && (_vm.ingredient.volume = $$a.slice(0, $$i).concat($$a.slice($$i + 1)))
+          }
+        } else {
+          _vm.ingredient.volume = $$c
+        }
+      }
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "form__group form__group--inline"
+  }, [_c('label', [_vm._v("Weight (Kilograms or pounds)")]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.ingredient.weight),
+      expression: "ingredient.weight"
+    }],
+    staticClass: "form__control",
+    attrs: {
+      "type": "checkbox"
+    },
+    domProps: {
+      "checked": Array.isArray(_vm.ingredient.weight) ? _vm._i(_vm.ingredient.weight, null) > -1 : (_vm.ingredient.weight)
+    },
+    on: {
+      "__c": function($event) {
+        var $$a = _vm.ingredient.weight,
+          $$el = $event.target,
+          $$c = $$el.checked ? (true) : (false);
+        if (Array.isArray($$a)) {
+          var $$v = null,
+            $$i = _vm._i($$a, $$v);
+          if ($$c) {
+            $$i < 0 && (_vm.ingredient.weight = $$a.concat($$v))
+          } else {
+            $$i > -1 && (_vm.ingredient.weight = $$a.slice(0, $$i).concat($$a.slice($$i + 1)))
+          }
+        } else {
+          _vm.ingredient.weight = $$c
+        }
+      }
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "form__group form__group--inline"
+  }, [_c('label', [_vm._v("Distance (Centimeters or inches)")]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.ingredient.distance),
+      expression: "ingredient.distance"
+    }],
+    staticClass: "form__control",
+    attrs: {
+      "type": "checkbox"
+    },
+    domProps: {
+      "checked": Array.isArray(_vm.ingredient.distance) ? _vm._i(_vm.ingredient.distance, null) > -1 : (_vm.ingredient.distance)
+    },
+    on: {
+      "__c": function($event) {
+        var $$a = _vm.ingredient.distance,
+          $$el = $event.target,
+          $$c = $$el.checked ? (true) : (false);
+        if (Array.isArray($$a)) {
+          var $$v = null,
+            $$i = _vm._i($$a, $$v);
+          if ($$c) {
+            $$i < 0 && (_vm.ingredient.distance = $$a.concat($$v))
+          } else {
+            $$i > -1 && (_vm.ingredient.distance = $$a.slice(0, $$i).concat($$a.slice($$i + 1)))
+          }
+        } else {
+          _vm.ingredient.distance = $$c
+        }
+      }
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "form__group form__group--inline"
+  }, [_c('label', [_vm._v("Quantity (Count how many)")]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.ingredient.quantity),
+      expression: "ingredient.quantity"
+    }],
+    staticClass: "form__control",
+    attrs: {
+      "type": "checkbox"
+    },
+    domProps: {
+      "checked": Array.isArray(_vm.ingredient.quantity) ? _vm._i(_vm.ingredient.quantity, null) > -1 : (_vm.ingredient.quantity)
+    },
+    on: {
+      "__c": function($event) {
+        var $$a = _vm.ingredient.quantity,
+          $$el = $event.target,
+          $$c = $$el.checked ? (true) : (false);
+        if (Array.isArray($$a)) {
+          var $$v = null,
+            $$i = _vm._i($$a, $$v);
+          if ($$c) {
+            $$i < 0 && (_vm.ingredient.quantity = $$a.concat($$v))
+          } else {
+            $$i > -1 && (_vm.ingredient.quantity = $$a.slice(0, $$i).concat($$a.slice($$i + 1)))
+          }
+        } else {
+          _vm.ingredient.quantity = $$c
+        }
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "form__container"
+  }, [_c('p', [_vm._v("Nutritional information (per " + _vm._s(_vm.nutritionPer) + "g)")]), _vm._v(" "), _vm._l((_vm.attribute_types), function(type, index) {
+    return _c('div', {
+      staticClass: "form__group"
+    }, [_c('div', {
+      staticClass: "form__group form__group--inline"
+    }, [_c('label', [_vm._v(_vm._s(_vm.capitalize(type.attributes.name)) + " (" + _vm._s(type.attributes.unit) + ")")]), _vm._v(" "), _c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: (_vm.attributes[type.id]),
+        expression: "attributes[type.id]"
+      }],
+      staticClass: "form__control",
+      attrs: {
+        "type": "text"
+      },
+      domProps: {
+        "value": (_vm.attributes[type.id])
+      },
+      on: {
+        "input": function($event) {
+          if ($event.target.composing) { return; }
+          var $$exp = _vm.attributes,
+            $$idx = type.id;
+          if (!Array.isArray($$exp)) {
+            _vm.attributes[type.id] = $event.target.value
+          } else {
+            $$exp.splice($$idx, 1, $event.target.value)
+          }
+        }
+      }
+    })])])
+  })], 2)]), _vm._v(" "), _c('div', {
+    staticClass: "modal-footer"
+  }, [_vm._t("footer", [_c('button', {
+    staticClass: "modal-default-button",
+    on: {
+      "click": function($event) {
+        _vm.$emit('close')
+      }
+    }
+  }, [_vm._v("\n                            Save\n                        ")])])], 2)])])])])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-e4332db4", module.exports)
+  }
+}
+
+/***/ }),
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -15273,7 +15868,7 @@ if (false) {
 }
 
 /***/ }),
-/* 62 */
+/* 65 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -17745,7 +18340,7 @@ if (inBrowser && window.Vue) {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(5)))
 
 /***/ }),
-/* 63 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18097,7 +18692,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   }
 
   if (true) {
-    var Sortable = __webpack_require__(43);
+    var Sortable = __webpack_require__(44);
     module.exports = buildDraggable(Sortable);
   } else if (typeof define == "function" && define.amd) {
     define(['sortablejs'], function (Sortable) {
@@ -18110,7 +18705,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 })();
 
 /***/ }),
-/* 64 */
+/* 67 */
 /***/ (function(module, exports) {
 
 var g;
@@ -18137,7 +18732,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 65 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(13);

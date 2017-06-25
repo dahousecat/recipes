@@ -1,4 +1,7 @@
 @import "~font-awesome/scss/font-awesome.scss";
+@import "colours";
+@import "loader";
+@import "modal";
 
 * {
     box-sizing: border-box;
@@ -27,14 +30,15 @@ img {
 }
 
 .navbar {
-	background: #fff;
+	background: white;
   	padding: 15px 25px;
    	box-shadow: rgba(0, 0, 0, 0.09) 0 2px 0;
    	display: flex;
    	justify-content: space-between;
    	align-items: center;
+
    	&__brand a {
-        color: #E91E63;
+        color: $color_amaranth;
         font-weight: bold;
     }
     &__list {
@@ -48,28 +52,51 @@ img {
 }
 
 .form {
-	background: #fff;
+	background: white;
     box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
     width: 30%;
     margin: 30px auto;
     padding: 15px;
+    &__container {
+        margin-bottom: 2rem;
+        background-color: #FEFEFE;
+        padding: 0.4rem;
+        border: 1px solid #EEEEEE;
+        border-radius: 0.2rem;
+    }
 	&__group {
+        margin-top: 15px;
+        &--inline {
+            display: flex;
+
+            label {
+                flex: 0 0 14rem;
+            }
+
+            .form__control {
+                max-width: 20rem;
+            }
+        }
 	    label {
 	        display: block;
 	        margin-bottom: 5px;
 	    }
-	    margin-top: 15px;
 	}
 	&__control {
 	    font-size: 14px;
 	    width: 100%;
 	    display: block;
-	    background: #fafafa;
+	    background: $color_alabaster;
 	    border: none;
 	    border-radius: 2px;
 	    box-shadow: inset 0 1px 1px 0 rgba(0,0,0,.1);
 	    outline: none;
 	    padding: 8px;
+
+        &[type="checkbox"] {
+            width: auto;
+        }
+
 	    &:focus {
 	        background: rgba(225, 245, 254, 0.31);
 	    }
@@ -96,38 +123,38 @@ img {
     text-shadow: none;
     vertical-align: top;
     cursor: pointer;
-    background: #f4f4f4;
-    color: #484746;
-    box-shadow: 0 1px darken(#f4f4f4, 13%);
+    background: $color_wild_sand;
+    color: $color_fuscous_gray;
+    box-shadow: 0 1px darken($color_wild_sand, 13%);
     outline: none;
     text-decoration: none;
     display: inline-block;
     line-height: 1.15;
     &:active {
-        box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     }
     &[disabled] {
         opacity: 0.75;
         cursor: not-allowed;
     }
     &__primary {
-    	background: #3aa3e3;
-    	color: #fff;
-    	box-shadow: 0 1px darken(#3aa3e3, 13%);
+    	background: $color_picton_blue;
+    	color: white;
+    	box-shadow: 0 1px darken($color_picton_blue, 13%);
     }
     &__danger {
-        background: #E75650;
-        color: #fff;
-        box-shadow: 0 1px darken(#E75650, 13%);
+        background: $color_mandy;
+        color: white;
+        box-shadow: 0 1px darken($color_mandy, 13%);
     }
 }
 
 .error {
     &__control {
-        color: #e53935;
+        color: $color_cinnabar;
     }
     &__bg {
-        background: #ffcdd2!important;
+        background: $color_pastel_pink!important;
     }
 }
 
@@ -139,21 +166,21 @@ img {
     padding: 15px;
     border-radius: 2px;
     &__success {
-        background: #a5d6a7;
-        border: 1px solid #81c784;
-        color: #1b5e20;
+        background: $color_moss_green;
+        border: 1px solid $color_de_york;
+        color: $color_parsley;
     }
     &__error {
-        background: #ef9a9a;
-        border: 1px solid #E57373;
-        color: #b71c1c;
+        background: $color_sea_pink;
+        border: 1px solid $color_sun_glow;
+        color: $color_thunderbird;
     }
 }
 
 .recipe {
     &__header {
         box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
-        background: #fff;
+        background: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -173,7 +200,7 @@ img {
     &__inner {
         display: block;
         box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
-        background: #fff;
+        background: white;
         margin: 10px;
     }
     &__name {
@@ -192,11 +219,11 @@ img {
     }
     &__box {
         box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
-        background: #fff;
+        background: white;
         padding: 15px;
     }
     &__title {
-        color: #E91E63;
+        color: $color_amaranth;
     }
     &__image {
         width: 40%;
@@ -207,7 +234,7 @@ img {
     &__details_inner {
         margin-left: 25px;
         box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
-        background: #fff;
+        background: white;
         padding: 15px;
     }
     &__pantry {
@@ -216,7 +243,7 @@ img {
     &__pantry_inner {
         margin-left: 25px;
         box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
-        background: #fff;
+        background: white;
         padding: 15px;
     }
     &__ingredients {
@@ -230,7 +257,7 @@ img {
             justify-content: space-between;
             align-items: center;
             padding: 5px 0px;
-            border-top: 1px dashed #e9e9e9;
+            border-top: 1px dashed $color_mercury;
         }
     }
     &__directions {
@@ -242,24 +269,24 @@ img {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px dashed #e9e9e9;
+            border-top: 1px dashed $color_mercury;
         }
     }
     &__directions_inner {
         margin-left: 25px;
         box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
-        background: #fff;
+        background: white;
         padding: 15px;
     }
-    &__form {
+    &__ingredient {
         display: flex;
         justify-content: space-around;
         margin-bottom: 10px;
     }
-    &__ingredient {
+    &__pantry__ingredient {
         display: inline-block;
         padding: 0.4rem;
-        background-color: #002b36;
+        background-color: $color_daintree;
         color: white;
         border-radius: 0.2rem;
         margin: 0.3rem 0.3rem 0 0;
@@ -285,6 +312,20 @@ img {
     }
 }
 
+.grabber {
+    &::before {
+        content: "\f142 \f142";
+        letter-spacing: 0.1em;
+        font-family: FontAwesome;
+        margin-right: 0.4rem;
+        font-size: 0.9rem;
+        position: relative;
+        top: 0rem;
+        margin-left: 0.1rem;
+        color: lighten($color_daintree, 25%);
+    }
+}
+
 .nutrition-row {
     border-bottom: 2px solid black;
     padding-bottom: 0.4rem;
@@ -307,7 +348,7 @@ img {
 }
 
 .drop-zone {
-    border: 0.3rem dashed #002b36;
+    border: 0.3rem dashed $color_daintree;
     animation-name: pulse;
     animation-duration: 2s;
     animation-iteration-count: infinite;
@@ -318,11 +359,11 @@ img {
 }
 
 @keyframes pulse {
-    0%   {border-color: #002b36;}
-    25%  {border-color: lighten(#002b36, 15%);}
-    50%  {border-color: #002b36;}
-    75%  {border-color: lighten(#002b36, 15%);}
-    100% {border-color: #002b36;}
+    0%   {border-color: $color_daintree;}
+    25%  {border-color: lighten($color_daintree, 15%);}
+    50%  {border-color: $color_daintree;}
+    75%  {border-color: lighten($color_daintree, 15%);}
+    100% {border-color: $color_daintree;}
 }
 
 .empty-message {
@@ -332,25 +373,25 @@ img {
 }
 
 .row {
-    background-color: #fafafa;
+    background-color: $color_alabaster;
     padding: 0.4rem;
-    border: 1px solid #eee;
+    border: 1px solid $color_gallery;
     border-radius: 0.2rem;
 
     &__segment {
         width: 33.33333%;
-        line-height: 2;
+        line-height: 2.4;
     }
 
     &__handle {
-        padding: 0.4rem 0.4rem 0.4rem 0;
+        padding: 0.6rem 0.2rem 0rem 0.1rem;
     }
 }
 
 .image {
     &__upload {
         height: 257px;
-        background: #fafafa;
+        background: $color_alabaster;
         border: 1px dashed  rgba(0,0,0,.1);
         display: flex;
         justify-content: center;
@@ -368,8 +409,41 @@ img {
 
 .not__found {
     box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
-    background: #fff;
+    background: white;
     padding: 15px;
     width: 960px;
     margin: 30px auto;
+}
+
+.edit-ingredient-bar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 12rem;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 400ms;
+    text-align: center;
+
+    &.active {
+        opacity: 1;
+    }
+
+    .inner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    .message {
+        top: 50%;
+        position: absolute;
+        font-weight: bold;
+        color: $color_daintree;
+        width: 100%;
+        font-size: 1rem;
+    }
 }
