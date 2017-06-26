@@ -161,17 +161,20 @@ class IngredientController extends JsonApiController
 
             foreach($request->ingredientAttributes as $attributeData) {
 
+                $attribute = NULL;
+
                 // Try and load an existing attribute
                 if(!empty($attributeData['id'])) {
                     $attribute = Attribute::find($attributeData['id']);
-
+                    $response['method'] = 'loaded existing attribute';
                     // Once we loaded an attribute remove it from the list of all ids
-                    unset($existingAttributeIds[$attribute->is]);
+                    unset($existingAttributeIds[$attribute->id]);
                 }
 
                 // Create a new attribute if necessary
                 if(empty($attribute)) {
                     $attribute = new Attribute;
+                    $response['method'] = 'created new attribute';
                 }
 
                 $attribute->value = $attributeData['value'];
@@ -192,6 +195,8 @@ class IngredientController extends JsonApiController
                     $response['error'] = 'Invalid unit id';
                 }
 
+                $response['attributes'][] = $attribute->toJson();
+
                 $attribute->save();
 
             }
@@ -201,14 +206,13 @@ class IngredientController extends JsonApiController
         // If there are any attribute ids left in here then they have been deleted
         if(!empty($existingAttributeIds)) {
             Attribute::whereIn('id', $existingAttributeIds)->delete();
+            $response['deleted_attribute_ids'] = $existingAttributeIds;
         }
 
-        if(empty($response)) {
-            $response = [
-                'saved' => true,
-                'id' => $ingredient->id,
-                'message' => 'Saved changes to ' . $ingredient->name
-            ];
+        if(empty($response['error'])) {
+            $response['saved'] = true;
+            $response['id'] = $ingredient->id;
+            $response['message'] = 'Saved changes to ' . $ingredient->name;
         }
 
         return response()

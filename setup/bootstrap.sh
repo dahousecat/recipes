@@ -74,7 +74,7 @@ a2enmod ssl
 a2enmod headers
 
 ln -s /vagrant/setup/files/host.conf /etc/apache2/sites-available/host.conf
-#cp /vagrant/setup/files/xdebug.ini /etc/php5/mods-available/xdebug.ini
+cp /vagrant/setup/files/xdebug.ini /etc/php5/mods-available/xdebug.ini
 
 # Create .my.cnf
 cat > "/home/${USERNAME}/.my.cnf" << EOF

@@ -158,7 +158,7 @@
                     this.energyExactValue = convertEnergyUnit(value, 'calorie');
                     this.attributes[attributeType.safe_name] = this.energyExactValue.toFixed(0);
                 } else {
-                    this.attributes[attributeType.safe_name] = attribute.attributes.value * this.nutritionPer;
+                    this.attributes[attributeType.safe_name] = Math.round(attribute.attributes.value * this.nutritionPer);
                 }
             }
 
@@ -201,7 +201,17 @@
                 for (let x = 0; x < this.ingredient.ingredientAttributes.length; x++) {
                     let attribute = this.ingredient.ingredientAttributes[x];
                     let attributeType = attribute.attributes.attributeType;
-                    let value = attributeType.name == 'energy' ? this.energyExactValue : attribute.attributes.value;
+                    let value;
+
+                    if(attributeType.name === 'energy') {
+                        value = this.energyExactValue;
+                        if(this.energyUnit === 'calorie') {
+                            value = convertEnergyUnit(value, 'kj');
+                        }
+                    } else {
+                        value = attribute.attributes.value;
+                    }
+
                     data.ingredientAttributes.push({
                         id: attribute.id,
                         unit_id: attribute.relationships.unit.data.id,
@@ -242,11 +252,18 @@
             updateIngredientAttribute(safe_name) {
                 let foundAttribute = false;
                 let newValue = this.attributes[safe_name] / this.nutritionPer;
+
+                // Loop ingredient attributes to find the matching safe_name
                 for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
                     let ingredientAttribute = this.ingredient.ingredientAttributes[i];
                     if(ingredientAttribute.attributes.attributeType.safe_name == safe_name) {
                         foundAttribute = true;
                         ingredientAttribute.attributes.value = newValue;
+
+                        // Update the exact value
+                        if(safe_name == 'energy') {
+                            this.energyExactValue = newValue;
+                        }
                     }
                 }
 
@@ -254,7 +271,7 @@
 
                     let attributeType = this.getAttributeType(safe_name);
 
-                    let unitGramID = 6; // do we really need to pass this around if it's always gram
+                    let unitGramID = 6; // do we really need to pass this around if it's always gram?
 
                     this.ingredient.ingredientAttributes.push({
                         attributes: {

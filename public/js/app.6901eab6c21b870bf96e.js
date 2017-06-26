@@ -12191,7 +12191,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 this.energyExactValue = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__helpers_convert__["a" /* convertEnergyUnit */])(value, 'calorie');
                 this.attributes[attributeType.safe_name] = this.energyExactValue.toFixed(0);
             } else {
-                this.attributes[attributeType.safe_name] = attribute.attributes.value * this.nutritionPer;
+                this.attributes[attributeType.safe_name] = Math.round(attribute.attributes.value * this.nutritionPer);
             }
         }
 
@@ -12235,7 +12235,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             for (var _x = 0; _x < this.ingredient.ingredientAttributes.length; _x++) {
                 var attribute = this.ingredient.ingredientAttributes[_x];
                 var attributeType = attribute.attributes.attributeType;
-                var value = attributeType.name == 'energy' ? this.energyExactValue : attribute.attributes.value;
+                var value = void 0;
+
+                if (attributeType.name === 'energy') {
+                    value = this.energyExactValue;
+                    if (this.energyUnit === 'calorie') {
+                        value = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__helpers_convert__["a" /* convertEnergyUnit */])(value, 'kj');
+                    }
+                } else {
+                    value = attribute.attributes.value;
+                }
+
                 data.ingredientAttributes.push({
                     id: attribute.id,
                     unit_id: attribute.relationships.unit.data.id,
@@ -12273,11 +12283,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         updateIngredientAttribute: function updateIngredientAttribute(safe_name) {
             var foundAttribute = false;
             var newValue = this.attributes[safe_name] / this.nutritionPer;
+
+            // Loop ingredient attributes to find the matching safe_name
             for (var i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
                 var ingredientAttribute = this.ingredient.ingredientAttributes[i];
                 if (ingredientAttribute.attributes.attributeType.safe_name == safe_name) {
                     foundAttribute = true;
                     ingredientAttribute.attributes.value = newValue;
+
+                    // Update the exact value
+                    if (safe_name == 'energy') {
+                        this.energyExactValue = newValue;
+                    }
                 }
             }
 
@@ -12285,7 +12302,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                 var attributeType = this.getAttributeType(safe_name);
 
-                var unitGramID = 6; // do we really need to pass this around if it's always gram
+                var unitGramID = 6; // do we really need to pass this around if it's always gram?
 
                 this.ingredient.ingredientAttributes.push({
                     attributes: {
