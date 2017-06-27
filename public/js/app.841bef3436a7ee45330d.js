@@ -12121,6 +12121,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -12333,6 +12337,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                     return attributeType;
                 }
             }
+        },
+        getSearchUrl: function getSearchUrl(type) {
+
+            var attribute = type.attributes.name === 'energy' ? this.energyUnit : type.attributes.name;
+
+            return 'https://www.google.com.au/search?q=how+many+' + attribute + '+are+there+in+100g+of+' + this.ingredient.attributes.name;
         }
     }
 });
@@ -12667,10 +12677,12 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 				// array of unit types
 				var promises = [this.setAttributesArray(this.editIngredient[0]), this.fetchAttributeTypes()];
 				var _this = this;
-				document.body.classList.add('loading');
+
+				document.getElementById('overlay').classList.add('loading');
+
 				Promise.all(promises).then(function () {
 					_this.showIngredientModal = true;
-					document.body.classList.remove('loading');
+					document.getElementById('overlay').classList.remove('loading');
 				});
 			} else {
 				// Ingredient added to the recipe
@@ -15754,7 +15766,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('div', {
     staticClass: "modal-header"
   }, [_vm._v("\n                    Edit " + _vm._s(_vm.ingredient.attributes.name) + "\n                ")]), _vm._v(" "), _c('div', {
-    staticClass: "modal-body"
+    staticClass: "modal-body ingredient-form"
   }, [_c('div', {
     staticClass: "form__container"
   }, [_c('div', {
@@ -15806,8 +15818,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }), _vm._v(" "), (_vm.error.weight) ? _c('small', {
     staticClass: "error__control"
   }, [_vm._v(_vm._s(_vm.error.weight[0]))]) : _vm._e()])]), _vm._v(" "), _c('div', {
-    staticClass: "form__container"
-  }, [_c('p', [_vm._v("Would you measure " + _vm._s(_vm.ingredient.attributes.name) + " using...")]), _vm._v(" "), _c('div', {
+    staticClass: "form__container form__container--units"
+  }, [_c('p', {
+    staticClass: "form__title"
+  }, [_vm._v("Would you measure " + _vm._s(_vm.ingredient.attributes.name) + " using...")]), _vm._v(" "), _c('div', {
     staticClass: "form__group form__group--inline"
   }, [_c('label', [_vm._v("Volume (Litres or cups)")]), _vm._v(" "), _c('input', {
     directives: [{
@@ -15956,7 +15970,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     }
   })]), _vm._v(" "), _c('div', {
-    staticClass: "form__group"
+    staticClass: "form__group form__group--inline form__group--select"
   }, [_c('label', [_vm._v("Default unit id")]), _vm._v(" "), _c('select', {
     directives: [{
       name: "model",
@@ -15986,8 +16000,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     }, [_vm._v(_vm._s(unit.name))])
   }))])]), _vm._v(" "), _c('div', {
-    staticClass: "form__container"
-  }, [_c('p', [_vm._v("Nutritional information (per " + _vm._s(_vm.nutritionPer) + "g)")]), _vm._v(" "), _vm._l((_vm.attribute_types), function(type, index) {
+    staticClass: "form__container form__container--nutrition"
+  }, [_c('p', {
+    staticClass: "form__title"
+  }, [_vm._v("Nutritional information (per " + _vm._s(_vm.nutritionPer) + "g)")]), _vm._v(" "), _vm._l((_vm.attribute_types), function(type, index) {
     return _c('div', {
       staticClass: "form__group"
     }, [_c('div', {
@@ -16020,7 +16036,27 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       attrs: {
         "value": "kj"
       }
-    }, [_vm._v("Kj")])])]) : _c('label', [_vm._v(_vm._s(_vm.capitalize(type.attributes.name)) + " (" + _vm._s(type.attributes.unit) + ")")]), _vm._v(" "), _c('input', {
+    }, [_vm._v("Kj")])]), _vm._v(" "), _c('a', {
+      attrs: {
+        "href": _vm.getSearchUrl(type),
+        "target": "_blank"
+      }
+    }, [_c('i', {
+      staticClass: "fa fa-question-circle",
+      attrs: {
+        "aria-hidden": "true"
+      }
+    })])]) : _c('label', [_vm._v("\n                                    " + _vm._s(_vm.capitalize(type.attributes.name)) + " (" + _vm._s(type.attributes.unit) + ")\n                                    "), _c('a', {
+      attrs: {
+        "href": _vm.getSearchUrl(type),
+        "target": "_blank"
+      }
+    }, [_c('i', {
+      staticClass: "fa fa-question-circle",
+      attrs: {
+        "aria-hidden": "true"
+      }
+    })])]), _vm._v(" "), _c('input', {
       directives: [{
         name: "model",
         rawName: "v-model",

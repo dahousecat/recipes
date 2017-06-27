@@ -8,7 +8,7 @@
                         Edit {{ingredient.attributes.name}}
                     </div>
 
-                    <div class="modal-body">
+                    <div class="modal-body ingredient-form">
 
                         <div class="form__container">
                             <div class="form__group">
@@ -29,8 +29,9 @@
                             <!--</div>-->
                         </div>
 
-                        <div class="form__container">
-                            <p>Would you measure {{ingredient.attributes.name}} using...</p>
+                        <div class="form__container form__container--units">
+
+                            <p class="form__title">Would you measure {{ingredient.attributes.name}} using...</p>
 
                             <div class="form__group form__group--inline">
                                 <label>Volume (Litres or cups)</label>
@@ -48,8 +49,7 @@
                                 <label>Quantity (Count how many)</label>
                                 <input type="checkbox" class="form__control" v-model="ingredient.quantity" @change="updateDefaultUnitOptions()">
                             </div>
-
-                            <div class="form__group">
+                            <div class="form__group form__group--inline form__group--select">
                                 <label>Default unit id</label>
                                 <select type="text" class="form__control" v-model="ingredient.attributes.default_unit_id">
                                     <option v-for="(unit, index) in default_unit_options" :value="unit.id">{{unit.name}}</option>
@@ -57,8 +57,8 @@
                             </div>
                         </div>
 
-                        <div class="form__container">
-                            <p>Nutritional information (per {{nutritionPer}}g)</p>
+                        <div class="form__container form__container--nutrition">
+                            <p class="form__title">Nutritional information (per {{nutritionPer}}g)</p>
                             <div v-for="(type, index) in attribute_types" class="form__group">
                                 <div class="form__group form__group--inline">
 
@@ -67,8 +67,12 @@
                                             <option value="calorie">Calories</option>
                                             <option value="kj">Kj</option>
                                         </select>
+                                        <a :href="getSearchUrl(type)" target="_blank"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </label>
-                                    <label v-else>{{capitalize(type.attributes.name)}} ({{type.attributes.unit}})</label>
+                                    <label v-else>
+                                        {{capitalize(type.attributes.name)}} ({{type.attributes.unit}})
+                                        <a :href="getSearchUrl(type)" target="_blank"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    </label>
 
                                     <input type="text" class="form__control"
                                            v-model="attributes[type.attributes.safe_name]"
@@ -302,6 +306,14 @@
                         return attributeType;
                     }
                 }
+            },
+            getSearchUrl(type) {
+
+                let attribute = type.attributes.name === 'energy' ? this.energyUnit : type.attributes.name;
+
+                return 'https://www.google.com.au/search?q=how+many+' +
+                    attribute +
+                    '+are+there+in+100g+of+' + this.ingredient.attributes.name;
             }
         }
     }

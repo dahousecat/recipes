@@ -1,0 +1,12 @@
+$mq-breakpoints: (
+  xxs:  20em,
+  xs:   30em,
+  s:    35em,
+  m:    40em,
+  ml:   50em,
+  l:    60em,
+  xl:   80em,
+  xxl:  100em
+);
+
+@import '../../../node_modules/sass-mq/mq';

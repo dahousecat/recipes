@@ -9,6 +9,7 @@
     </head>
     <body>
         <div id="root"></div>
+        <div id="overlay"></div>
     </body>
     <script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
 </html>

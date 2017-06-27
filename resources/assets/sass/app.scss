@@ -1,4 +1,5 @@
 @import "~font-awesome/scss/font-awesome.scss";
+@import "breakpoints";
 @import "colours";
 @import "loader";
 @import "modal";
@@ -57,31 +58,60 @@ img {
     width: 30%;
     margin: 30px auto;
     padding: 15px;
+
     &__container {
         margin-bottom: 2rem;
         background-color: #FEFEFE;
-        padding: 0.4rem;
+        padding: 0.8rem;
         border: 1px solid #EEEEEE;
         border-radius: 0.2rem;
+
+        &--nutrition {
+            min-height: 22rem;
+
+            .form__control {
+                max-width: 6rem;
+            }
+        }
+
+        &--units {
+            min-height: 13rem;
+        }
     }
+
+    &__title {
+        font-weight: bold;
+        margin: 0rem 0 1rem;
+    }
+
 	&__group {
-        margin-top: 15px;
+        margin-top: 0.5rem;
+
         &--inline {
             display: flex;
+            justify-content: space-between;
 
             label {
-                flex: 0 0 14rem;
+                flex: 0 1 14rem;
             }
 
             .form__control {
-                max-width: 20rem;
+                max-width: 8em;
             }
         }
+
+        &--select {
+            label {
+                flex: 0 0 9rem;
+            }
+        }
+
 	    label {
 	        display: block;
 	        margin-bottom: 5px;
 	    }
 	}
+
 	&__control {
 	    font-size: 14px;
 	    width: 100%;
@@ -91,7 +121,7 @@ img {
 	    border-radius: 2px;
 	    box-shadow: inset 0 1px 1px 0 rgba(0,0,0,.1);
 	    outline: none;
-	    padding: 8px;
+	    padding: 0.4rem 1rem;
 
         &[type="checkbox"] {
             width: auto;
@@ -445,5 +475,25 @@ img {
         color: $color_daintree;
         width: 100%;
         font-size: 1rem;
+    }
+}
+
+.ingredient-form {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    .form__container {
+        width: 100%;
+        min-width: 17rem;
+        background-color: #EEE;
+
+        @include mq($from: m) {
+            width: 49%;
+        }
+
+        @include mq($from: l) {
+            width: 30%;
+        }
     }
 }

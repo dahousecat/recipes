@@ -9,11 +9,12 @@
     left: 0;
     position: absolute;
     background-color: rgba(0, 0, 0, 0.4);
+    z-index: 10;
   }
 
   &::after {
     content: '';
-    margin: 100px auto;
+    margin: auto;
     font-size: 0.8rem;
     width: 1em;
     height: 1em;
@@ -26,8 +27,9 @@
     -ms-transform: translateZ(0);
     transform: translateZ(0);
     position: absolute;
-    top: 0;
+    top: 50%;
     left: 50%;
+    z-index: 20;
   }
 }
 @-webkit-keyframes load5 {

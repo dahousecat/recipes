@@ -318,10 +318,12 @@
 					// array of unit types
                     let promises = [this.setAttributesArray(this.editIngredient[0]), this.fetchAttributeTypes()];
                     let _this = this;
-                    document.body.classList.add('loading');
+
+                    document.getElementById('overlay').classList.add('loading');
+
                     Promise.all(promises).then(function(){
                         _this.showIngredientModal = true;
-                        document.body.classList.remove('loading');
+                        document.getElementById('overlay').classList.remove('loading');
                     });
 
 				} else {
