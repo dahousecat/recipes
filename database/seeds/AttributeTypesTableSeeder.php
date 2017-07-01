@@ -15,20 +15,53 @@ class AttributeTypesTableSeeder extends Seeder
         AttributeType::truncate();
 
         $attribute_types = [
-            'energy' => 'kJ',
-            'protein' => 'g',
-            'total fat' => 'g',
-            'saturated fat' => 'g',
-            'carbohydrate' => 'g',
-            'sugar' => 'g',
-            'fibre' => 'g',
-            'sodium' => 'mg',
+            'energy' =>
+                [
+                    'unit' => 'kJ',
+                    'ndb_nutrient_id' => 208,
+                ],
+            'protein' =>
+                [
+                    'unit' => 'g',
+                    'ndb_nutrient_id' => 203,
+                ],
+            'total fat' =>
+                [
+                    'unit' => 'g',
+                    'ndb_nutrient_id' => 204,
+                ],
+            'saturated fat' =>
+                [
+                    'unit' => 'g',
+                    'ndb_nutrient_id' => 606,
+                ],
+            'carbohydrate' =>
+                [
+                    'unit' => 'g',
+                    'ndb_nutrient_id' => 205,
+                ],
+            'sugar' =>
+                [
+                    'unit' => 'g',
+                    'ndb_nutrient_id' => 269,
+                ],
+            'fibre' =>
+                [
+                    'unit' => 'g',
+                    'ndb_nutrient_id' => 291,
+                ],
+            'sodium' =>
+                [
+                    'unit' => 'mg',
+                    'ndb_nutrient_id' => 307,
+                ],
         ];
 
-        foreach($attribute_types as $name => $unit) {
+        foreach($attribute_types as $name => $details) {
             DB::table('attribute_types')->insert([
                 'name' => $name,
-                'unit' => $unit,
+                'unit' => $details['unit'],
+                'ndb_nutrient_id' => $details['ndb_nutrient_id'],
             ]);
         }
     }

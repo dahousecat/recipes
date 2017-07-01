@@ -27,6 +27,7 @@
   height: calc(100vh - 2rem);
   max-height: 100%;
   margin: 0 auto;
+  position: relative;
 }
 
 .modal-header {
@@ -99,4 +100,14 @@
 .modal-leave-active .modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: white;
+  z-index: 500;
 }

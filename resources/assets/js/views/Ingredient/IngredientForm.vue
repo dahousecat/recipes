@@ -2,7 +2,7 @@
     <transition name="modal">
         <div class="modal-mask">
             <div class="modal-wrapper">
-                <div class="modal-container">
+                <div class="modal-container" :class="modalLoading ? 'loading' : ''">
 
                     <div class="modal-header">
                         Edit {{ingredient.attributes.name}}
@@ -20,6 +20,11 @@
                                 <label>Weight (grams)</label>
                                 <input type="text" class="form__control" v-model="ingredient.attributes.weight">
                                 <small class="error__control" v-if="error.weight">{{error.weight[0]}}</small>
+                            </div>
+                            <div class="form__group">
+                                <label>Matching NDB item</label>
+                                <input type="text" class="form__control" disabled v-model="ndb.name">
+                                <input type="button" value="Search" @click="searchNdb">
                             </div>
 
                             <!--<div class="form__group">-->
@@ -57,8 +62,11 @@
                             </div>
                         </div>
 
-                        <div class="form__container form__container--nutrition">
+                        <div class="form__container form__container--nutrition" :class="nutritionUpdating ? 'loading' : ''">
                             <p class="form__title">Nutritional information (per {{nutritionPer}}g)</p>
+
+                            <button @click="searchNdb()">Autofill</button>
+
                             <div v-for="(type, index) in attribute_types" class="form__group">
                                 <div class="form__group form__group--inline">
 
@@ -67,11 +75,15 @@
                                             <option value="calorie">Calories</option>
                                             <option value="kj">Kj</option>
                                         </select>
-                                        <a :href="getSearchUrl(type)" target="_blank"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <a :href="getSearchUrl(type)" target="_blank">
+                                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                        </a>
                                     </label>
                                     <label v-else>
                                         {{capitalize(type.attributes.name)}} ({{type.attributes.unit}})
-                                        <a :href="getSearchUrl(type)" target="_blank"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <a :href="getSearchUrl(type)" target="_blank">
+                                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                        </a>
                                     </label>
 
                                     <input type="text" class="form__control"
@@ -90,14 +102,37 @@
                             </button>
                         </slot>
                     </div>
+
+                    <div class="modal-overlay" v-if="Object.keys(ndb.groups).length">
+                        <div class="modal-header">
+                            Possible NDB matches
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li v-for="(group, key, index) in ndb.groups">
+
+                                    <span class="group">{{key}}</span>
+
+                                    <ul>
+                                        <li v-for="(item, index) in group">
+                                            <a @click="selectNdbIngredient(item)">{{item.name}}</a>
+                                        </li>
+                                    </ul>
+
+
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
     </transition>
 </template>
 <script type="text/javascript">
     import { convertEnergyUnit } from '../../helpers/convert';
-    import { get, post } from '../../helpers/api';
+    import { get, post, getExernal } from '../../helpers/api';
 
     export default {
         components: {
@@ -126,6 +161,13 @@
                 storeURL: '/api/ingredients/%',
                 energyExactValue: 0,
                 default_unit_options: [],
+                nutrientsApiKey: 'Om7a9m8XAvN0NzN8TpcuMXXcHZCvQlg4MvRL3BJJ',
+                ndb: {
+                    'name': '',
+                    'groups': {},
+                },
+                modalLoading: false,
+                nutritionUpdating: false,
             }
         },
         created() {
@@ -308,12 +350,49 @@
                 }
             },
             getSearchUrl(type) {
-
                 let attribute = type.attributes.name === 'energy' ? this.energyUnit : type.attributes.name;
-
                 return 'https://www.google.com.au/search?q=how+many+' +
                     attribute +
                     '+are+there+in+100g+of+' + this.ingredient.attributes.name;
+            },
+            hintModal(type) {
+                //this.hintModalUrl = this.getSearchUrl(type);
+                // this.doSearch();
+            },
+            searchNdb() {
+                this.modalLoading = true;
+                get('/api/ndb/search/' + this.ingredient.attributes.name)
+                    .then((res) => {
+                        this.modalLoading = false;
+                        this.ndb.groups = res.data.groups;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            selectNdbIngredient(item) {
+                this.nutritionUpdating = true;
+
+                this.ndb.groups = {};
+                get('/api/ndb/view/' + item.id)
+                    .then((res) => {
+
+                        console.log(res, 'res');
+
+                        this.nutritionUpdating = false;
+                        this.energyUnit = 'calorie';
+
+                        for (let i = 0; i < res.data.length; i++) {
+                            let row = res.data[i];
+                            console.log(row);
+                            this.attributes[row.attribute_safe_name] = row.value;
+                            console.log('Set ' + row.attribute_safe_name + ' to ' + row.value);
+                        }
+
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
             }
         }
     }

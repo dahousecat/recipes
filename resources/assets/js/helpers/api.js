@@ -10,6 +10,19 @@ export function get(url) {
     })
 }
 
+export function getExernal(url) {
+    return axios({
+    	method: 'POST',
+    	url: url,
+    	headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET",
+            "Access-Control-Max-Age": "3600",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+    	}
+    })
+}
+
 export function post(url, payload) {
     return axios({
     	method: 'POST',

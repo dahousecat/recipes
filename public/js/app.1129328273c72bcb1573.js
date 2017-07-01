@@ -431,6 +431,7 @@ module.exports = function normalizeComponent (
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["b"] = get;
+/* unused harmony export getExernal */
 /* harmony export (immutable) */ __webpack_exports__["a"] = post;
 /* harmony export (immutable) */ __webpack_exports__["c"] = del;
 /* harmony export (immutable) */ __webpack_exports__["d"] = interceptors;
@@ -445,6 +446,19 @@ function get(url) {
         url: url,
         headers: {
             'Authorization': 'Bearer ' + __WEBPACK_IMPORTED_MODULE_1__store_auth__["a" /* default */].state.api_token
+        }
+    });
+}
+
+function getExernal(url) {
+    return __WEBPACK_IMPORTED_MODULE_0_axios___default()({
+        method: 'POST',
+        url: url,
+        headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET",
+            "Access-Control-Max-Age": "3600",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
         }
     });
 }
@@ -12125,6 +12139,41 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -12154,7 +12203,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             energyUnit: 'calorie',
             storeURL: '/api/ingredients/%',
             energyExactValue: 0,
-            default_unit_options: []
+            default_unit_options: [],
+            nutrientsApiKey: 'Om7a9m8XAvN0NzN8TpcuMXXcHZCvQlg4MvRL3BJJ',
+            ndb: {
+                'name': '',
+                'groups': {}
+            },
+            modalLoading: false,
+            nutritionUpdating: false
         };
     },
     created: function created() {
@@ -12339,10 +12395,46 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         },
         getSearchUrl: function getSearchUrl(type) {
-
             var attribute = type.attributes.name === 'energy' ? this.energyUnit : type.attributes.name;
-
             return 'https://www.google.com.au/search?q=how+many+' + attribute + '+are+there+in+100g+of+' + this.ingredient.attributes.name;
+        },
+        hintModal: function hintModal(type) {
+            //this.hintModalUrl = this.getSearchUrl(type);
+            // this.doSearch();
+        },
+        searchNdb: function searchNdb() {
+            var _this2 = this;
+
+            this.modalLoading = true;
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__helpers_api__["b" /* get */])('/api/ndb/search/' + this.ingredient.attributes.name).then(function (res) {
+                _this2.modalLoading = false;
+                _this2.ndb.groups = res.data.groups;
+            }).catch(function (error) {
+                console.log(error);
+            });
+        },
+        selectNdbIngredient: function selectNdbIngredient(item) {
+            var _this3 = this;
+
+            this.nutritionUpdating = true;
+
+            this.ndb.groups = {};
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__helpers_api__["b" /* get */])('/api/ndb/view/' + item.id).then(function (res) {
+
+                console.log(res, 'res');
+
+                _this3.nutritionUpdating = false;
+                _this3.energyUnit = 'calorie';
+
+                for (var i = 0; i < res.data.length; i++) {
+                    var row = res.data[i];
+                    console.log(row);
+                    _this3.attributes[row.attribute_safe_name] = row.value;
+                    console.log('Set ' + row.attribute_safe_name + ' to ' + row.value);
+                }
+            }).catch(function (error) {
+                console.log(error);
+            });
         }
     }
 });
@@ -15762,7 +15854,8 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('div', {
     staticClass: "modal-wrapper"
   }, [_c('div', {
-    staticClass: "modal-container"
+    staticClass: "modal-container",
+    class: _vm.modalLoading ? 'loading' : ''
   }, [_c('div', {
     staticClass: "modal-header"
   }, [_vm._v("\n                    Edit " + _vm._s(_vm.ingredient.attributes.name) + "\n                ")]), _vm._v(" "), _c('div', {
@@ -15817,7 +15910,38 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }), _vm._v(" "), (_vm.error.weight) ? _c('small', {
     staticClass: "error__control"
-  }, [_vm._v(_vm._s(_vm.error.weight[0]))]) : _vm._e()])]), _vm._v(" "), _c('div', {
+  }, [_vm._v(_vm._s(_vm.error.weight[0]))]) : _vm._e()]), _vm._v(" "), _c('div', {
+    staticClass: "form__group"
+  }, [_c('label', [_vm._v("Matching NDB item")]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.ndb.name),
+      expression: "ndb.name"
+    }],
+    staticClass: "form__control",
+    attrs: {
+      "type": "text",
+      "disabled": ""
+    },
+    domProps: {
+      "value": (_vm.ndb.name)
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.ndb.name = $event.target.value
+      }
+    }
+  }), _vm._v(" "), _c('input', {
+    attrs: {
+      "type": "button",
+      "value": "Search"
+    },
+    on: {
+      "click": _vm.searchNdb
+    }
+  })])]), _vm._v(" "), _c('div', {
     staticClass: "form__container form__container--units"
   }, [_c('p', {
     staticClass: "form__title"
@@ -16000,10 +16124,17 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     }, [_vm._v(_vm._s(unit.name))])
   }))])]), _vm._v(" "), _c('div', {
-    staticClass: "form__container form__container--nutrition"
+    staticClass: "form__container form__container--nutrition",
+    class: _vm.nutritionUpdating ? 'loading' : ''
   }, [_c('p', {
     staticClass: "form__title"
-  }, [_vm._v("Nutritional information (per " + _vm._s(_vm.nutritionPer) + "g)")]), _vm._v(" "), _vm._l((_vm.attribute_types), function(type, index) {
+  }, [_vm._v("Nutritional information (per " + _vm._s(_vm.nutritionPer) + "g)")]), _vm._v(" "), _c('button', {
+    on: {
+      "click": function($event) {
+        _vm.searchNdb()
+      }
+    }
+  }, [_vm._v("Autofill")]), _vm._v(" "), _vm._l((_vm.attribute_types), function(type, index) {
     return _c('div', {
       staticClass: "form__group"
     }, [_c('div', {
@@ -16095,7 +16226,25 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         _vm.save()
       }
     }
-  }, [_vm._v("\n                            Save\n                        ")])])], 2)])])])])
+  }, [_vm._v("\n                            Save\n                        ")])])], 2), _vm._v(" "), (Object.keys(_vm.ndb.groups).length) ? _c('div', {
+    staticClass: "modal-overlay"
+  }, [_c('div', {
+    staticClass: "modal-header"
+  }, [_vm._v("\n                        Possible NDB matches\n                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "modal-body"
+  }, [_c('ul', _vm._l((_vm.ndb.groups), function(group, key, index) {
+    return _c('li', [_c('span', {
+      staticClass: "group"
+    }, [_vm._v(_vm._s(key))]), _vm._v(" "), _c('ul', _vm._l((group), function(item, index) {
+      return _c('li', [_c('a', {
+        on: {
+          "click": function($event) {
+            _vm.selectNdbIngredient(item)
+          }
+        }
+      }, [_vm._v(_vm._s(item.name))])])
+    }))])
+  }))])]) : _vm._e()])])])])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
