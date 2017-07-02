@@ -28,19 +28,16 @@ class IngredientsTableSeeder extends Seeder
                 'default_unit' => 'quantity',
                 'attributes' => [
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'energy',
-                        'value' => 1.50624,
+                        'value' => 36,
                     ],
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'sugar',
-                        'value' => 0.08,
+                        'value' => 0.8,
                     ],
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'protein',
-                        'value' => 0.005,
+                        'value' => 0.5,
                     ],
                 ],
             ],
@@ -51,19 +48,16 @@ class IngredientsTableSeeder extends Seeder
                 'default_unit' => 'quantity',
                 'attributes' => [
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'energy',
-                        'value' => 1.71544,
+                        'value' => 41,
                     ],
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'sugar',
-                        'value' => 0.047,
+                        'value' => 4.7,
                     ],
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'protein',
-                        'value' => 0.009,
+                        'value' => 0.9,
                     ],
                 ],
             ],
@@ -73,19 +67,16 @@ class IngredientsTableSeeder extends Seeder
                 'default_unit' => 'litre',
                 'attributes' => [
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'energy',
-                        'value' => 0.79496,
+                        'value' => 19,
                     ],
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'sugar',
-                        'value' => 0.05,
+                        'value' => 5,
                     ],
                     [
-                        'unit' => 'gram',
                         'attribute_type' => 'protein',
-                        'value' => 0.007,
+                        'value' => 0.7,
                     ],
                 ],
             ],
@@ -154,11 +145,9 @@ class IngredientsTableSeeder extends Seeder
             if(!empty($data['attributes'])) {
                 foreach($data['attributes'] as $attribute) {
 
-                    $unit = Unit::loadByName($attribute['unit']);
                     $attribute_type = AttributeType::loadByName($attribute['attribute_type']);
 
                     Attribute::create([
-                        'unit_id' => $unit->id,
                         'ingredient_id' => $ingredient->id,
                         'value' => $attribute['value'],
                         'attribute_type_id' => $attribute_type->id,

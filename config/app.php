@@ -178,7 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         'Conner\Kint\KintServiceProvider',
-        Barryvdh\Debugbar\ServiceProvider::class,
+//        Barryvdh\Debugbar\ServiceProvider::class,
 
     ],
 

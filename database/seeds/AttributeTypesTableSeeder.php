@@ -17,7 +17,7 @@ class AttributeTypesTableSeeder extends Seeder
         $attribute_types = [
             'energy' =>
                 [
-                    'unit' => 'kJ',
+                    'unit' => 'cal',
                     'ndb_nutrient_id' => 208,
                 ],
             'protein' =>

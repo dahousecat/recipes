@@ -15,7 +15,6 @@ class CreateAttributesTable extends Migration
     {
         Schema::create('attributes', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('unit_id')->unsigned();
 //            $table->foreign('unit_id')->references('id')->on('units');
             $table->integer('ingredient_id')->unsigned();
 //            $table->foreign('ingredient_id')->references('id')->on('ingredients');

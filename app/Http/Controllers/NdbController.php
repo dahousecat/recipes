@@ -22,11 +22,15 @@ class NdbController extends Controller
             'max' => 25,
             'offset' => 0,
             'api_key' => $this->apiKey,
+            'ds' => 'Standard Reference',
         ];
         $url = $this->apiUrl . '/ndb/search/?' . http_build_query($params);
+
         $output = $this->curl($url);
 
         $data = json_decode($output);
+
+        $return['groups'] = [];
 
         foreach($data->list->item as $item) {
             if($item->ds == 'SR') {

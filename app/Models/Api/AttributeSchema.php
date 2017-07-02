@@ -19,12 +19,9 @@ class AttributeSchema extends SchemaProvider
         /** @var Attribute $attribute */
         $attrs = [
             'value' => $attribute->value,
-            'attributeType' => [
-                'id' => $attribute->attributeType->id,
-                'name' => $attribute->attributeType->name,
-                'safe_name' => str_replace(' ', '_', $attribute->attributeType->name),
-                'unit' => $attribute->attributeType->unit,
-            ],
+            'type_id' => $attribute->attributeType->id,
+            'type_name' => $attribute->attributeType->name,
+            'type_safe_name' => str_replace(' ', '_', $attribute->attributeType->name),
         ];
         return $attrs;
     }
@@ -32,9 +29,6 @@ class AttributeSchema extends SchemaProvider
     public function getRelationships($attribute, $isPrimary, array $includeList)
     {
         return [
-            'unit' => [
-                self::DATA => $attribute->unit,
-            ],
             'ingredient' => [
                 self::DATA => $attribute->ingredient,
             ],

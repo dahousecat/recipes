@@ -128,14 +128,13 @@ class IngredientController extends JsonApiController
             'name' => 'required|max:255',
             'description' => 'required|max:3000',
             'image' => 'image',
-            'weight' => 'required|numeric|min:0',
+            'weight' => 'numeric|min:0',
             'units_types' => 'array',
             'units_types.*.name' => 'required|string',
             'units' => 'array',
             'units.*' => 'required|numeric|min:1',
             'ingredientAttributes' => 'array',
-            'ingredientAttributes.*.id' => 'numeric|min:1',
-            'ingredientAttributes.*.unit_id' => 'required|numeric|min:1',
+            'ingredientAttributes.*.id' => '',
             'ingredientAttributes.*.value' => 'required|numeric',
             'ingredientAttributes.*.attribute_type_id' => 'required|numeric|min:1',
         ]);
@@ -185,14 +184,6 @@ class IngredientController extends JsonApiController
                     $attribute->attribute_type_id = $attributeType->id;
                 } else {
                     $response['error'] = 'Invalid attribute type id';
-                }
-
-                $unit = Unit::find($attributeData['unit_id']);
-                if(!empty($unit)) {
-//                    $attribute->unit()->save($unit);
-                    $attribute->unit_id = $unit->id;
-                } else {
-                    $response['error'] = 'Invalid unit id';
                 }
 
                 $response['attributes'][] = $attribute->toJson();

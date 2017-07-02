@@ -9,7 +9,6 @@ class Attribute extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'unit_id',
         'ingredient_id',
         'value',
         'attribute_type_id',
@@ -21,13 +20,6 @@ class Attribute extends Model
     public function ingredient()
     {
         return $this->belongsTo('App\Models\Ingredient');
-    }
-
-    /**
-     * The unit for this attribute.
-     */
-    public function unit() {
-        return $this->belongsTo('App\Models\Unit');
     }
 
     /**

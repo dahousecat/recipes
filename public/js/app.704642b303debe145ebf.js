@@ -12198,7 +12198,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data: function data() {
         return {
             error: {},
-            attributes: {},
+            //                attributes: {},
             nutritionPer: 100, // grams
             energyUnit: 'calorie',
             storeURL: '/api/ingredients/%',
@@ -12214,8 +12214,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
     created: function created() {
-
-        console.log(this.ingredient, 'this.ingredient created');
 
         this.ingredient.volume = false;
         this.ingredient.weight = false;
@@ -12240,18 +12238,32 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
 
         // Set attributes default values
-        for (var _i = 0; _i < this.ingredient.ingredientAttributes.length; _i++) {
-            var attribute = this.ingredient.ingredientAttributes[_i];
+        //            for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
+        //                let attribute = this.ingredient.ingredientAttributes[i];
+        //
+        //                let attributeType = attribute.attributes.attributeType;
+        //
+        //                if(attributeType.safe_name == 'energy') {
+        //                    // default energy unit it calorie so convert from Kj
+        //                    let value = attribute.attributes.value * this.nutritionPer;
+        //                    this.energyExactValue = convertEnergyUnit(value, 'calorie');
+        //                    this.attributes[attributeType.safe_name] = this.energyExactValue.toFixed(0);
+        //                } else {
+        //                    this.attributes[attributeType.safe_name] = Math.round(attribute.attributes.value * this.nutritionPer);
+        //                }
+        //            }
 
-            var attributeType = attribute.attributes.attributeType;
 
-            if (attributeType.safe_name == 'energy') {
-                // default energy unit it calorie so convert from Kj
-                var value = attribute.attributes.value * this.nutritionPer;
-                this.energyExactValue = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__helpers_convert__["a" /* convertEnergyUnit */])(value, 'calorie');
-                this.attributes[attributeType.safe_name] = this.energyExactValue.toFixed(0);
-            } else {
-                this.attributes[attributeType.safe_name] = Math.round(attribute.attributes.value * this.nutritionPer);
+        // Set empty strings for any attributes that do not have a value yet
+        for (var _i = 0; _i < this.attribute_types.length; _i++) {
+            var attribute_type = this.attribute_types[_i];
+            if (typeof this.ingredient.ingredientAttributes[attribute_type.attributes.safe_name] === 'undefined') {
+                this.ingredient.ingredientAttributes[attribute_type.attributes.safe_name] = {
+                    id: null,
+                    value: '',
+                    type_id: attribute_type.id,
+                    type_name: attribute_type.attributes.name
+                };
             }
         }
 
@@ -12292,29 +12304,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
 
             // Set attributes
-            for (var _x = 0; _x < this.ingredient.ingredientAttributes.length; _x++) {
-                var attribute = this.ingredient.ingredientAttributes[_x];
-                var attributeType = attribute.attributes.attributeType;
-                var value = void 0;
+            for (var safe_name in this.ingredient.ingredientAttributes) {
+                if (this.ingredient.ingredientAttributes.hasOwnProperty(safe_name)) {
+                    var attribute = this.ingredient.ingredientAttributes[safe_name];
 
-                if (attributeType.name === 'energy') {
-                    value = this.energyExactValue;
-                    if (this.energyUnit === 'calorie') {
-                        value = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__helpers_convert__["a" /* convertEnergyUnit */])(value, 'kj');
-                    }
-                } else {
-                    value = attribute.attributes.value;
+                    data.ingredientAttributes.push({
+                        id: attribute.id,
+                        value: attribute.value,
+                        attribute_type_id: attribute.type_id
+                    });
                 }
-
-                data.ingredientAttributes.push({
-                    id: attribute.id,
-                    unit_id: attribute.relationships.unit.data.id,
-                    value: value,
-                    attribute_type_id: attribute.attributes.attributeType.id
-                });
             }
-
-            console.log(data, 'data');
 
             __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__helpers_api__["a" /* post */])(this.storeURL, data).then(function (res) {
 
@@ -12340,52 +12340,53 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 }
             }
         },
-        updateIngredientAttribute: function updateIngredientAttribute(safe_name) {
-            var foundAttribute = false;
-            var newValue = this.attributes[safe_name] / this.nutritionPer;
 
-            // Loop ingredient attributes to find the matching safe_name
-            for (var i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
-                var ingredientAttribute = this.ingredient.ingredientAttributes[i];
-                if (ingredientAttribute.attributes.attributeType.safe_name == safe_name) {
-                    foundAttribute = true;
-                    ingredientAttribute.attributes.value = newValue;
-
-                    // Update the exact value
-                    if (safe_name == 'energy') {
-                        this.energyExactValue = newValue;
-                    }
-                }
-            }
-
-            if (!foundAttribute) {
-
-                var attributeType = this.getAttributeType(safe_name);
-
-                var unitGramID = 6; // do we really need to pass this around if it's always gram?
-
-                this.ingredient.ingredientAttributes.push({
-                    attributes: {
-                        attributeType: {
-                            id: attributeType.id,
-                            name: attributeType.attributes.name,
-                            safe_name: attributeType.attributes.safe_name,
-                            unit: attributeType.attributes.unit
-                        },
-                        unit: 'gram',
-                        value: newValue
-                    },
-                    relationships: {
-                        ingredient: {
-                            data: { id: this.ingredient.id, type: 'ingredient' }
-                        },
-                        unit: {
-                            data: { id: unitGramID, type: 'unit' }
-                        }
-                    }
-                });
-            }
-        },
+        //            updateIngredientAttribute(safe_name) {
+        //                let foundAttribute = false;
+        //                let newValue = this.attributes[safe_name] / this.nutritionPer;
+        //
+        //                // Loop ingredient attributes to find the matching safe_name
+        //                for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
+        //                    let ingredientAttribute = this.ingredient.ingredientAttributes[i];
+        //                    if(ingredientAttribute.attributes.attributeType.safe_name == safe_name) {
+        //                        foundAttribute = true;
+        //                        ingredientAttribute.attributes.value = newValue;
+        //
+        //                        // Update the exact value
+        //                        if(safe_name == 'energy') {
+        //                            this.energyExactValue = newValue;
+        //                        }
+        //                    }
+        //                }
+        //
+        //                if(!foundAttribute) {
+        //
+        //                    let attributeType = this.getAttributeType(safe_name);
+        //
+        //                    let unitGramID = 6; // do we really need to pass this around if it's always gram?
+        //
+        //                    this.ingredient.ingredientAttributes.push({
+        //                        attributes: {
+        //                            attributeType: {
+        //                                id: attributeType.id,
+        //                                name: attributeType.attributes.name,
+        //                                safe_name: attributeType.attributes.safe_name,
+        //                                unit: attributeType.attributes.unit,
+        //                            },
+        //                            unit: 'gram',
+        //                            value: newValue,
+        //                        },
+        //                        relationships: {
+        //                            ingredient: {
+        //                                data: {id: this.ingredient.id, type: 'ingredient'},
+        //                            },
+        //                            unit: {
+        //                                data: {id: unitGramID, type: 'unit'},
+        //                            },
+        //                        },
+        //                    });
+        //                }
+        //            },
         getAttributeType: function getAttributeType(safe_name) {
             for (var i = 0; i < this.attribute_types.length; i++) {
                 var attributeType = this.attribute_types[i];
@@ -12421,16 +12422,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.ndb.groups = {};
             __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__helpers_api__["b" /* get */])('/api/ndb/view/' + item.id).then(function (res) {
 
-                console.log(res, 'res');
-
                 _this3.nutritionUpdating = false;
                 _this3.energyUnit = 'calorie';
 
                 for (var i = 0; i < res.data.length; i++) {
                     var row = res.data[i];
-                    console.log(row);
-                    _this3.attributes[row.attribute_safe_name] = row.value;
-                    console.log('Set ' + row.attribute_safe_name + ' to ' + row.value);
+                    _this3.ingredient.ingredientAttributes[row.attribute_safe_name].value = row.value;
                 }
             }).catch(function (error) {
                 console.log(error);
@@ -12767,7 +12764,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 
 				// Only show the modal once the ingredients attributes array has been built and we've fetched the
 				// array of unit types
-				var promises = [this.setAttributesArray(this.editIngredient[0]), this.fetchAttributeTypes()];
+				var promises = [this.setIngredientAttributes(this.editIngredient[0]), this.fetchAttributeTypes()];
 				var _this = this;
 
 				document.getElementById('overlay').classList.add('loading');
@@ -12785,7 +12782,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 					// Set attributes array (ingredient attributes, not json api attributes)
 					this.nutritionUpdating = true;
 					var _this4 = this;
-					this.setAttributesArray(row).then(function () {
+					this.setIngredientAttributes(row).then(function () {
 						_this4.updateNutrition();
 					});
 				}
@@ -12802,19 +12799,23 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 				});
 			}
 		},
-		setAttributesArray: function setAttributesArray(ingredient) {
+		setIngredientAttributes: function setIngredientAttributes(ingredient) {
 			var _this = this;
 			return new Promise(function (resolve, reject) {
 				if (typeof ingredient.ingredientAttributes === 'undefined') {
 					// Load the attributes for this ingredient
 					__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/ingredient/' + ingredient.id + '/attributes').then(function (res) {
 						var attributes = res.data.data;
-						// Attach the name of the unit from the units array
+						ingredient.ingredientAttributes = {};
 						for (var i = 0; i < attributes.length; i++) {
-							var unit = _this.getUnit(attributes[i].relationships.unit.data.id);
-							attributes[i].attributes.unit = unit.attributes.name;
+							var attribute = attributes[i];
+							ingredient.ingredientAttributes[attribute.attributes.type_safe_name] = {
+								id: attribute.id,
+								value: attribute.attributes.value,
+								type_id: attribute.attributes.type_id,
+								type_name: attribute.attributes.type_name
+							};
 						}
-						ingredient.ingredientAttributes = attributes;
 						resolve();
 					}).catch(function (error) {
 						console.log(error);
@@ -16139,35 +16140,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       staticClass: "form__group"
     }, [_c('div', {
       staticClass: "form__group form__group--inline"
-    }, [(type.attributes.name === 'energy') ? _c('label', [_c('select', {
-      directives: [{
-        name: "model",
-        rawName: "v-model",
-        value: (_vm.energyUnit),
-        expression: "energyUnit"
-      }],
-      on: {
-        "change": [function($event) {
-          var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
-            return o.selected
-          }).map(function(o) {
-            var val = "_value" in o ? o._value : o.value;
-            return val
-          });
-          _vm.energyUnit = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-        }, function($event) {
-          _vm.convertIngredientFormEnergyUnit()
-        }]
-      }
-    }, [_c('option', {
-      attrs: {
-        "value": "calorie"
-      }
-    }, [_vm._v("Calories")]), _vm._v(" "), _c('option', {
-      attrs: {
-        "value": "kj"
-      }
-    }, [_vm._v("Kj")])]), _vm._v(" "), _c('a', {
+    }, [(type.attributes.name === 'energy') ? _c('label', [_vm._v("\n                                    Energy\n                                    "), _c('a', {
       attrs: {
         "href": _vm.getSearchUrl(type),
         "target": "_blank"
@@ -16191,29 +16164,20 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       directives: [{
         name: "model",
         rawName: "v-model",
-        value: (_vm.attributes[type.attributes.safe_name]),
-        expression: "attributes[type.attributes.safe_name]"
+        value: (_vm.ingredient.ingredientAttributes[type.attributes.safe_name].value),
+        expression: "ingredient.ingredientAttributes[type.attributes.safe_name].value"
       }],
       staticClass: "form__control",
       attrs: {
         "type": "text"
       },
       domProps: {
-        "value": (_vm.attributes[type.attributes.safe_name])
+        "value": (_vm.ingredient.ingredientAttributes[type.attributes.safe_name].value)
       },
       on: {
-        "change": function($event) {
-          _vm.updateIngredientAttribute(type.attributes.safe_name)
-        },
         "input": function($event) {
           if ($event.target.composing) { return; }
-          var $$exp = _vm.attributes,
-            $$idx = type.attributes.safe_name;
-          if (!Array.isArray($$exp)) {
-            _vm.attributes[type.attributes.safe_name] = $event.target.value
-          } else {
-            $$exp.splice($$idx, 1, $event.target.value)
-          }
+          _vm.ingredient.ingredientAttributes[type.attributes.safe_name].value = $event.target.value
         }
       }
     })])])

@@ -316,7 +316,7 @@
 
                     // Only show the modal once the ingredients attributes array has been built and we've fetched the
 					// array of unit types
-                    let promises = [this.setAttributesArray(this.editIngredient[0]), this.fetchAttributeTypes()];
+                    let promises = [this.setIngredientAttributes(this.editIngredient[0]), this.fetchAttributeTypes()];
                     let _this = this;
 
                     document.getElementById('overlay').classList.add('loading');
@@ -335,7 +335,7 @@
                         // Set attributes array (ingredient attributes, not json api attributes)
                         this.nutritionUpdating = true;
                         let _this = this;
-                        this.setAttributesArray(row).then(function(){
+                        this.setIngredientAttributes(row).then(function(){
                             _this.updateNutrition();
 						});
                     }
@@ -353,7 +353,7 @@
 					});
 				}
 			},
-			setAttributesArray(ingredient) {
+			setIngredientAttributes(ingredient) {
                 let _this = this;
                 return new Promise(function(resolve, reject){
                     if(typeof ingredient.ingredientAttributes === 'undefined') {
@@ -361,12 +361,16 @@
                         get('/api/ingredient/' + ingredient.id + '/attributes')
                             .then((res) => {
                                 let attributes = res.data.data;
-                                // Attach the name of the unit from the units array
+                                ingredient.ingredientAttributes = {};
                                 for (let i = 0; i < attributes.length; i++) {
-                                    let unit = _this.getUnit(attributes[i].relationships.unit.data.id);
-                                    attributes[i].attributes.unit = unit.attributes.name;
+                                    let attribute = attributes[i];
+                                    ingredient.ingredientAttributes[attribute.attributes.type_safe_name] = {
+                                        id: attribute.id,
+                                        value: attribute.attributes.value,
+                                        type_id: attribute.attributes.type_id,
+                                        type_name: attribute.attributes.type_name,
+									};
                                 }
-                                ingredient.ingredientAttributes = attributes;
 								resolve();
                             })
                             .catch(function (error) {
