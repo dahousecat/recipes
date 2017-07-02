@@ -6,6 +6,11 @@
 
                     <div class="modal-header">
                         Edit {{ingredient.attributes.name}}
+
+                        <div class="modal-header__close"
+                            @click="$emit('close')">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </div>
                     </div>
 
                     <div class="modal-body ingredient-form">
@@ -17,21 +22,16 @@
                                 <small class="error__control" v-if="error.name">{{error.name[0]}}</small>
                             </div>
                             <div class="form__group">
-                                <label>Weight (grams)</label>
+                                <label>
+                                    Weight (grams)
+
+                                    <a :href="getWeightUrl()" target="_blank">
+                                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                    </a>
+                                </label>
                                 <input type="text" class="form__control" v-model="ingredient.attributes.weight">
                                 <small class="error__control" v-if="error.weight">{{error.weight[0]}}</small>
                             </div>
-                            <div class="form__group">
-                                <label>Matching NDB item</label>
-                                <input type="text" class="form__control" disabled v-model="ndb.name">
-                                <input type="button" value="Search" @click="searchNdb">
-                            </div>
-
-                            <!--<div class="form__group">-->
-                                <!--<label>Description</label>-->
-                                <!--<textarea class="form__control form__description" v-model="ingredient.attributes.description"></textarea>-->
-                                <!--<small class="error__control" v-if="error.description">{{error.description[0]}}</small>-->
-                            <!--</div>-->
                         </div>
 
                         <div class="form__container form__container--units">
@@ -88,7 +88,7 @@
                                     </label>
 
                                     <input type="text" class="form__control"
-                                           v-model="ingredient.ingredientAttributes[type.attributes.safe_name].value">
+                                           v-model="ingredient.nutrients[type.attributes.safe_name].value">
                                 </div>
                             </div>
                         </div>
@@ -105,16 +105,21 @@
 
                     <div class="modal-overlay" v-if="Object.keys(ndb.groups).length">
                         <div class="modal-header">
-                            Possible NDB matches
+                            Select the closest match
+
+                            <div class="modal-header__close"
+                                 @click="ndb.groups = {}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </div>
                         </div>
                         <div class="modal-body">
-                            <ul>
+                            <ul class="ingredient-list">
                                 <li v-for="(group, key, index) in ndb.groups">
 
-                                    <span class="group">{{key}}</span>
+                                    <span class="ingredient-list__heading">{{key}}</span>
 
-                                    <ul>
-                                        <li v-for="(item, index) in group">
+                                    <ul class="ingredient-list__child-list">
+                                        <li v-for="(item, index) in group" class="ingredient-list__row">
                                             <a @click="selectNdbIngredient(item)">{{item.name}}</a>
                                         </li>
                                     </ul>
@@ -190,28 +195,11 @@
                 }
             }
 
-            // Set attributes default values
-//            for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
-//                let attribute = this.ingredient.ingredientAttributes[i];
-//
-//                let attributeType = attribute.attributes.attributeType;
-//
-//                if(attributeType.safe_name == 'energy') {
-//                    // default energy unit it calorie so convert from Kj
-//                    let value = attribute.attributes.value * this.nutritionPer;
-//                    this.energyExactValue = convertEnergyUnit(value, 'calorie');
-//                    this.attributes[attributeType.safe_name] = this.energyExactValue.toFixed(0);
-//                } else {
-//                    this.attributes[attributeType.safe_name] = Math.round(attribute.attributes.value * this.nutritionPer);
-//                }
-//            }
-
-
             // Set empty strings for any attributes that do not have a value yet
             for (let i = 0; i < this.attribute_types.length; i++) {
                 let attribute_type = this.attribute_types[i];
-                if(typeof this.ingredient.ingredientAttributes[attribute_type.attributes.safe_name] === 'undefined') {
-                    this.ingredient.ingredientAttributes[attribute_type.attributes.safe_name] = {
+                if(typeof this.ingredient.nutrients[attribute_type.attributes.safe_name] === 'undefined') {
+                    this.ingredient.nutrients[attribute_type.attributes.safe_name] = {
                         id: null,
                         value: '',
                         type_id: attribute_type.id,
@@ -241,7 +229,7 @@
                     weight: this.ingredient.attributes.weight,
                     default_unit_id: this.ingredient.attributes.default_unit_id,
                     units: [],
-                    ingredientAttributes: [],
+                    nutrients: [],
                     _method: 'PUT',
                 };
 
@@ -257,11 +245,11 @@
                 }
 
                 // Set attributes
-                for (var safe_name in this.ingredient.ingredientAttributes) {
-                    if (this.ingredient.ingredientAttributes.hasOwnProperty(safe_name)) {
-                        let attribute = this.ingredient.ingredientAttributes[safe_name];
+                for (var safe_name in this.ingredient.nutrients) {
+                    if (this.ingredient.nutrients.hasOwnProperty(safe_name)) {
+                        let attribute = this.ingredient.nutrients[safe_name];
 
-                        data.ingredientAttributes.push({
+                        data.nutrients.push({
                             id: attribute.id,
                             value: attribute.value,
                             attribute_type_id: attribute.type_id,
@@ -273,7 +261,6 @@
                     .then((res) => {
 
                         if(res.data.saved) {
-                            console.log('emit close');
                             this.$emit('close');
                         }
                         this.isProcessing = false
@@ -301,8 +288,8 @@
 //                let newValue = this.attributes[safe_name] / this.nutritionPer;
 //
 //                // Loop ingredient attributes to find the matching safe_name
-//                for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
-//                    let ingredientAttribute = this.ingredient.ingredientAttributes[i];
+//                for (let i = 0; i < this.ingredient.nutrients.length; i++) {
+//                    let ingredientAttribute = this.ingredient.nutrients[i];
 //                    if(ingredientAttribute.attributes.attributeType.safe_name == safe_name) {
 //                        foundAttribute = true;
 //                        ingredientAttribute.attributes.value = newValue;
@@ -320,7 +307,7 @@
 //
 //                    let unitGramID = 6; // do we really need to pass this around if it's always gram?
 //
-//                    this.ingredient.ingredientAttributes.push({
+//                    this.ingredient.nutrients.push({
 //                        attributes: {
 //                            attributeType: {
 //                                id: attributeType.id,
@@ -356,6 +343,10 @@
                     attribute +
                     '+are+there+in+100g+of+' + this.ingredient.attributes.name;
             },
+            getWeightUrl() {
+                return 'https://www.google.com.au/search?q=how+much+does+a+' +
+                    this.ingredient.attributes.name + '+weight?';
+            },
             hintModal(type) {
                 //this.hintModalUrl = this.getSearchUrl(type);
                 // this.doSearch();
@@ -383,7 +374,7 @@
 
                         for (let i = 0; i < res.data.length; i++) {
                             let row = res.data[i];
-                            this.ingredient.ingredientAttributes[row.attribute_safe_name].value = row.value;
+                            this.ingredient.nutrients[row.attribute_safe_name].value = row.value;
                         }
 
                     })

@@ -13,7 +13,7 @@ class CreateRowTable extends Migration
      */
     public function up()
     {
-        Schema::create('row', function (Blueprint $table) {
+        Schema::create('rows', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('recipe_id')->unsigned();
 //            $table->foreign('recipe_id')->references('id')->on('recipes');

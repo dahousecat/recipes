@@ -106,32 +106,29 @@
 							</div>
 						</div>
 
-						<div class="form__group nutrition-row">
+						<div class="form__group nutrition-row" v-if="Object.keys(nutrients).length == 0">
+							Add some ingredients to see the recipe nutrients
+						</div>
+
+						<div class="form__group nutrition-row" v-if="typeof nutrients.energy != 'undefined'">
 							<div class="nutrition-row__unit">
 								<select v-model="energyUnit" @change="recalculateEnergy()" class="form__control">
 									<option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
 								</select>
 							</div>
 							<div class="nutrition-row__value">
-								{{ nutritions.energy.displayValue }}
+								{{ nutrients.energy.displayValue }}
 							</div>
 						</div>
 
-						<div class="form__group nutrition-row">
+						<div class="form__group nutrition-row"
+							 v-for="(nutrient, safe_name, index) in nutrients"
+							 v-if="safe_name!='energy'">
 							<div class="nutrition-row__unit">
-								Protein
+								{{ nutrient.name }}
 							</div>
 							<div class="nutrition-row__value">
-								{{ nutritions.protein.displayValue }}
-							</div>
-						</div>
-
-						<div class="form__group nutrition-row">
-							<div class="nutrition-row__unit">
-								Sugar
-							</div>
-							<div class="nutrition-row__value">
-								{{ nutritions.sugar.displayValue }}
+								{{ nutrient.displayValue }}
 							</div>
 						</div>
 					</div>
@@ -183,7 +180,7 @@
 	import Flash from '../../helpers/flash';
 	import { get, post } from '../../helpers/api';
 	import { convertEnergyUnit } from '../../helpers/convert';
-	import { toMulipartedForm } from '../../helpers/form';
+	import { toMulipartedForm, objectToFormData } from '../../helpers/form';
 	import ImageUpload from '../../components/ImageUpload.vue';
 	import draggable from 'vuedraggable';
 	import ingredientForm from '../Ingredient/IngredientForm.vue'
@@ -203,17 +200,7 @@
 					directions: []
 				},
 				ingredients: [],
-				nutritions: {
-					energy: {
-						displayValue: '0',
-					},
-					protein: {
-						displayValue: '0',
-					},
-					sugar: {
-						displayValue: '0',
-					},
-				},
+				nutrients: {},
 				units: [],
 				amountPer: 'recipe',
 				amountPerOptions: [
@@ -316,7 +303,7 @@
 
                     // Only show the modal once the ingredients attributes array has been built and we've fetched the
 					// array of unit types
-                    let promises = [this.setIngredientAttributes(this.editIngredient[0]), this.fetchAttributeTypes()];
+                    let promises = [this.setNutrients(this.editIngredient[0]), this.fetchAttributeTypes()];
                     let _this = this;
 
                     document.getElementById('overlay').classList.add('loading');
@@ -335,9 +322,13 @@
                         // Set attributes array (ingredient attributes, not json api attributes)
                         this.nutritionUpdating = true;
                         let _this = this;
-                        this.setIngredientAttributes(row).then(function(){
+                        this.setNutrients(row).then(function(){
                             _this.updateNutrition();
 						});
+
+                        // id is ambiguous (row or ingredient). Remove it.
+                        row.ingredient_id = row.id;
+                        delete row.id;
                     }
 				}
 
@@ -353,18 +344,17 @@
 					});
 				}
 			},
-			setIngredientAttributes(ingredient) {
-                let _this = this;
+			setNutrients(ingredient) {
                 return new Promise(function(resolve, reject){
-                    if(typeof ingredient.ingredientAttributes === 'undefined') {
+                    if(typeof ingredient.nutrients === 'undefined') {
                         // Load the attributes for this ingredient
                         get('/api/ingredient/' + ingredient.id + '/attributes')
                             .then((res) => {
                                 let attributes = res.data.data;
-                                ingredient.ingredientAttributes = {};
+                                ingredient.nutrients = {};
                                 for (let i = 0; i < attributes.length; i++) {
                                     let attribute = attributes[i];
-                                    ingredient.ingredientAttributes[attribute.attributes.type_safe_name] = {
+                                    ingredient.nutrients[attribute.attributes.type_safe_name] = {
                                         id: attribute.id,
                                         value: attribute.attributes.value,
                                         type_id: attribute.attributes.type_id,
@@ -419,55 +409,60 @@
 				return unit.attributes.unitType;
 			},
 			updateNutrition() {
-				// Yes, nutritions is not a word but I can't handle using the word attribute any more!
-				let nutritions = {};
-				let totalWeight = 0;
 
+				this.nutrients = {};
+				this.totalWeight = 0;
+
+				// Loop rows
 				for (let i = 0; i < this.form.rows.length; i++) {
 
 					let row = this.form.rows[i];
 					this.setRowWeight(row);
-					totalWeight += parseInt(row.weight);
+					this.totalWeight += parseInt(row.weight);
 
-					for (let x = 0; x < row.ingredientAttributes.length; x++) {
-						let attributes = row.ingredientAttributes[x].attributes;
-						let nutritionType = attributes.attributeType.name;
-						let nutritionUnit = attributes.attributeType.unit;
-						let value = attributes.value;
-						let unit_value = attributes.unit;
+					// Loop this rows ingredients attributes
+                    for (var safe_name in row.nutrients) {
+                        if (row.nutrients.hasOwnProperty(safe_name)) {
+                            let attribute = row.nutrients[safe_name];
 
-						if(typeof nutritions[nutritionType] === 'undefined') {
-							nutritions[nutritionType] = {
-								nutritionUnit: nutritionUnit,
-								value: value * row.weight,
-								unit_value: unit_value,
-							};
-						} else {
-							nutritions[nutritionType].value += (value  * row.weight);
-						}
-					}
+                            // Nutrients value is per 100g so divide by 100 before multiplying by row weight
+//                            let amountInRow = (attribute.value / 100) * row.weight;
+
+                            if(typeof this.nutrients[safe_name] === 'undefined') {
+                                this.nutrients[safe_name] = {
+                                    per_100_g: attribute.value,
+                                    name: attribute.type_name,
+                                };
+                            } else {
+                                this.nutrients[safe_name].per_100_g += attribute.value;
+                            }
+                        }
+                    }
 				}
 
-				// Now we have the total of each nutrition for the recipe.
-				this.nutritions = nutritions;
+				// Now we have the total of each nutrition per 100g.
 
 				// Divide by serving size
-				for (let nutritionType in this.nutritions) {
-					if (this.nutritions.hasOwnProperty(nutritionType)) {
-						let nutrition = this.nutritions[nutritionType];
+				for (let nutritionType in this.nutrients) {
+					if (this.nutrients.hasOwnProperty(nutritionType)) {
+						let nutrition = this.nutrients[nutritionType];
 
-						let portionDivisor = this.amountPer === 'recipe' ? 1 :  parseInt(this.amountPer) / totalWeight;
+//						let portionDivisor = this.amountPer === 'recipe' ? 1 :  parseInt(this.amountPer) / this.totalWeight;
+//						nutrition.displayValue = nutrition.value * portionDivisor;
 
-						nutrition.displayValue = nutrition.value * portionDivisor;
+						if(this.amountPer === 'recipe') {
+                            nutrition.exactValue = (nutrition.per_100_g / 100) * this.totalWeight;
+						} else {
+                            nutrition.exactValue = (nutrition.per_100_g / 100) * parseInt(this.amountPer);
+						}
 
 						if(nutritionType === 'energy') {
 							// Convert to display unit
-							let conversionFactor = this.energyUnit === 'calorie' ? this.conversions.caloriesInKj : 1;
-							nutrition.displayValue = nutrition.displayValue * conversionFactor;
+							let conversionFactor = this.energyUnit === 'calorie' ? 1 : this.conversions.caloriesInKj;
+							nutrition.displayValue = nutrition.displayValue / conversionFactor;
 						}
 
-                        nutrition.exactValue = nutrition.displayValue;
-						nutrition.displayValue = this.formatNumber(nutrition.displayValue);
+						nutrition.displayValue = this.formatNumber(nutrition.exactValue);
 
 					}
 				}
@@ -476,9 +471,9 @@
 
 			},
             recalculateEnergy() {
-                let energy = convertEnergyUnit(this.nutritions.energy.exactValue, this.energyUnit);
-                this.nutritions.energy.exactValue = energy;
-                this.nutritions.energy.displayValue = this.formatNumber(energy);
+                let energy = convertEnergyUnit(this.nutrients.energy.exactValue, this.energyUnit);
+                this.nutrients.energy.exactValue = energy;
+                this.nutrients.energy.displayValue = this.formatNumber(energy);
 			},
 			setRowWeight(row) {
 
@@ -521,8 +516,28 @@
 				return number.toFixed(dp);
 			},
 			save() {
-				const form = toMulipartedForm(this.form, this.$route.meta.mode);
-				post(this.storeURL, form)
+//				const form = toMulipartedForm(this.form, this.$route.meta.mode);
+
+				let data = {
+				    name: this.form.name,
+				    description: this.form.description,
+				    image: this.form.image,
+				    directions: this.form.directions,
+                    rows: [],
+				};
+
+                for (let i = 0; i < this.form.rows.length; i++) {
+                    let row = this.form.rows[i];
+                    data.rows.push({
+						id: null,
+						ingredient_id: row.ingredient_id,
+						delta: i,
+						unit_id: row.unit,
+						unit_value: row.amount,
+					});
+                }
+
+				post(this.storeURL, objectToFormData(data))
 				    .then((res) => {
 				        if(res.data.saved) {
 				            Flash.setSuccess(res.data.message);

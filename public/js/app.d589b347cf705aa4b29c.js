@@ -12174,6 +12174,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
@@ -12237,28 +12242,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         }
 
-        // Set attributes default values
-        //            for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
-        //                let attribute = this.ingredient.ingredientAttributes[i];
-        //
-        //                let attributeType = attribute.attributes.attributeType;
-        //
-        //                if(attributeType.safe_name == 'energy') {
-        //                    // default energy unit it calorie so convert from Kj
-        //                    let value = attribute.attributes.value * this.nutritionPer;
-        //                    this.energyExactValue = convertEnergyUnit(value, 'calorie');
-        //                    this.attributes[attributeType.safe_name] = this.energyExactValue.toFixed(0);
-        //                } else {
-        //                    this.attributes[attributeType.safe_name] = Math.round(attribute.attributes.value * this.nutritionPer);
-        //                }
-        //            }
-
-
         // Set empty strings for any attributes that do not have a value yet
         for (var _i = 0; _i < this.attribute_types.length; _i++) {
             var attribute_type = this.attribute_types[_i];
-            if (typeof this.ingredient.ingredientAttributes[attribute_type.attributes.safe_name] === 'undefined') {
-                this.ingredient.ingredientAttributes[attribute_type.attributes.safe_name] = {
+            if (typeof this.ingredient.nutrients[attribute_type.attributes.safe_name] === 'undefined') {
+                this.ingredient.nutrients[attribute_type.attributes.safe_name] = {
                     id: null,
                     value: '',
                     type_id: attribute_type.id,
@@ -12288,7 +12276,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 weight: this.ingredient.attributes.weight,
                 default_unit_id: this.ingredient.attributes.default_unit_id,
                 units: [],
-                ingredientAttributes: [],
+                nutrients: [],
                 _method: 'PUT'
             };
 
@@ -12304,11 +12292,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
 
             // Set attributes
-            for (var safe_name in this.ingredient.ingredientAttributes) {
-                if (this.ingredient.ingredientAttributes.hasOwnProperty(safe_name)) {
-                    var attribute = this.ingredient.ingredientAttributes[safe_name];
+            for (var safe_name in this.ingredient.nutrients) {
+                if (this.ingredient.nutrients.hasOwnProperty(safe_name)) {
+                    var attribute = this.ingredient.nutrients[safe_name];
 
-                    data.ingredientAttributes.push({
+                    data.nutrients.push({
                         id: attribute.id,
                         value: attribute.value,
                         attribute_type_id: attribute.type_id
@@ -12319,7 +12307,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__helpers_api__["a" /* post */])(this.storeURL, data).then(function (res) {
 
                 if (res.data.saved) {
-                    console.log('emit close');
                     _this.$emit('close');
                 }
                 _this.isProcessing = false;
@@ -12346,8 +12333,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         //                let newValue = this.attributes[safe_name] / this.nutritionPer;
         //
         //                // Loop ingredient attributes to find the matching safe_name
-        //                for (let i = 0; i < this.ingredient.ingredientAttributes.length; i++) {
-        //                    let ingredientAttribute = this.ingredient.ingredientAttributes[i];
+        //                for (let i = 0; i < this.ingredient.nutrients.length; i++) {
+        //                    let ingredientAttribute = this.ingredient.nutrients[i];
         //                    if(ingredientAttribute.attributes.attributeType.safe_name == safe_name) {
         //                        foundAttribute = true;
         //                        ingredientAttribute.attributes.value = newValue;
@@ -12365,7 +12352,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         //
         //                    let unitGramID = 6; // do we really need to pass this around if it's always gram?
         //
-        //                    this.ingredient.ingredientAttributes.push({
+        //                    this.ingredient.nutrients.push({
         //                        attributes: {
         //                            attributeType: {
         //                                id: attributeType.id,
@@ -12399,6 +12386,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var attribute = type.attributes.name === 'energy' ? this.energyUnit : type.attributes.name;
             return 'https://www.google.com.au/search?q=how+many+' + attribute + '+are+there+in+100g+of+' + this.ingredient.attributes.name;
         },
+        getWeightUrl: function getWeightUrl() {
+            return 'https://www.google.com.au/search?q=how+much+does+a+' + this.ingredient.attributes.name + '+weight?';
+        },
         hintModal: function hintModal(type) {
             //this.hintModalUrl = this.getSearchUrl(type);
             // this.doSearch();
@@ -12427,7 +12417,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                 for (var i = 0; i < res.data.length; i++) {
                     var row = res.data[i];
-                    _this3.ingredient.ingredientAttributes[row.attribute_safe_name].value = row.value;
+                    _this3.ingredient.nutrients[row.attribute_safe_name].value = row.value;
                 }
             }).catch(function (error) {
                 console.log(error);
@@ -12631,9 +12621,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
 
 
 
@@ -12659,17 +12646,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 				directions: []
 			},
 			ingredients: [],
-			nutritions: {
-				energy: {
-					displayValue: '0'
-				},
-				protein: {
-					displayValue: '0'
-				},
-				sugar: {
-					displayValue: '0'
-				}
-			},
+			nutrients: {},
 			units: [],
 			amountPer: 'recipe',
 			amountPerOptions: [{ 'value': 'recipe', 'name': 'Recipe' }, { 'value': 1, 'name': '1 gram' }, { 'value': 10, 'name': '10 grams' }, { 'value': 100, 'name': '100 grams' }, { 'value': 1000, 'name': '1 kg' }],
@@ -12764,7 +12741,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 
 				// Only show the modal once the ingredients attributes array has been built and we've fetched the
 				// array of unit types
-				var promises = [this.setIngredientAttributes(this.editIngredient[0]), this.fetchAttributeTypes()];
+				var promises = [this.setNutrients(this.editIngredient[0]), this.fetchAttributeTypes()];
 				var _this = this;
 
 				document.getElementById('overlay').classList.add('loading');
@@ -12782,9 +12759,13 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 					// Set attributes array (ingredient attributes, not json api attributes)
 					this.nutritionUpdating = true;
 					var _this4 = this;
-					this.setIngredientAttributes(row).then(function () {
+					this.setNutrients(row).then(function () {
 						_this4.updateNutrition();
 					});
+
+					// id is ambiguous (row or ingredient). Remove it.
+					row.ingredient_id = row.id;
+					delete row.id;
 				}
 			}
 		},
@@ -12799,17 +12780,16 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 				});
 			}
 		},
-		setIngredientAttributes: function setIngredientAttributes(ingredient) {
-			var _this = this;
+		setNutrients: function setNutrients(ingredient) {
 			return new Promise(function (resolve, reject) {
-				if (typeof ingredient.ingredientAttributes === 'undefined') {
+				if (typeof ingredient.nutrients === 'undefined') {
 					// Load the attributes for this ingredient
 					__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["b" /* get */])('/api/ingredient/' + ingredient.id + '/attributes').then(function (res) {
 						var attributes = res.data.data;
-						ingredient.ingredientAttributes = {};
+						ingredient.nutrients = {};
 						for (var i = 0; i < attributes.length; i++) {
 							var attribute = attributes[i];
-							ingredient.ingredientAttributes[attribute.attributes.type_safe_name] = {
+							ingredient.nutrients[attribute.attributes.type_safe_name] = {
 								id: attribute.id,
 								value: attribute.attributes.value,
 								type_id: attribute.attributes.type_id,
@@ -12861,64 +12841,69 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 			return unit.attributes.unitType;
 		},
 		updateNutrition: function updateNutrition() {
-			// Yes, nutritions is not a word but I can't handle using the word attribute any more!
-			var nutritions = {};
-			var totalWeight = 0;
 
+			this.nutrients = {};
+			this.totalWeight = 0;
+
+			// Loop rows
 			for (var i = 0; i < this.form.rows.length; i++) {
 
 				var row = this.form.rows[i];
 				this.setRowWeight(row);
-				totalWeight += parseInt(row.weight);
+				this.totalWeight += parseInt(row.weight);
 
-				for (var x = 0; x < row.ingredientAttributes.length; x++) {
-					var attributes = row.ingredientAttributes[x].attributes;
-					var nutritionType = attributes.attributeType.name;
-					var nutritionUnit = attributes.attributeType.unit;
-					var value = attributes.value;
-					var unit_value = attributes.unit;
+				// Loop this rows ingredients attributes
+				for (var safe_name in row.nutrients) {
+					if (row.nutrients.hasOwnProperty(safe_name)) {
+						var attribute = row.nutrients[safe_name];
 
-					if (typeof nutritions[nutritionType] === 'undefined') {
-						nutritions[nutritionType] = {
-							nutritionUnit: nutritionUnit,
-							value: value * row.weight,
-							unit_value: unit_value
-						};
-					} else {
-						nutritions[nutritionType].value += value * row.weight;
+						// Nutrients value is per 100g so divide by 100 before multiplying by row weight
+						//                            let amountInRow = (attribute.value / 100) * row.weight;
+
+						if (typeof this.nutrients[safe_name] === 'undefined') {
+							this.nutrients[safe_name] = {
+								per_100_g: attribute.value,
+								name: attribute.type_name
+							};
+						} else {
+							this.nutrients[safe_name].per_100_g += attribute.value;
+						}
 					}
 				}
 			}
 
-			// Now we have the total of each nutrition for the recipe.
-			this.nutritions = nutritions;
+			// Now we have the total of each nutrition per 100g.
 
 			// Divide by serving size
-			for (var _nutritionType in this.nutritions) {
-				if (this.nutritions.hasOwnProperty(_nutritionType)) {
-					var nutrition = this.nutritions[_nutritionType];
+			for (var nutritionType in this.nutrients) {
+				if (this.nutrients.hasOwnProperty(nutritionType)) {
+					var nutrition = this.nutrients[nutritionType];
 
-					var portionDivisor = this.amountPer === 'recipe' ? 1 : parseInt(this.amountPer) / totalWeight;
+					//						let portionDivisor = this.amountPer === 'recipe' ? 1 :  parseInt(this.amountPer) / this.totalWeight;
+					//						nutrition.displayValue = nutrition.value * portionDivisor;
 
-					nutrition.displayValue = nutrition.value * portionDivisor;
-
-					if (_nutritionType === 'energy') {
-						// Convert to display unit
-						var conversionFactor = this.energyUnit === 'calorie' ? this.conversions.caloriesInKj : 1;
-						nutrition.displayValue = nutrition.displayValue * conversionFactor;
+					if (this.amountPer === 'recipe') {
+						nutrition.exactValue = nutrition.per_100_g / 100 * this.totalWeight;
+					} else {
+						nutrition.exactValue = nutrition.per_100_g / 100 * parseInt(this.amountPer);
 					}
 
-					nutrition.exactValue = nutrition.displayValue;
-					nutrition.displayValue = this.formatNumber(nutrition.displayValue);
+					if (nutritionType === 'energy') {
+						// Convert to display unit
+						var conversionFactor = this.energyUnit === 'calorie' ? 1 : this.conversions.caloriesInKj;
+						nutrition.displayValue = nutrition.displayValue / conversionFactor;
+					}
+
+					nutrition.displayValue = this.formatNumber(nutrition.exactValue);
 				}
 			}
 
 			this.nutritionUpdating = false;
 		},
 		recalculateEnergy: function recalculateEnergy() {
-			var energy = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__helpers_convert__["a" /* convertEnergyUnit */])(this.nutritions.energy.exactValue, this.energyUnit);
-			this.nutritions.energy.exactValue = energy;
-			this.nutritions.energy.displayValue = this.formatNumber(energy);
+			var energy = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__helpers_convert__["a" /* convertEnergyUnit */])(this.nutrients.energy.exactValue, this.energyUnit);
+			this.nutrients.energy.exactValue = energy;
+			this.nutrients.energy.displayValue = this.formatNumber(energy);
 		},
 		setRowWeight: function setRowWeight(row) {
 
@@ -12962,8 +12947,32 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vued
 		save: function save() {
 			var _this5 = this;
 
-			var form = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__helpers_form__["a" /* toMulipartedForm */])(this.form, this.$route.meta.mode);
-			__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["a" /* post */])(this.storeURL, form).then(function (res) {
+			//				const form = toMulipartedForm(this.form, this.$route.meta.mode);
+
+			//let data = new FormData();
+
+			var data = {
+				name: this.form.name,
+				description: this.form.description,
+				image: this.form.image,
+				directions: this.form.directions,
+				rows: []
+			};
+
+			for (var i = 0; i < this.form.rows.length; i++) {
+				var row = this.form.rows[i];
+				data.rows.push({
+					id: null,
+					ingredient_id: row.ingredient_id,
+					delta: i,
+					unit_id: row.unit,
+					unit_value: row.amount
+				});
+			}
+
+			data = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__helpers_form__["a" /* objectToFormData */])(data);
+
+			__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__helpers_api__["a" /* post */])(this.storeURL, data).then(function (res) {
 				if (res.data.saved) {
 					__WEBPACK_IMPORTED_MODULE_1__helpers_flash__["a" /* default */].setSuccess(res.data.message);
 					_this5.$router.push('/recipes/' + res.data.id);
@@ -13137,8 +13146,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = toMulipartedForm;
-/* unused harmony export objectToFormData */
+/* unused harmony export toMulipartedForm */
+/* harmony export (immutable) */ __webpack_exports__["a"] = objectToFormData;
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function toMulipartedForm(form, mode) {
@@ -15679,7 +15688,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         "value": option.value
       }
     }, [_vm._v(_vm._s(option.name))])
-  }))])]), _vm._v(" "), _c('div', {
+  }))])]), _vm._v(" "), (Object.keys(_vm.nutrients).length == 0) ? _c('div', {
+    staticClass: "form__group nutrition-row"
+  }, [_vm._v("\n\t\t\t\t\t\tAdd some ingredients to see the recipe nutrients\n\t\t\t\t\t")]) : _vm._e(), _vm._v(" "), (typeof _vm.nutrients.energy != 'undefined') ? _c('div', {
     staticClass: "form__group nutrition-row"
   }, [_c('div', {
     staticClass: "nutrition-row__unit"
@@ -15712,19 +15723,15 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }, [_vm._v(_vm._s(option.name))])
   }))]), _vm._v(" "), _c('div', {
     staticClass: "nutrition-row__value"
-  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.nutritions.energy.displayValue) + "\n\t\t\t\t\t\t")])]), _vm._v(" "), _c('div', {
-    staticClass: "form__group nutrition-row"
-  }, [_c('div', {
-    staticClass: "nutrition-row__unit"
-  }, [_vm._v("\n\t\t\t\t\t\t\tProtein\n\t\t\t\t\t\t")]), _vm._v(" "), _c('div', {
-    staticClass: "nutrition-row__value"
-  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.nutritions.protein.displayValue) + "\n\t\t\t\t\t\t")])]), _vm._v(" "), _c('div', {
-    staticClass: "form__group nutrition-row"
-  }, [_c('div', {
-    staticClass: "nutrition-row__unit"
-  }, [_vm._v("\n\t\t\t\t\t\t\tSugar\n\t\t\t\t\t\t")]), _vm._v(" "), _c('div', {
-    staticClass: "nutrition-row__value"
-  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.nutritions.sugar.displayValue) + "\n\t\t\t\t\t\t")])])])])]), _vm._v(" "), _c('div', {
+  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.nutrients.energy.displayValue) + "\n\t\t\t\t\t\t")])]) : _vm._e(), _vm._v(" "), _vm._l((_vm.nutrients), function(nutrient, safe_name, index) {
+    return (safe_name != 'energy') ? _c('div', {
+      staticClass: "form__group nutrition-row"
+    }, [_c('div', {
+      staticClass: "nutrition-row__unit"
+    }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(nutrient.name) + "\n\t\t\t\t\t\t")]), _vm._v(" "), _c('div', {
+      staticClass: "nutrition-row__value"
+    }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(nutrient.displayValue) + "\n\t\t\t\t\t\t")])]) : _vm._e()
+  })], 2)])]), _vm._v(" "), _c('div', {
     staticClass: "recipe__directions"
   }, [_c('div', {
     staticClass: "recipe__directions_inner"
@@ -15859,7 +15866,19 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     class: _vm.modalLoading ? 'loading' : ''
   }, [_c('div', {
     staticClass: "modal-header"
-  }, [_vm._v("\n                    Edit " + _vm._s(_vm.ingredient.attributes.name) + "\n                ")]), _vm._v(" "), _c('div', {
+  }, [_vm._v("\n                    Edit " + _vm._s(_vm.ingredient.attributes.name) + "\n\n                    "), _c('div', {
+    staticClass: "modal-header__close",
+    on: {
+      "click": function($event) {
+        _vm.$emit('close')
+      }
+    }
+  }, [_c('i', {
+    staticClass: "fa fa-times",
+    attrs: {
+      "aria-hidden": "true"
+    }
+  })])]), _vm._v(" "), _c('div', {
     staticClass: "modal-body ingredient-form"
   }, [_c('div', {
     staticClass: "form__container"
@@ -15889,7 +15908,17 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "error__control"
   }, [_vm._v(_vm._s(_vm.error.name[0]))]) : _vm._e()]), _vm._v(" "), _c('div', {
     staticClass: "form__group"
-  }, [_c('label', [_vm._v("Weight (grams)")]), _vm._v(" "), _c('input', {
+  }, [_c('label', [_vm._v("\n                                Weight (grams)\n\n                                "), _c('a', {
+    attrs: {
+      "href": _vm.getWeightUrl(),
+      "target": "_blank"
+    }
+  }, [_c('i', {
+    staticClass: "fa fa-question-circle",
+    attrs: {
+      "aria-hidden": "true"
+    }
+  })])]), _vm._v(" "), _c('input', {
     directives: [{
       name: "model",
       rawName: "v-model",
@@ -15911,38 +15940,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }), _vm._v(" "), (_vm.error.weight) ? _c('small', {
     staticClass: "error__control"
-  }, [_vm._v(_vm._s(_vm.error.weight[0]))]) : _vm._e()]), _vm._v(" "), _c('div', {
-    staticClass: "form__group"
-  }, [_c('label', [_vm._v("Matching NDB item")]), _vm._v(" "), _c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.ndb.name),
-      expression: "ndb.name"
-    }],
-    staticClass: "form__control",
-    attrs: {
-      "type": "text",
-      "disabled": ""
-    },
-    domProps: {
-      "value": (_vm.ndb.name)
-    },
-    on: {
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        _vm.ndb.name = $event.target.value
-      }
-    }
-  }), _vm._v(" "), _c('input', {
-    attrs: {
-      "type": "button",
-      "value": "Search"
-    },
-    on: {
-      "click": _vm.searchNdb
-    }
-  })])]), _vm._v(" "), _c('div', {
+  }, [_vm._v(_vm._s(_vm.error.weight[0]))]) : _vm._e()])]), _vm._v(" "), _c('div', {
     staticClass: "form__container form__container--units"
   }, [_c('p', {
     staticClass: "form__title"
@@ -16164,20 +16162,20 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       directives: [{
         name: "model",
         rawName: "v-model",
-        value: (_vm.ingredient.ingredientAttributes[type.attributes.safe_name].value),
-        expression: "ingredient.ingredientAttributes[type.attributes.safe_name].value"
+        value: (_vm.ingredient.nutrients[type.attributes.safe_name].value),
+        expression: "ingredient.nutrients[type.attributes.safe_name].value"
       }],
       staticClass: "form__control",
       attrs: {
         "type": "text"
       },
       domProps: {
-        "value": (_vm.ingredient.ingredientAttributes[type.attributes.safe_name].value)
+        "value": (_vm.ingredient.nutrients[type.attributes.safe_name].value)
       },
       on: {
         "input": function($event) {
           if ($event.target.composing) { return; }
-          _vm.ingredient.ingredientAttributes[type.attributes.safe_name].value = $event.target.value
+          _vm.ingredient.nutrients[type.attributes.safe_name].value = $event.target.value
         }
       }
     })])])
@@ -16194,13 +16192,31 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "modal-overlay"
   }, [_c('div', {
     staticClass: "modal-header"
-  }, [_vm._v("\n                        Possible NDB matches\n                    ")]), _vm._v(" "), _c('div', {
+  }, [_vm._v("\n                        Select the closest match\n\n                        "), _c('div', {
+    staticClass: "modal-header__close",
+    on: {
+      "click": function($event) {
+        _vm.ndb.groups = {}
+      }
+    }
+  }, [_c('i', {
+    staticClass: "fa fa-times",
+    attrs: {
+      "aria-hidden": "true"
+    }
+  })])]), _vm._v(" "), _c('div', {
     staticClass: "modal-body"
-  }, [_c('ul', _vm._l((_vm.ndb.groups), function(group, key, index) {
+  }, [_c('ul', {
+    staticClass: "ingredient-list"
+  }, _vm._l((_vm.ndb.groups), function(group, key, index) {
     return _c('li', [_c('span', {
-      staticClass: "group"
-    }, [_vm._v(_vm._s(key))]), _vm._v(" "), _c('ul', _vm._l((group), function(item, index) {
-      return _c('li', [_c('a', {
+      staticClass: "ingredient-list__heading"
+    }, [_vm._v(_vm._s(key))]), _vm._v(" "), _c('ul', {
+      staticClass: "ingredient-list__child-list"
+    }, _vm._l((group), function(item, index) {
+      return _c('li', {
+        staticClass: "ingredient-list__row"
+      }, [_c('a', {
         on: {
           "click": function($event) {
             _vm.selectNdbIngredient(item)

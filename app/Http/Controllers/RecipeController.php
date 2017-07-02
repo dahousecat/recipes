@@ -7,6 +7,7 @@ use App\Models\RecipeIngredient;
 use App\Models\RecipeDirection;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Models\Row;
 use File;
 
 use Neomerx\JsonApi\Document\Error;
@@ -55,26 +56,40 @@ class RecipeController extends JsonApiController
 
     public function store(Request $request)
     {
+//        echo '<pre>';
+//        print_r($request->all());
+//        echo '</pre>';
+//        die();
+
     	$this->validate($request, [
     		'name' => 'required|max:255',
-    		'description' => 'required|max:3000',
-    		'image' => 'required|image',
-    		'ingredients' => 'required|array|min:1',
-    		'ingredients.*.name' => 'required|max:255',
-    		'ingredients.*.qty' => 'required|max:255',
-    		'directions' => 'required|array|min:1',
-    		'directions.*.description' => 'required|max:3000'
+    		'description' => 'max:3000',
+    		'image' => 'image'
+            ,
+//    		'ingredients' => 'required|array|min:1',
+//    		'ingredients.*.name' => 'required|max:255',
+//    		'ingredients.*.qty' => 'required|max:255',
+
+            'rows' => 'array|min:1',
+            'rows.*.ingredient_id' => 'integer|exists:ingredients,id',
+            'rows.*.delta' => 'required|integer|min:0',
+            'rows.*.unit_id' => 'integer|exists:units,id',
+            'rows.*.unit_value' => 'required|numeric',
+
+    		'directions' => 'array',
+//    		'directions.*.description' => 'required|max:3000'
     	]);
 
-    	$ingredients = [];
-
-        foreach($request->ingredients as $ingredient) {
-            $ingredients[] = new RecipeIngredient($ingredient);
+    	$rows = [];
+        foreach($request->rows as $row) {
+            $rows[] = new Row($row);
         }
 
 	    $directions = [];
-
         foreach($request->directions as $direction) {
+            if(empty($direction->description)) {
+                continue;
+            }
             $directions[] = new RecipeDirection($direction);
         }
 
@@ -91,11 +106,9 @@ class RecipeController extends JsonApiController
     	$request->user()->recipes()
     		->save($recipe);
 
-    	$recipe->ingredients()
-    		->saveMany($ingredients);
+    	$recipe->rows()->saveMany($rows);
 
-    	$recipe->directions()
-    		->saveMany($directions);
+    	$recipe->directions()->saveMany($directions);
 
     	return response()
     	    ->json([
@@ -142,15 +155,22 @@ class RecipeController extends JsonApiController
 
     public function update($id, Request $request)
     {
-        // dd($request->all());
+         ddd($request->all());
         $this->validate($request, [
             'name' => 'required|max:255',
-            'description' => 'required|max:3000',
+            'description' => 'max:3000',
             'image' => 'image',
-            'ingredients' => 'required|array|min:1',
-            'ingredients.*.id' => 'integer|exists:recipe_ingredients',
-            'ingredients.*.name' => 'required|max:255',
-            'ingredients.*.qty' => 'required|max:255',
+
+//            'ingredients' => 'required|array|min:1',
+//            'ingredients.*.id' => 'integer|exists:recipe_ingredients',
+//            'ingredients.*.name' => 'required|max:255',
+//            'ingredients.*.qty' => 'required|max:255',
+
+            'row.ingredient_id' => 'integer|exists:ingredient',
+            'row.delta' => 'required|integer|min:1',
+            'row.unit_id' => 'integer|exists:unit',
+            'row.unit_value' => 'required|numeric',
+
             'directions' => 'required|array|min:1',
             'directions.*.id' => 'integer|exists:recipe_directions',
             'directions.*.description' => 'required|max:3000'
