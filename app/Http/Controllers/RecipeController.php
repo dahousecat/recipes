@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttributeType;
+use App\Models\Ingredient;
 use Illuminate\Http\Request;
 use App\Models\RecipeIngredient;
 use App\Models\RecipeDirection;
@@ -13,6 +15,7 @@ use File;
 use Neomerx\JsonApi\Document\Error;
 use Neomerx\JsonApi\Document\Link;
 use Neomerx\JsonApi\Encoder\Encoder;
+use App\Models\Unit;
 
 use App\Models\Api\UserSchema;
 
@@ -48,9 +51,20 @@ class RecipeController extends JsonApiController
     public function create()
     {
         $form = Recipe::form();
+        $units = Unit::all()->toArray();
+        $ingredients = Ingredient::select('id', 'default_unit_id', 'name', 'weight')
+            ->with(['units' => function($query){
+                $query->get(['unit_id', 'type', 'name']);
+            }])
+            ->limit(20)->get();
+        $attributeTypes = AttributeType::all()->toArray();
+
     	return response()
     		->json([
-    			'form' => $form
+    			'form' => $form,
+                'ingredients' => $ingredients,
+                'units' => $units,
+                'attributeTypes' => $attributeTypes,
     		]);
     }
 
@@ -74,7 +88,7 @@ class RecipeController extends JsonApiController
             'rows.*.ingredient_id' => 'integer|exists:ingredients,id',
             'rows.*.delta' => 'required|integer|min:0',
             'rows.*.unit_id' => 'integer|exists:units,id',
-            'rows.*.unit_value' => 'required|numeric',
+            'rows.*.value' => 'required|numeric',
 
     		'directions' => 'array',
 //    		'directions.*.description' => 'required|max:3000'
@@ -125,7 +139,7 @@ class RecipeController extends JsonApiController
 
     public function show($id)
     {
-        $recipe = Recipe::with(['user', 'ingredients', 'directions'])
+        $recipe = Recipe::with(['user', 'rows.ingredient', 'rows.unit', 'directions'])
             ->findOrFail($id);
 
         return response()
@@ -138,11 +152,11 @@ class RecipeController extends JsonApiController
     public function edit($id, Request $request)
     {
         $form = $request->user()->recipes()
-            ->with(['ingredients' => function($query) {
-                $query->get(['id', 'name', 'qty']);
+            ->with(['rows' => function($query) {
+                $query->get(['id', 'ingredient_id', 'unit_id', 'value']);
             }, 'directions' => function($query) {
                 $query->get(['id', 'description']);
-            }])
+            }, 'rows.ingredient.units'])
             ->findOrFail($id, [
                 'id', 'name', 'description', 'image'
             ]);
@@ -169,7 +183,7 @@ class RecipeController extends JsonApiController
             'row.ingredient_id' => 'integer|exists:ingredient',
             'row.delta' => 'required|integer|min:1',
             'row.unit_id' => 'integer|exists:unit',
-            'row.unit_value' => 'required|numeric',
+            'row.value' => 'required|numeric',
 
             'directions' => 'required|array|min:1',
             'directions.*.id' => 'integer|exists:recipe_directions',

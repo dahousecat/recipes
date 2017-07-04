@@ -25,9 +25,10 @@
 				<div class="recipe__box">
 					<h3 class="recipe__sub_title">Ingredients</h3>
 					<ul>
-						<li v-for="ingredient in recipe.ingredients">
-							<span>{{ingredient.name}}</span>
-							<span>{{ingredient.qty}}</span>
+						<li v-for="row in recipe.rows">
+							<span>{{row.ingredient.name}}</span>
+							<span>{{row.unit_value}}</span>
+							<span>{{row.unit.name}}</span>
 						</li>
 					</ul>
 				</div>

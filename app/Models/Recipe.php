@@ -8,7 +8,9 @@ use App\Models\Ingredient;
 class Recipe extends Model
 {
     protected $fillable = [
-    	'name', 'description', 'image'
+    	'name',
+        'description',
+        'image'
     ];
 
     public function user()

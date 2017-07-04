@@ -1,31 +1,44 @@
 <template>
-	<div class="container">
-		<div class="navbar">
-			<div class="navbar__brand">
-				<router-link to="/">Recipe Box</router-link>
+	<div class="wrapper">
+
+		<header class="header">
+			<div class="container">
+				<router-link to="/" class="header__link">Smoothie Recipes</router-link>
+				<nav role="navigation" data-navigation="" class="navigation" id="main-nav">
+					<button aria-controls="main-nav" aria-expanded="false" class="navigation__button">
+						Menu <i class="fa fa-bars navigation__bars" aria-hidden="true"></i>
+					</button>
+					<ul class="navigation__container">
+						<li class="navigation__item" v-if="guest">
+							<router-link to="/login" class="navigation__link">Login</router-link>
+						</li>
+						<li class="navigation__item" v-if="guest">
+							<router-link to="/register" class="navigation__link">Register</router-link>
+						</li>
+						<li class="navigation__item" v-if="auth">
+							<router-link to="/recipes/create" class="navigation__link">Create recipe</router-link>
+						</li>
+						<li class="navigation__item" v-if="auth">
+							<router-link to="/ingredients/create" class="navigation__link">Create ingredient</router-link>
+						</li>
+						<li class="navigation__item" v-if="auth">
+							<a @click.stop="logout" class="navigation__link">Logout</a>
+						</li>
+					</ul>
+				</nav>
 			</div>
-			<ul class="navbar__list">
-				<li class="navbar__item"  v-if="guest">
-					<router-link to="/login">LOGIN</router-link>
-				</li>
-				<li class="navbar__item"  v-if="guest">
-					<router-link to="/register">REGISTER</router-link>
-				</li>
-				<li class="navbar__item"  v-if="auth">
-					<router-link to="/recipes/create">CREATE RECIPE</router-link>
-				</li>
-				<li class="navbar__item"  v-if="auth">
-					<a @click.stop="logout">LOGOUT</a>
-				</li>
-			</ul>
+		</header>
+
+		<div class="container">
+			<div class="flash flash--error" v-if="flash.error">
+				{{flash.error}}
+			</div>
+			<div class="flash flash--success" v-if="flash.success">
+				{{flash.success}}
+			</div>
+			<router-view></router-view>
 		</div>
-		<div class="flash flash__error" v-if="flash.error">
-			{{flash.error}}
-		</div>
-		<div class="flash flash__success" v-if="flash.success">
-			{{flash.success}}
-		</div>
-		<router-view></router-view>
+
 	</div>
 </template>
 <script type="text/javascript">

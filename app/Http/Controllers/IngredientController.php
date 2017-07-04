@@ -41,13 +41,20 @@ class IngredientController extends JsonApiController
     }
 
     public function attributes($id) {
-        $ingredient = Ingredient::find($id);
+        $ingredient = Ingredient::with('attributes.AttributeType')->find($id);
 
-        $encoder = Encoder::instance($this->modelSchemaMappings, $this->encoderOptions);
-        $encodedData = $encoder->encodeData($ingredient->attributes);
+        $attributes = $ingredient->attributes->toArray();
+        $data = [];
 
-        return response($encodedData)
-            ->header('Content-Type', 'application/json');
+        foreach($attributes as $attribute) {
+            $key = str_replace(' ', '_', $attribute['attribute_type']['name']);
+            $data[$key] = $attribute;
+        }
+
+        return response()
+            ->json([
+                'attributes' => $data,
+            ]);
 
     }
 
@@ -58,7 +65,19 @@ class IngredientController extends JsonApiController
      */
     public function create()
     {
-        //
+        $form = Ingredient::form();
+        $units = Unit::all()->toArray();
+        $attributeTypes = AttributeType::all()->toArray();
+        foreach($attributeTypes as &$type) {
+            $type['safe_name'] = str_replace(' ', '_', $type['name']);
+        }
+
+        return response()
+            ->json([
+                'form' => $form,
+                'units' => $units,
+                'attributeTypes' => $attributeTypes,
+            ]);
     }
 
     /**

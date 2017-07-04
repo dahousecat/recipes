@@ -78,15 +78,12 @@ class Ingredient extends Model
     {
         return [
             'name' => '',
-            'image' => '',
-            'description' => '',
+            //'image' => '',
+            //'description' => '',
             'weight' => '',
-            'units' => [
-                Unit::form()
-            ],
-            'attributes' => [
-                Attribute::form(),
-            ]
+            'default_unit_id' => '',
+            'units' => [],
+            'attributes' => []
         ];
     }
 

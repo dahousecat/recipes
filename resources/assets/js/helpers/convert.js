@@ -10,3 +10,17 @@ export function convertEnergyUnit(old_value, new_unit) {
     }
     return new_value;
 }
+
+export function formatNumber(number) {
+    let dp = number < 1 ? 1 : 0;
+    return number.toFixed(dp);
+}
+
+export function getUnit(id, units) {
+    id = parseInt(id);
+    for (let i = 0; i < units.length; i++) {
+        if(parseInt(units[i].id) === id) {
+            return units[i];
+        }
+    }
+}

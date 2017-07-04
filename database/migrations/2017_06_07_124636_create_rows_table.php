@@ -22,7 +22,7 @@ class CreateRowTable extends Migration
             $table->integer('delta')->unsigned();
             $table->integer('unit_id')->unsigned();
 //            $table->foreign('unit_id')->references('id')->on('units');
-            $table->integer('unit_value')->unsigned();
+            $table->integer('value')->unsigned();
         });
     }
 

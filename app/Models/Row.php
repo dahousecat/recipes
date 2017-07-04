@@ -11,7 +11,7 @@ class Row extends Model
         'ingredient_id',
         'delta',
         'unit_id',
-        'unit_value',
+        'value',
     ];
 
     public $timestamps = false;

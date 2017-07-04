@@ -31,7 +31,6 @@ class RecipeSchema extends SchemaProvider
             'user' => [
                 self::DATA => $recipe->user
             ],
-//            'units' => $recipe->units
         ];
     }
 }

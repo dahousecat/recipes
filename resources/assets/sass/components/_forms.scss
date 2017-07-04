@@ -1,0 +1,15 @@
+select,
+textarea,
+input,
+.readonly {
+  height: auto;
+  padding: 0.6rem 1rem;
+}
+
+button {
+  padding: 0.6rem 1.8rem;
+}
+
+.form__group {
+  margin-bottom: 2rem;
+}

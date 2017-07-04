@@ -16,10 +16,20 @@ require('laravel-elixir-svgstore'); // https://www.npmjs.com/package/laravel-eli
 
 /* https://laravel.com/docs/5.3/elixir */
 elixir((mix) => {
+    mix.copy(
+        'node_modules/responsive-bp/build/responsive.min.js',
+        'resources/assets/js'
+    )
+    .copy(
+        'node_modules/responsive-bp/build/vendor/jquery-2.1.4.min.js',
+        'resources/assets/js'
+    );
+
     mix.sass('app.scss')
        .webpack('app.js');
 
     mix.version(['css/app.css', 'js/app.js']);
 
     mix.svgstore();
+
 });

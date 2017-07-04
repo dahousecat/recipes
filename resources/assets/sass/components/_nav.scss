@@ -1,0 +1,33 @@
+.navigation {
+  &.open {
+    width: 23.1rem;
+  }
+}
+
+// I will win the fight for specificity
+.header .navigation .navigation__button {
+  background-color: $color__midnight;
+  height: 4.7rem;
+  width: 9rem;
+}
+
+.navigation__bars {
+  margin-left: 1rem;
+}
+
+.navigation__container {
+  background-color: $color__midnight;
+}
+
+.navigation__item {
+
+}
+
+.navigation__link {
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $color__st_tropaz;
+  }
+}

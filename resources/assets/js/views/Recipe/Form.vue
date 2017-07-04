@@ -45,17 +45,17 @@
 							<div class="grabber row__handle"></div>
 
 							<div class="row__segment">
-								{{row.ingredient}}
+								{{row.ingredient.name}}
 							</div>
 							<div class="row__segment">
 								<input type="text" class="form__control row__amount"
-									   v-model="row.amount"
+									   v-model="row.value"
 									   @change="updateNutrition()"
 									   :class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">
 							</div>
 							<div class="row__segment">
-								<select v-model="row.unit" @change="updateNutrition()" class="form__control row__unit">
-									<option v-for="(unit, index) in row.units" :value="unit.id">{{unit.name}}</option>
+								<select v-model="row.unit_id" @change="recalculateNutrition=true" class="form__control row__unit">
+									<option v-for="(unit, index) in row.ingredient.units" :value="unit.unit_id">{{unit.name}}</option>
 								</select>
 							</div>
 
@@ -79,8 +79,8 @@
 					</div>
 
 					<draggable v-model="ingredients" :options='{group:"recipe"}' @start="dragStart" @end="dragEnd">
-						<div v-for="ingredient in ingredients" class="recipe__pantry__ingredient grabber">
-							{{ingredient.attributes.name}}
+						<div v-for="item in ingredients" class="recipe__pantry__ingredient grabber">
+							{{item.ingredient.name}}
 						</div>
 					</draggable>
 
@@ -90,51 +90,12 @@
 		</div>
 		<div class="recipe__row">
 
-			<div class="recipe__nutrition" :class="[nutritionUpdating ? 'loading' : '']">
-				<div class="recipe__box">
-					<h3 class="recipe__sub_title">Nutrition</h3>
-
-					<div class="recipe__nutrition__inner">
-						<div class="form__group nutrition-row">
-							<div class="nutrition-row__unit">
-								Amount per
-							</div>
-							<div class="nutrition-row__value">
-								<select v-model="amountPer" @change="updateNutrition()" class="form__control">
-									<option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
-								</select>
-							</div>
-						</div>
-
-						<div class="form__group nutrition-row" v-if="Object.keys(nutrients).length == 0">
-							Add some ingredients to see the recipe nutrients
-						</div>
-
-						<div class="form__group nutrition-row" v-if="typeof nutrients.energy != 'undefined'">
-							<div class="nutrition-row__unit">
-								<select v-model="energyUnit" @change="recalculateEnergy()" class="form__control">
-									<option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
-								</select>
-							</div>
-							<div class="nutrition-row__value">
-								{{ nutrients.energy.displayValue }}
-							</div>
-						</div>
-
-						<div class="form__group nutrition-row"
-							 v-for="(nutrient, safe_name, index) in nutrients"
-							 v-if="safe_name!='energy'">
-							<div class="nutrition-row__unit">
-								{{ nutrient.name }}
-							</div>
-							<div class="nutrition-row__value">
-								{{ nutrient.displayValue }}
-							</div>
-						</div>
-					</div>
-
-				</div>
-			</div>
+			<nutrients
+					@nutritionUpdated="recalculateNutrition=false"
+					:rows="form.rows"
+					:units="units"
+					:recalculate="recalculateNutrition"
+					class="recipe__nutrition"></nutrients>
 
 			<div class="recipe__directions">
 				<div class="recipe__directions_inner">
@@ -166,7 +127,7 @@
 
 		<ingredient-form
 				:ingredient="editIngredient[0]"
-				:attribute_types="attribute_types"
+				:attributeTypes="attributeTypes"
 				:units="this.units"
 				v-if="showIngredientModal"
 				@close="ingredientSaved()">
@@ -179,11 +140,12 @@
 	import Vue from 'vue';
 	import Flash from '../../helpers/flash';
 	import { get, post } from '../../helpers/api';
-	import { convertEnergyUnit } from '../../helpers/convert';
+	import { convertEnergyUnit, formatNumber, getUnit } from '../../helpers/convert';
 	import { toMulipartedForm, objectToFormData } from '../../helpers/form';
 	import ImageUpload from '../../components/ImageUpload.vue';
 	import draggable from 'vuedraggable';
-	import ingredientForm from '../Ingredient/IngredientForm.vue'
+	import ingredientForm from '../Ingredient/IngredientForm.vue';
+	import Nutrients from '../../components/Nutrients.vue';
 
 	Vue.use(draggable);
 
@@ -192,6 +154,7 @@
 			ImageUpload,
 			draggable,
             ingredientForm,
+            Nutrients,
 		},
 		data() {
 			return {
@@ -223,15 +186,14 @@
 				isProcessing: false,
 				initializeURL: `/api/recipes/create`,
 				storeURL: `/api/recipes`,
-				ingredientsURL: `/api/ingredients`,
-				unitsURL: `/api/units`,
 				action: 'Create',
 				ingredient: '',
 				isDragging: false,
 				nutritionUpdating: false,
 				editIngredient: [],
 				showIngredientModal: false,
-                attribute_types: [],
+                attributeTypes: [],
+				recalculateNutrition: false,
 			}
 		},
 		watch: {
@@ -240,7 +202,7 @@
 				let url = str.length > 1 ? '/api/ingredients/search/' + str : '/api/ingredients';
 				get(url)
 						.then((res) => {
-							Vue.set(this.$data, 'ingredients', res.data.ingredients);
+							Vue.set(this.$data, 'ingredients', this.rowify(res.data.ingredients));
 						})
 			}
 		},
@@ -255,89 +217,108 @@
 			get(this.initializeURL)
 				.then((res) => {
 					Vue.set(this.$data, 'form', res.data.form);
+					Vue.set(this.$data, 'units', res.data.units);
+					Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
+
+					// Ingredients can turn into rows when they are dragged there.
+					// Because of this we need to put the ingredient properties in their own namespace.
+					// Whilst we are about it lets set some default values for each row
+					let items = []; // I will call a row / ingredient and "item"
+					for(let i = 0; i < res.data.ingredients.length; i++) {
+					    let ingredient = res.data.ingredients[i];
+
+					    // Set an empty array here so we can fill it when needed
+					    ingredient.nutrients = [];
+
+					    // We need a unit_id AND unit as that is the selects model. When it's updated the unit is
+						// automatically updated.
+					    items.push({
+							ingredient: ingredient,
+							unit_id: ingredient.default_unit_id,
+							unit: getUnit(ingredient.default_unit_id, this.units),
+							value: 1,
+						});
+					}
+                    Vue.set(this.$data, 'ingredients', items);
+
 				});
 
-			get(this.ingredientsURL)
-					.then((res) => {
-				Vue.set(this.$data, 'ingredients', res.data.data);
-			});
-
-			get(this.unitsURL)
-					.then((res) => {
-						Vue.set(this.$data, 'units', res.data.data);
-					});
 		},
 		methods: {
 			dragStart(evt){
 
 				this.isDragging = true;
-				let ingredient = this.ingredients[evt.oldIndex];
-
-				// Set ingredient for the row
-				if(typeof ingredient.ingredient === 'undefined') {
-					ingredient.ingredient = ingredient.attributes.name;
-				}
-
-				// Set default amount for the row
-				if(typeof ingredient.amount === 'undefined') {
-					ingredient.amount = 1;
-				}
-
-				// Set default type of unit
-				if(typeof ingredient.unit === 'undefined') {
-					ingredient.unit = ingredient.attributes.default_unit_id;
-				}
-
-				// Set the ingredients unit array
-				if(typeof ingredient.units === 'undefined') {
-					this.setUnitsArray(ingredient);
-				}
+				// let item = this.ingredients[evt.oldIndex];
 
 			},
 			dragEnd(evt){
 
 				this.isDragging = false;
 
-				if(this.editIngredient.length === 1) {
-				    // Ingredient dropped on the edit ingredient zone
+				let item = this.editIngredient.length === 1 ? this.editIngredient[0] :  this.form.rows[evt.newIndex];
+				let _this = this;
 
-                    // Only show the modal once the ingredients attributes array has been built and we've fetched the
-					// array of unit types
-                    let promises = [this.setNutrients(this.editIngredient[0]), this.fetchAttributeTypes()];
-                    let _this = this;
+				// Make sure the nutrients for this ingredient are set
+				this.setIngredientNutrients(item).then(function(){
+
+                    if(_this.editIngredient.length === 1) {
+                        // Ingredient dropped on the edit ingredient zone
+                        _this.showIngredientModal = true;
+
+                    } else if(typeof _this.form.rows[evt.newIndex] === 'Object') {
+                        // Ingredient added to recipe
+                        _this.recalculateNutrition = true;
+                    } else {
+                        // Ingredient returned to pantry
+                        _this.recalculateNutrition = true;
+                    }
+
+				});
+
+			},
+            setIngredientNutrients(item) {
+                return new Promise(function(resolve, reject){
+
+                    if(typeof item === 'undefined') {
+                        // This item doesn't even have an ingredient. Get outa here.
+                        resolve();
+                        return;
+                    }
+                    let ingredient = item.ingredient;
+
+                    if(ingredient.nutrients.length) {
+                        // They have already been fetched. Nothing to do.
+                        resolve();
+                        return;
+                    }
 
                     document.getElementById('overlay').classList.add('loading');
 
-                    Promise.all(promises).then(function(){
-                        _this.showIngredientModal = true;
-                        document.getElementById('overlay').classList.remove('loading');
-                    });
-
-				} else {
-					// Ingredient added to the recipe
-                    let row = this.form.rows[evt.newIndex];
-
-                    // If there is no row then the ingredient was dropped back in the pantry
-                    if(typeof row !== 'undefined') {
-                        // Set attributes array (ingredient attributes, not json api attributes)
-                        this.nutritionUpdating = true;
-                        let _this = this;
-                        this.setNutrients(row).then(function(){
-                            _this.updateNutrition();
-						});
-
-                        // id is ambiguous (row or ingredient). Remove it.
-                        row.ingredient_id = row.id;
-                        delete row.id;
-                    }
-				}
-
+                    get('/api/ingredient/' + ingredient.id + '/attributes')
+                        .then((res) => {
+                            ingredient.nutrients = res.data.attributes;
+                            document.getElementById('overlay').classList.remove('loading');
+                            resolve();
+                        })
+                        .catch(function (error) {
+                            document.getElementById('overlay').classList.remove('loading');
+                            console.log(error);
+                            reject();
+                        });
+                });
 			},
-			setUnitsArray(ingredient) {
-				ingredient.units = [];
-				for (let i = 0; i < ingredient.relationships.units.data.length; i++) {
-					let id = ingredient.relationships.units.data[i].id;
-					ingredient.units.push({
+			rowify(ingredients) {
+			    let rows = [];
+                for (let i = 0; i < ingredients.length; i++) {
+                    rows.push({ingredient: ingredients[i]});
+                }
+                return rows;
+			},
+			setUnitsArray(rowIngredient) {
+                rowIngredient.units = [];
+				for (let i = 0; i < rowIngredient.ingredient.relationships.units.data.length; i++) {
+					let id = rowIngredient.ingredient.relationships.units.data[i].id;
+                    rowIngredient.units.push({
 						id: id,
 						name: this.getUnitName(id),
 						unitType: this.getUnitType(id),
@@ -348,7 +329,7 @@
                 return new Promise(function(resolve, reject){
                     if(typeof ingredient.nutrients === 'undefined') {
                         // Load the attributes for this ingredient
-                        get('/api/ingredient/' + ingredient.id + '/attributes')
+                        get('/api/ingredient/' + ingredient.ingredient.id + '/attributes')
                             .then((res) => {
                                 let attributes = res.data.data;
                                 ingredient.nutrients = {};
@@ -375,13 +356,13 @@
 			fetchAttributeTypes() {
 			    let _this = this;
                 return new Promise(function(resolve, reject){
-                    if(_this.attribute_types.length) {
+                    if(_this.attributeTypes.length) {
                         resolve()
                     } else {
                         // Fetch all possible attribute types
                         get('/api/attribute-types')
                             .then((res) => {
-                                Vue.set(_this.$data, 'attribute_types', res.data.data);
+                                Vue.set(_this.$data, 'attributeTypes', res.data.data);
                                 resolve();
                             })
                             .catch(function (error) {
@@ -390,14 +371,6 @@
                             });
                     }
                 });
-			},
-			getUnit(id) {
-			    id = parseInt(id);
-				for (let i = 0; i < this.units.length; i++) {
-					if(parseInt(this.units[i].id) === id) {
-						return this.units[i];
-					}
-				}
 			},
 			getUnitName(id) {
 				let unit = this.getUnit(id);
@@ -462,7 +435,7 @@
 							nutrition.displayValue = nutrition.displayValue / conversionFactor;
 						}
 
-						nutrition.displayValue = this.formatNumber(nutrition.exactValue);
+						nutrition.displayValue = formatNumber(nutrition.exactValue);
 
 					}
 				}
@@ -470,12 +443,12 @@
                 this.nutritionUpdating = false;
 
 			},
-            recalculateEnergy() {
-                let energy = convertEnergyUnit(this.nutrients.energy.exactValue, this.energyUnit);
-                this.nutrients.energy.exactValue = energy;
-                this.nutrients.energy.displayValue = this.formatNumber(energy);
-			},
-			setRowWeight(row) {
+//            recalculateEnergy() {
+//                let energy = convertEnergyUnit(this.nutrients.energy.exactValue, this.energyUnit);
+//                this.nutrients.energy.exactValue = energy;
+//                this.nutrients.energy.displayValue = formatNumber(energy);
+//			},
+			/*setRowWeight(row) {
 
 			    let rowUnit = this.getUnit(row.unit);
 
@@ -510,11 +483,7 @@
 					    break;
 				}
 
-			},
-			formatNumber(number) {
-				let dp = number < 1 ? 1 : 0;
-				return number.toFixed(dp);
-			},
+			},*/
 			save() {
 //				const form = toMulipartedForm(this.form, this.$route.meta.mode);
 
@@ -532,7 +501,7 @@
 						id: null,
 						ingredient_id: row.ingredient_id,
 						delta: i,
-						unit_id: row.unit,
+						unit_id: row.unit_id,
 						unit_value: row.amount,
 					});
                 }
