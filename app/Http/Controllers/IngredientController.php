@@ -193,14 +193,29 @@ class IngredientController extends JsonApiController
         }
 
         $attributes = $ingredient['attributes'];
-        $ingredient['attributes'] = [];
+        unset($ingredient['attributes']);
+        $ingredient['nutrients'] = [];
         foreach($attributes as $attribute) {
-            $ingredient['attributes'][$attribute['attribute_type']['name']] = $attribute;
+            $attribute['attribute_type']['safe_name'] = str_replace(' ', '_', $attribute['attribute_type']['name']);
+            $ingredient['nutrients'][$attribute['attribute_type']['safe_name']] = $attribute;
+        }
+
+        $attributeTypes = AttributeType::all()->toArray();
+        foreach($attributeTypes as &$type) {
+            $type['safe_name'] = str_replace(' ', '_', $type['name']);
+        }
+
+        $unitsArr = Unit::all()->toArray();
+        $units = [];
+        foreach($unitsArr as $unit) {
+            $units[$unit['name']] = $unit;
         }
 
         return response()
             ->json([
-                'form' => $ingredient
+                'form' => $ingredient,
+                'units' => $units,
+                'attributeTypes' => $attributeTypes,
             ]);
     }
 

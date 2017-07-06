@@ -92,6 +92,7 @@
 
         </fieldset>
 
+        <!-- Select NDB modal -->
         <modal :show="!!Object.keys(ndb.groups).length" @close="ndb.groups = {}">
             <h2 slot="title">Select the closest match</h2>
 
