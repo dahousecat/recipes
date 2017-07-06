@@ -13,6 +13,14 @@ use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 
 class IngredientController extends JsonApiController
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api')
+            ->except(['index', 'show']);
+
+        parent::__construct();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -21,6 +29,11 @@ class IngredientController extends JsonApiController
     public function index()
     {
         $ingredients = Ingredient::all();
+
+        return response()
+            ->json([
+                'ingredients' => $ingredients
+            ]);
 
         // Encode the model data for json:api consumption
         $encoder = Encoder::instance($this->modelSchemaMappings, $this->encoderOptions);
@@ -66,10 +79,21 @@ class IngredientController extends JsonApiController
     public function create()
     {
         $form = Ingredient::form();
-        $units = Unit::all()->toArray();
+        $unitsArr = Unit::all()->toArray();
+        $units = [];
+        foreach($unitsArr as $unit) {
+            $units[$unit['name']] = $unit;
+        }
+
         $attributeTypes = AttributeType::all()->toArray();
         foreach($attributeTypes as &$type) {
             $type['safe_name'] = str_replace(' ', '_', $type['name']);
+            $form['nutrients'][$type['safe_name']] = [
+                'id' => null,
+                'value' => '',
+                'type_id' => $type['id'],
+                'type_name' => $type['name'],
+            ];
         }
 
         return response()
@@ -90,9 +114,7 @@ class IngredientController extends JsonApiController
     {
         $this->validate($request, [
             'name' => 'required|max:255',
-            'description' => 'required|max:3000',
             'image' => 'image',
-            'weight' => 'required|numeric|min:0',
             'units' => 'array',
             'units.*.id' => 'required|numeric|min:1',
             'attributes' => 'array',
@@ -101,14 +123,38 @@ class IngredientController extends JsonApiController
             'attributes.*.attribute_type_id' => 'required|numeric|min:1',
         ]);
 
-        die('STORE');
+        $units = [];
+        if(!empty($request->units)) {
+            foreach($request->units as $unit) {
+                $units[] = new Unit($unit);
+            }
+        }
 
-//        $user = $request->user();
+        $attributes = [];
+        if(!empty($request->attributes)) {
+            foreach($request->attributes as $attribute) {
+                $attributes[] = new Attribute($attribute);
+            }
+        }
 
-//        'name',
-//        'description',
-//        'image',
-//        'weight',
+        if(!$request->id) {
+            $ingredient = new Ingredient($request->only('name', 'weight'));
+        } else {
+            $ingredient = Ingredient::find($request->id);
+        }
+
+        $request->user()->ingredients()
+            ->save($ingredient);
+
+        $ingredient->units()->saveMany($units);
+        $ingredient->attributes()->saveMany($attributes);
+
+        return response()
+            ->json([
+                'saved' => true,
+                'id' => $ingredient->id,
+                'message' => 'You have successfully created an ingredient!'
+            ]);
 
     }
 
@@ -123,16 +169,40 @@ class IngredientController extends JsonApiController
 //        //
 //    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Ingredient  $ingredient
-     * @return \Illuminate\Http\Response
-     */
-//    public function edit(Ingredient $ingredient)
-//    {
-//        //
-//    }
+    public function edit($id, Request $request)
+    {
+        //d($request->user()->ingredients());
+
+//        $form = $request->user()->ingredients()
+////            ->with(['units' => function($query) {
+////                $query->get(['id', 'name', 'type']);
+////            }, 'attributes' => function($query) {
+////                $query->get(['id', 'ingredient_id', 'value', 'attribute_type_id']);
+////            }, 'rows.ingredient.units'])
+////            ->with(['units', 'attributes'])
+//            ->findOrFail($id, [
+//                'id', 'name', 'weight'
+//            ]);
+
+        $ingredient = Ingredient::with('units', 'attributes.attributeType')->find($id)->toArray();
+
+        $units = $ingredient['units'];
+        $ingredient['units'] = [];
+        foreach($units as $unit) {
+            $ingredient['units'][$unit['name']] = $unit;
+        }
+
+        $attributes = $ingredient['attributes'];
+        $ingredient['attributes'] = [];
+        foreach($attributes as $attribute) {
+            $ingredient['attributes'][$attribute['attribute_type']['name']] = $attribute;
+        }
+
+        return response()
+            ->json([
+                'form' => $ingredient
+            ]);
+    }
 
     /**
      * Update the specified resource in storage.

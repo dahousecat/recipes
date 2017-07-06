@@ -1,0 +1,36 @@
+.ingredient-list {
+  margin: 0;
+  list-style-type: none;
+  padding: 0;
+
+  @include mq($from: l) {
+    column-count: 2;
+  }
+}
+
+.ingredient-list__heading {
+  background-color: lighten($color__st_tropaz, 20%);
+  padding: 0.4rem;
+  display: block;
+  color: white;
+  font-weight: bold;
+}
+
+.ingredient-list__row {
+
+  a {
+    padding: 0.4rem;
+    cursor: pointer;
+    display: block;
+
+    &:hover {
+      background-color: $color__gallery;
+    }
+  }
+}
+
+.ingredient-list__child-list {
+  list-style-type: none;
+  margin: 0.5rem 0;
+  padding: 0rem 0 0 1rem;
+}

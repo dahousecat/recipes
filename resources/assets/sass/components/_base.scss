@@ -20,8 +20,13 @@ body {
   pointer-events: none;
   transition: opacity 200ms;
 
-  &.active {
+  &.active,
+  &.loading {
     opacity: 1;
     pointer-events: all;
   }
+}
+
+.modal-overlay {
+  padding-top: 4.4rem;
 }

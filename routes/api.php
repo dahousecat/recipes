@@ -6,6 +6,9 @@ Route::post('register', 'AuthController@register');
 
 Route::resource('recipes', 'RecipeController');
 Route::resource('ingredients', 'IngredientController');
+
+Route::post('ingredients', 'IngredientController@store');
+
 Route::resource('units', 'UnitController');
 Route::resource('attribute-types', 'AttributeTypeController');
 

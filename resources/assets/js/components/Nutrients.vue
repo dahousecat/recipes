@@ -46,7 +46,7 @@
     </div>
 </template>
 <script type="text/javascript">
-    import { convertEnergyUnit, formatNumber, getUnit } from '../helpers/convert';
+    import { convertEnergyUnit, formatNumber, getUnit } from '../helpers/misc';
 
     export default {
         props: {

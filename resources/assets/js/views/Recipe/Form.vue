@@ -140,7 +140,7 @@
 	import Vue from 'vue';
 	import Flash from '../../helpers/flash';
 	import { get, post } from '../../helpers/api';
-	import { convertEnergyUnit, formatNumber, getUnit } from '../../helpers/convert';
+	import { convertEnergyUnit, formatNumber, getUnit } from '../../helpers/misc';
 	import { toMulipartedForm, objectToFormData } from '../../helpers/form';
 	import ImageUpload from '../../components/ImageUpload.vue';
 	import draggable from 'vuedraggable';

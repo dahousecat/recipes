@@ -24,3 +24,11 @@ export function getUnit(id, units) {
         }
     }
 }
+
+export function loading(val, id='overlay') {
+    if(val) {
+        document.getElementById(id).classList.add('loading');
+    } else {
+        document.getElementById(id).classList.remove('loading');
+    }
+}

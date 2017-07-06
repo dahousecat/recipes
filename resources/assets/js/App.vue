@@ -18,6 +18,9 @@
 						<li class="navigation__item" v-if="auth">
 							<router-link to="/recipes/create" class="navigation__link">Create recipe</router-link>
 						</li>
+						<li class="navigation__item">
+							<router-link to="/ingredients" class="navigation__link">Ingredients</router-link>
+						</li>
 						<li class="navigation__item" v-if="auth">
 							<router-link to="/ingredients/create" class="navigation__link">Create ingredient</router-link>
 						</li>

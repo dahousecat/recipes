@@ -136,7 +136,7 @@
     </transition>
 </template>
 <script type="text/javascript">
-    import { convertEnergyUnit } from '../../helpers/convert';
+    import { convertEnergyUnit } from '../../helpers/misc';
     import { get, post, getExernal } from '../../helpers/api';
 
     export default {

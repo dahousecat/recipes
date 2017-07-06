@@ -83,7 +83,7 @@ class Ingredient extends Model
             'weight' => '',
             'default_unit_id' => '',
             'units' => [],
-            'attributes' => []
+            'nutrients' => []
         ];
     }
 

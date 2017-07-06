@@ -1,5 +1,5 @@
-window.$ = window.jQuery = require('jquery');
-// responsive = require('../../../node_modules/responsive-bp/build/responsive.min.js');
+// window.$ = window.jQuery = require('jquery');
+// var responsive = require('../../../node_modules/responsive-bp/build/responsive.min.js');
 
 import Vue from 'vue'
 

@@ -26,6 +26,8 @@ class RecipeController extends JsonApiController
     {
     	$this->middleware('auth:api')
     		->except(['index', 'show']);
+
+    	parent::__construct();
     }
 
     public function index()
@@ -70,6 +72,7 @@ class RecipeController extends JsonApiController
 
     public function store(Request $request)
     {
+
 //        echo '<pre>';
 //        print_r($request->all());
 //        echo '</pre>';
@@ -116,6 +119,8 @@ class RecipeController extends JsonApiController
 
     	$recipe = new Recipe($request->only('name', 'description'));
     	$recipe->image = $filename;
+
+
 
     	$request->user()->recipes()
     		->save($recipe);
