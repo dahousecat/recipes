@@ -18,6 +18,7 @@ class CreateAttributeTypesTable extends Migration
             // unit_id ingredient_id value attribute_type
             $table->increments('id');
             $table->string('name');
+            $table->string('safe_name');
             $table->enum('unit', ['cal', 'g', 'mg']);
             $table->integer('ndb_nutrient_id')->unsigned()->unique();
         });
