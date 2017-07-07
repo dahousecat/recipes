@@ -8,3 +8,6 @@
 Homestead.json
 Homestead.yaml
 .env
+public/build
+public/js
+public/css
