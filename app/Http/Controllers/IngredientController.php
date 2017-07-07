@@ -171,44 +171,27 @@ class IngredientController extends JsonApiController
 
     public function edit($id, Request $request)
     {
-        //d($request->user()->ingredients());
-
-//        $form = $request->user()->ingredients()
-////            ->with(['units' => function($query) {
-////                $query->get(['id', 'name', 'type']);
-////            }, 'attributes' => function($query) {
-////                $query->get(['id', 'ingredient_id', 'value', 'attribute_type_id']);
-////            }, 'rows.ingredient.units'])
-////            ->with(['units', 'attributes'])
-//            ->findOrFail($id, [
-//                'id', 'name', 'weight'
-//            ]);
 
         $ingredient = Ingredient::with('units', 'attributes.attributeType')->find($id)->toArray();
-
-        $units = $ingredient['units'];
-        $ingredient['units'] = [];
-        foreach($units as $unit) {
-            $ingredient['units'][$unit['name']] = $unit;
-        }
-
-        $attributes = $ingredient['attributes'];
+        $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
+        $ingredient['nutrients'] = $this->keyArray($ingredient['attributes'], ['attribute_type', 'name']);
         unset($ingredient['attributes']);
-        $ingredient['nutrients'] = [];
-        foreach($attributes as $attribute) {
-            $attribute['attribute_type']['safe_name'] = str_replace(' ', '_', $attribute['attribute_type']['name']);
-            $ingredient['nutrients'][$attribute['attribute_type']['safe_name']] = $attribute;
-        }
 
         $attributeTypes = AttributeType::all()->toArray();
-        foreach($attributeTypes as &$type) {
-            $type['safe_name'] = str_replace(' ', '_', $type['name']);
-        }
 
-        $unitsArr = Unit::all()->toArray();
-        $units = [];
-        foreach($unitsArr as $unit) {
-            $units[$unit['name']] = $unit;
+        $units = $this->keyArray(Unit::all()->toArray(), 'name');
+
+        // Add default values for attributes that don't exist
+        foreach($attributeTypes as $type) {
+          if(!isset($ingredient['nutrients'][$type['safe_name']])) {
+            $ingredient['nutrients'][$type['safe_name']] = [
+              'attribute_type' => $type,
+              'attribute_type_id' => $type['id'],
+              'id' => null,
+              'ingredient_id' => $id,
+              'value' => '',
+            ];
+          }
         }
 
         return response()
@@ -217,6 +200,24 @@ class IngredientController extends JsonApiController
                 'units' => $units,
                 'attributeTypes' => $attributeTypes,
             ]);
+    }
+
+    private function keyArray($inArray, $pathToKey) {
+      $outArray = [];
+      $pathToKey = is_array($pathToKey) ? $pathToKey : [$pathToKey];
+      foreach($inArray as $value) {
+        $ref = $value;
+        foreach($pathToKey as $pathElement) {
+          if(!isset($ref[$pathElement])) {
+            print_r(debug_backtrace());
+            trigger_error('Key ' . $pathElement . ' is not set in this array: ' . print_r($ref, true));
+          } else {
+            $ref = $ref[$pathElement];
+          }
+        }
+        $outArray[$ref] = $value;
+      }
+      return $outArray;
     }
 
     /**
