@@ -123,30 +123,27 @@ class IngredientController extends JsonApiController
             'attributes.*.attribute_type_id' => 'required|numeric|min:1',
         ]);
 
-        $units = [];
+        $unit_ids = [];
         if(!empty($request->units)) {
             foreach($request->units as $unit) {
-                $units[] = new Unit($unit);
+                $unit_ids[] = $unit['id'];
             }
         }
 
         $attributes = [];
-        if(!empty($request->attributes)) {
-            foreach($request->attributes as $attribute) {
+        if(!empty($request->nutrients)) {
+            foreach($request->nutrients as $attribute) {
+                $attribute['attribute_type_id'] = $attribute['type_id'];
                 $attributes[] = new Attribute($attribute);
             }
         }
 
-        if(!$request->id) {
-            $ingredient = new Ingredient($request->only('name', 'weight'));
-        } else {
-            $ingredient = Ingredient::find($request->id);
-        }
+        $ingredient = new Ingredient($request->only('name', 'weight', 'default_unit_id'));
 
         $request->user()->ingredients()
             ->save($ingredient);
 
-        $ingredient->units()->saveMany($units);
+        $ingredient->units()->sync($unit_ids);
         $ingredient->attributes()->saveMany($attributes);
 
         return response()
@@ -172,19 +169,19 @@ class IngredientController extends JsonApiController
     public function edit($id, Request $request)
     {
 
-        $ingredient = Ingredient::with('units', 'attributes.attributeType')->find($id)->toArray();
-        $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
-        $ingredient['nutrients'] = $this->keyArray($ingredient['attributes'], ['attribute_type', 'name']);
-        unset($ingredient['attributes']);
+        $form = Ingredient::with('units', 'attributes.attributeType')->find($id)->toArray();
+        $form['units'] = $this->keyArray($form['units'], 'name');
+
+        $form['nutrients'] = $this->keyArray($form['attributes'], ['attribute_type', 'safe_name']);
+        unset($form['attributes']);
 
         $attributeTypes = AttributeType::all()->toArray();
-
         $units = $this->keyArray(Unit::all()->toArray(), 'name');
 
         // Add default values for attributes that don't exist
         foreach($attributeTypes as $type) {
-          if(!isset($ingredient['nutrients'][$type['safe_name']])) {
-            $ingredient['nutrients'][$type['safe_name']] = [
+          if(!isset($form['nutrients'][$type['safe_name']])) {
+            $form['nutrients'][$type['safe_name']] = [
               'attribute_type' => $type,
               'attribute_type_id' => $type['id'],
               'id' => null,
@@ -196,7 +193,7 @@ class IngredientController extends JsonApiController
 
         return response()
             ->json([
-                'form' => $ingredient,
+                'form' => $form,
                 'units' => $units,
                 'attributeTypes' => $attributeTypes,
             ]);

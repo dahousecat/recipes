@@ -13,6 +13,7 @@ class Ingredient extends Model
         'description',
         'image',
         'weight',
+        'default_unit_id',
         'user_id',
     ];
 

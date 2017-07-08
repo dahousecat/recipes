@@ -41,7 +41,7 @@
                         <div class="row" v-for="(unitType, unitTypeName) in unitTypes">
                             <div class="col-s-1">
                                 <input :id="unitTypeName" type="checkbox" class="form__control"
-                                       v-model="unitType.checked" @change="updateUnits()">
+                                       v-model="unitType.checked" @change="setUnitsFromUnitTypes()">
                             </div>
                             <div class="col-s-11">
                                 <label :for="unitTypeName">{{ unitType.label }}</label>
@@ -168,24 +168,39 @@
             }
         },
         created() {
-            if(this.$route.meta.mode === 'edit') {
-                this.initializeURL = `/api/ingredients/${this.$route.params.id}/edit`;
-                this.storeURL = `/api/ingredients/${this.$route.params.id}?_method=PUT`;
-                this.action = 'Update';
+            this.init();
+        },
+        watch: {
+            '$route' (to, from) {
+                this.init();
             }
-            get(this.initializeURL)
-                .then((res) => {
-                    Vue.set(this.$data, 'form', res.data.form);
-                    Vue.set(this.$data, 'units', res.data.units);
-                    Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
-                });
         },
         methods: {
+            init() {
+                console.log('init ' + this.$route.meta.mode);
+                loading(true);
+                if(this.$route.meta.mode === 'edit') {
+                    this.initializeURL = `/api/ingredients/${this.$route.params.id}/edit`;
+                    this.storeURL = `/api/ingredients/${this.$route.params.id}?_method=PUT`;
+                    this.action = 'Update';
+                } else {
+                    this.initializeURL = `/api/ingredients/create`;
+                    this.storeURL = `/api/ingredients`;
+                }
+                get(this.initializeURL)
+                    .then((res) => {
+                        Vue.set(this.$data, 'form', res.data.form);
+                        Vue.set(this.$data, 'units', res.data.units);
+                        Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
+                        this.setUnitTypesFromUnits();
+                        loading(false);
+                    });
+            },
             getWeightUrl() {
                 return 'https://www.google.com.au/search?q=how+much+does+one+' +
                     this.form.name + '+weight?';
             },
-            updateUnits() {
+            setUnitsFromUnitTypes() {
                 this.form.units = {};
 
                 for (var name in this.units) {
@@ -194,6 +209,25 @@
                         if(this.unitTypes[unit.type].checked) {
                             this.form.units[name] = unit;
                         }
+                    }
+                }
+            },
+            setUnitTypesFromUnits() {
+                console.log('set types from units');
+
+                // Loop unitTypes to uncheck all
+                for (var name in this.unitTypes) {
+                    if (this.unitTypes.hasOwnProperty(name)) {
+                        this.unitTypes[name].checked = false;
+                    }
+                }
+
+                // Loop form units to check active types
+                for (var name in this.form.units) {
+                    if (this.form.units.hasOwnProperty(name)) {
+                        let unit = this.form.units[name];
+                        console.log(unit, 'unit');
+                        this.unitTypes[unit.type].checked = true;
                     }
                 }
             },
@@ -248,6 +282,6 @@
                         }
                     })
             }
-        }
+        },
     }
 </script>
