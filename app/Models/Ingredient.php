@@ -12,12 +12,14 @@ class Ingredient extends Model
         'name',
         'description',
         'image',
-        'weight',
+        'weight_one',
+        'weight_one_cup',
+        'weight_one_cm',
         'default_unit_id',
         'user_id',
     ];
 
-    use SoftDeletes;
+//    use SoftDeletes;
 
     /**
      * The attributes that should be mutated to dates.
@@ -81,7 +83,9 @@ class Ingredient extends Model
             'name' => '',
             //'image' => '',
             //'description' => '',
-            'weight' => '',
+            'weight_one' => '',
+            'weight_one_cup' => '',
+            'weight_one_cm' => '',
             'default_unit_id' => '',
             'units' => [],
             'nutrients' => []

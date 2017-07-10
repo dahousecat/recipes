@@ -1,75 +1,80 @@
 <template>
-	<div class="recipe__show">
+	<div class="recipe">
+
 		<div class="recipe__header">
-			<h3>{{action}} Recipe</h3>
+			<h2>{{action}} Recipe</h2>
 			<div>
 				<button class="btn btn__primary" @click="save" :disabled="isProcessing">Save</button>
 				<button class="btn" @click="$router.back()" :disabled="isProcessing">Cancel</button>
 			</div>
 		</div>
-		<div class="recipe__row">
-			<div class="recipe__image">
-				<div class="recipe__box">
-					<image-upload v-model="form.image"></image-upload>
-					<small class="error__control" v-if="error.image">{{error.image[0]}}</small>
-				</div>
+
+		<div class="flex-row">
+
+			<!-- Image -->
+			<div class="recipe__panel">
+				<image-upload v-model="form.image"></image-upload>
+				<small class="error__control" v-if="error.image">{{error.image[0]}}</small>
 			</div>
-			<div class="recipe__details">
-				<div class="recipe__details_inner">
-					<div class="form__group">
-					    <label>Name</label>
-					    <input type="text" class="form__control" v-model="form.name">
-					    <small class="error__control" v-if="error.name">{{error.name[0]}}</small>
-					</div>
-					<div class="form__group">
-					    <label>Description</label>
-					    <textarea class="form__control form__description" v-model="form.description"></textarea>
-					    <small class="error__control" v-if="error.description">{{error.description[0]}}</small>
-					</div>
+
+			<!-- Basic details -->
+			<div class="recipe__panel">
+				<div class="form__group">
+					<label>Name</label>
+					<input type="text" class="form__control" v-model="form.name">
+					<small class="error__control" v-if="error.name">{{error.name[0]}}</small>
+				</div>
+				<div class="form__group">
+					<label>Description</label>
+					<textarea class="form__control form__description" v-model="form.description"></textarea>
+					<small class="error__control" v-if="error.description">{{error.description[0]}}</small>
 				</div>
 			</div>
 		</div>
-		<div class="recipe__row">
-			<div class="recipe__ingredients">
+
+		<div class="flex-row">
+
+			<!-- Ingredients -->
+			<div class="recipe__panel">
 				<div class="recipe__box">
 					<h3 class="recipe__sub_title">Ingredients</h3>
 
 					<draggable v-model="form.rows"
 							   :class="{ 'drop-zone': this.isDragging, 'recipe__rows--empty': !form.rows.length }"
-							   :options='{group:"recipe", handle:".row__handle", filter: ".empty-message"}'
+							   :options='{group:"recipe", handle:".ingredient_row__handle", filter: ".empty-message"}'
 							   @start="dragStart" @end="dragEnd"
 							   class="recipe__rows">
 
-						<div v-for="(row, index) in form.rows" class="recipe__ingredient row">
+						<div v-for="(row, index) in form.rows" class="ingredient_row">
 
-							<div class="grabber row__handle"></div>
+							<div class="grabber ingredient_row__handle"></div>
 
-							<div class="row__segment">
+							<div class="ingredient_row__name">
 								{{row.ingredient.name}}
 							</div>
-							<div class="row__segment">
-								<input type="text" class="form__control row__amount"
+							<div class="ingredient_row__amount">
+								<input type="text" class="ingredient_row__control"
 									   v-model="row.value"
-									   @change="updateNutrition()"
+									   @change="recalculateNutrition = true"
 									   :class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">
 							</div>
-							<div class="row__segment">
-								<select v-model="row.unit_id" @change="recalculateNutrition=true" class="form__control row__unit">
+							<div class="ingredient_row__unit">
+								<select v-model="row.unit_id" @change="recalculateNutrition=true" class="ingredient_row__control">
 									<option v-for="(unit, index) in row.ingredient.units" :value="unit.unit_id">{{unit.name}}</option>
 								</select>
 							</div>
 
-							<!--<div class="row__segment">-->
-								<!--<button @click="remove('rows', index)" class="btn btn__danger">&times;</button>								-->
-							<!--</div>-->
+							<div class="ingredient_row__remove">
+								<button @click="" class="ingredient_row__remove_button">&times;</button>
+							</div>
 						</div>
 					</draggable>
 
 				</div>
 			</div>
 
-
-			<div class="recipe__pantry">
+			<!-- Pantry -->
+			<div class="recipe__panel">
 				<div class="recipe__pantry_inner">
 					<h3 class="recipe__sub_title">Pantry</h3>
 
@@ -79,7 +84,7 @@
 					</div>
 
 					<draggable v-model="ingredients" :options='{group:"recipe"}' @start="dragStart" @end="dragEnd">
-						<div v-for="item in ingredients" class="recipe__pantry__ingredient grabber">
+						<div v-for="item in ingredients" class="recipe__ingredient grabber">
 							{{item.ingredient.name}}
 						</div>
 					</draggable>
@@ -88,50 +93,31 @@
 			</div>
 
 		</div>
-		<div class="recipe__row">
 
+		<div class="flex-row">
+
+			<!-- Nutrients -->
 			<nutrients
 					@nutritionUpdated="recalculateNutrition=false"
 					:rows="form.rows"
 					:units="units"
 					:recalculate="recalculateNutrition"
-					class="recipe__nutrition"></nutrients>
+					class="recipe__panel"></nutrients>
 
-			<div class="recipe__directions">
-				<div class="recipe__directions_inner">
+			<!-- Directions -->
+			<div class="recipe__panel">
+				<div class="">
 					<h3 class="recipe__sub_title">Directions</h3>
-					<div v-for="(direction, index) in form.directions" class="recipe__form">
+					<div v-for="(direction, index) in form.directions" class="recipe__directions-inner">
 						<textarea class="form__control form__margin" v-model="direction.description"
 								  :class="[error[`directions.${index}.description`] ? 'error__bg' : '']"
 						></textarea>
-						<button @click="remove('directions', index)" class="btn btn__danger">&times;</button>
+						<button @click="remove('directions', index)" class="recipe__directions-button">&times;</button>
 					</div>
 					<button @click="addDirection" class="btn">Add Direction</button>
 				</div>
 			</div>
 		</div>
-
-		<draggable class="edit-ingredient-bar drop-zone"
-				   :options='{
-					    group: {
-							name: "recipe",
-						  },
-					  	filter: ".message"
-					}'
-				   :class="{ 'active': this.isDragging }"
-					v-model="editIngredient">
-			<div class="inner">
-				<div class="message">Edit ingredient</div>
-			</div>
-		</draggable>
-
-		<ingredient-form
-				:ingredient="editIngredient[0]"
-				:attributeTypes="attributeTypes"
-				:units="this.units"
-				v-if="showIngredientModal"
-				@close="ingredientSaved()">
-		</ingredient-form>
 
 	</div>
 </template>
@@ -229,6 +215,11 @@
 
 					    // Set an empty array here so we can fill it when needed
 					    ingredient.nutrients = [];
+
+					    // If unit_id is not set and there is only one unit avaiable set it as a default
+						if(ingredient.default_unit_id === null && ingredient.units.length === 1) {
+                            ingredient.default_unit_id = ingredient.units[0].unit_id;
+						}
 
 					    // We need a unit_id AND unit as that is the selects model. When it's updated the unit is
 						// automatically updated.
@@ -381,109 +372,12 @@
 				let unit = this.getUnit(id);
 				return unit.attributes.unitType;
 			},
-			updateNutrition() {
 
-				this.nutrients = {};
-				this.totalWeight = 0;
-
-				// Loop rows
-				for (let i = 0; i < this.form.rows.length; i++) {
-
-					let row = this.form.rows[i];
-					this.setRowWeight(row);
-					this.totalWeight += parseInt(row.weight);
-
-					// Loop this rows ingredients attributes
-                    for (var safe_name in row.nutrients) {
-                        if (row.nutrients.hasOwnProperty(safe_name)) {
-                            let attribute = row.nutrients[safe_name];
-
-                            // Nutrients value is per 100g so divide by 100 before multiplying by row weight
-//                            let amountInRow = (attribute.value / 100) * row.weight;
-
-                            if(typeof this.nutrients[safe_name] === 'undefined') {
-                                this.nutrients[safe_name] = {
-                                    per_100_g: attribute.value,
-                                    name: attribute.type_name,
-                                };
-                            } else {
-                                this.nutrients[safe_name].per_100_g += attribute.value;
-                            }
-                        }
-                    }
-				}
-
-				// Now we have the total of each nutrition per 100g.
-
-				// Divide by serving size
-				for (let nutritionType in this.nutrients) {
-					if (this.nutrients.hasOwnProperty(nutritionType)) {
-						let nutrition = this.nutrients[nutritionType];
-
-//						let portionDivisor = this.amountPer === 'recipe' ? 1 :  parseInt(this.amountPer) / this.totalWeight;
-//						nutrition.displayValue = nutrition.value * portionDivisor;
-
-						if(this.amountPer === 'recipe') {
-                            nutrition.exactValue = (nutrition.per_100_g / 100) * this.totalWeight;
-						} else {
-                            nutrition.exactValue = (nutrition.per_100_g / 100) * parseInt(this.amountPer);
-						}
-
-						if(nutritionType === 'energy') {
-							// Convert to display unit
-							let conversionFactor = this.energyUnit === 'calorie' ? 1 : this.conversions.caloriesInKj;
-							nutrition.displayValue = nutrition.displayValue / conversionFactor;
-						}
-
-						nutrition.displayValue = formatNumber(nutrition.exactValue);
-
-					}
-				}
-
-                this.nutritionUpdating = false;
-
-			},
 //            recalculateEnergy() {
 //                let energy = convertEnergyUnit(this.nutrients.energy.exactValue, this.energyUnit);
 //                this.nutrients.energy.exactValue = energy;
 //                this.nutrients.energy.displayValue = formatNumber(energy);
 //			},
-			/*setRowWeight(row) {
-
-			    let rowUnit = this.getUnit(row.unit);
-
-			    console.log(rowUnit, 'rowUnit');
-
-			    switch(rowUnit.attributes.unitType) {
-					case 'weight':
-						// Convert to grams
-						let grams;
-						if(rowUnit.attributes.name === 'grams') {
-                            grams = row.amount;
-                        } else {
-                            grams = row.amount * rowUnit.attributes.gram;
-                        }
-                        row.weight = grams;
-					    break;
-					case 'length':
-
-					    break;
-					case 'volume':
-
-					    break;
-					case 'quantity':
-                        if(typeof row.attributes.weight !== 'undefined') {
-                            // The attribute weight is the weight of one whole ingredient
-
-                            row.weight = row.attributes.weight * row.amount;
-                        } else {
-                            console.log('ERROR: No weight for ' + row.ingredient);
-                            row.weight = 0;
-                        }
-					    break;
-				}
-
-			},*/
 			save() {
 //				const form = toMulipartedForm(this.form, this.$route.meta.mode);
 

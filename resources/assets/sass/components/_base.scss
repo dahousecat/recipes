@@ -6,7 +6,7 @@ body {
   font-size: 16px; /* px fallback */
   font-size: 1.6rem; /* default font-size for document */
   line-height: 1.5; /* a nice line-height */
-  background-color: $color__gallery;
+  background-color: $color__background;
 }
 
 #overlay {
@@ -29,4 +29,26 @@ body {
 
 .modal-overlay {
   padding-top: 4.4rem;
+}
+
+.panel {
+  box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
+  background: white;
+  padding: 15px;
+}
+
+.grabber {
+  &::before {
+    content: "\f142 \f142";
+    letter-spacing: 0.1em;
+    font-family: FontAwesome;
+    margin-right: 0.4rem;
+    font-size: 1.2rem;
+    position: relative;
+    top: 0rem;
+    margin-left: 0.1rem;
+    color: lighten($color__st_tropaz, 25%);
+    padding: 1rem;
+    cursor: -webkit-grab;
+  }
 }

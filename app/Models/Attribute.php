@@ -40,4 +40,13 @@ class Attribute extends Model
             'name' => '',
         ];
     }
+
+    public static function deleteMany($ids) {
+        foreach($ids as $id) {
+            $attribute = static::find($id);
+            if($attribute) {
+                $attribute->delete();
+            }
+        }
+    }
 }

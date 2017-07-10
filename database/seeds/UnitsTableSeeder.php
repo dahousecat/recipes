@@ -35,6 +35,22 @@ class UnitsTableSeeder extends Seeder
                 'type' => 'volume',
                 'ml' => 473.176,
             ],
+            'teaspoon' => [
+                'type' => 'volume',
+                'ml' => 5,
+            ],
+            'table_spoon' => [
+                'type' => 'volume',
+                'ml' => 17.75,
+            ],
+            'pinch' => [
+                'type' => 'volume',
+                'ml' => 0.3,
+            ],
+            'dash' => [
+                'type' => 'volume',
+                'ml' => 0.6,
+            ],
 
             'gram' => [
                 'type' => 'weight',

@@ -10,7 +10,7 @@
                 <slot name="title" :id="labelId"></slot>
             </div>
         </div>
-        <button @click="$emit.close()" type="button" class="modal-close fade-out fade-in">
+        <button @click="close()" type="button" class="modal-close fade-out fade-in">
             x <span class="visuallyhidden">Close (Esc)</span>
         </button>
         <div class="modal-footer fade-out fade-in">
@@ -38,6 +38,11 @@
         created() {
             let token = Math.random().toString(36).substring(7);
             this.labelId = 'modal-label-' + token;
+        },
+        methods: {
+            close() {
+                this.$emit('close')
+            }
         }
     }
 </script>

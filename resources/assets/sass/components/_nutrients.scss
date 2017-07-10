@@ -1,0 +1,27 @@
+.nutrients {
+  font-size: 1.4rem;
+}
+
+.nutrition-row {
+  border-bottom: 2px solid black;
+  padding-bottom: 0.4rem;
+  display: Flex;
+  line-height: 2;
+
+  select {
+    max-width: 10rem;
+    display: inline-block;
+  }
+}
+
+.nutrition-row__unit {
+  white-space: nowrap;
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-transform: capitalize;
+}
+
+.nutrition-row__value {
+  text-align: right;
+  width: 100%;
+}

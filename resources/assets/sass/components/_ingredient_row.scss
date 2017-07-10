@@ -1,0 +1,48 @@
+.ingredient_row {
+  background-color: $color__st_tropaz;
+  padding: 0.4rem;
+  border: 1px solid $color__gallery;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 0.6rem;
+}
+
+.ingredient_row__handle {
+  padding: 0.6rem 0.2rem 0rem 0.1rem;
+
+  &::before {
+    color: lighten($color__st_tropaz, 25%);
+  }
+}
+
+.ingredient_row__segment {
+  width: 33.33333%;
+  line-height: 2.4;
+}
+
+.ingredient_row__name {
+  color: white;
+  font-weight: bold;
+  line-height: 2.4;
+}
+
+.ingredient_row__amount {
+  max-width: 6rem;
+}
+
+.ingredient_row__unit {
+  min-width: 10rem;
+  text-transform: capitalize;
+}
+
+.ingredient_row__control {
+  margin: 0;
+}
+
+.ingredient_row__remove_button {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  line-height: 1;
+  margin: 0.9rem 0.8rem 0 0;
+}

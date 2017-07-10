@@ -3,7 +3,9 @@
 
 		<header class="header">
 			<div class="container">
-				<router-link to="/" class="header__link">Smoothie Recipes</router-link>
+				<h1 class="header__title">
+					<router-link to="/" class="header__link">Smoothie Recipes</router-link>
+				</h1>
 				<nav role="navigation" data-navigation="" class="navigation" id="main-nav">
 					<button aria-controls="main-nav" aria-expanded="false" class="navigation__button">
 						Menu <i class="fa fa-bars navigation__bars" aria-hidden="true"></i>

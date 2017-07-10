@@ -9,4 +9,6 @@ $mq-breakpoints: (
   xxl:  100em
 );
 
+$gutter: 1.6rem;
+
 @import '../../../node_modules/sass-mq/mq';

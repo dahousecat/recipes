@@ -138,7 +138,13 @@ class IngredientController extends JsonApiController
             }
         }
 
-        $ingredient = new Ingredient($request->only('name', 'weight', 'default_unit_id'));
+        $ingredient = new Ingredient($request->only(
+            'name',
+            'weight_one',
+            'weight_one_cup',
+            'weight_one_cm',
+            'default_unit_id'
+        ));
 
         $request->user()->ingredients()
             ->save($ingredient);
@@ -228,26 +234,26 @@ class IngredientController extends JsonApiController
     {
         $this->validate($request, [
             'name' => 'required|max:255',
-            'description' => 'required|max:3000',
-            'image' => 'image',
-            'weight' => 'numeric|min:0',
-            'units_types' => 'array',
-            'units_types.*.name' => 'required|string',
-            'units' => 'array',
-            'units.*' => 'required|numeric|min:1',
-            'ingredientAttributes' => 'array',
-            'ingredientAttributes.*.id' => '',
-            'ingredientAttributes.*.value' => 'required|numeric',
-            'ingredientAttributes.*.attribute_type_id' => 'required|numeric|min:1',
+            'weight_one' => 'required_if_quantity_unit|present|positive',
+            'weight_one_cup' => 'required_if_volume_unit|present|positive',
+            'weight_one_cm' => 'required_if_length_unit|present|positive',
+            'units' => 'array|required',
+            'attributes' => 'array',
+            'attributes.*.unit_id' => 'required|numeric|min:1',
+            'attributes.*.value' => 'required|numeric',
+            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
+            'default_unit_id' => 'numeric|min:1',
         ]);
 
         $response = [];
 
         $ingredient = Ingredient::find($id);
 
-        $ingredient->name = $request->name;
-        $ingredient->description = $request->description;
-        $ingredient->weight = $request->weight;
+        $ingredient->name            = $request->name;
+        $ingredient->description     = $request->description;
+        $ingredient->weight_one      = $request->weight_one;
+        $ingredient->weight_one_cup  = $request->weight_one_cup;
+        $ingredient->weight_one_cm   = $request->weight_one_cm;
         $ingredient->default_unit_id = $request->default_unit_id;
 
         $ingredient->save();
@@ -255,12 +261,16 @@ class IngredientController extends JsonApiController
         $ingredient->units()->sync($request->units);
 
         // Get a list of all existing attribute ids
-        $existingAttributeIds = $ingredient->attributeIds();
-        $existingAttributeIds = array_combine($existingAttributeIds, $existingAttributeIds);
+        $idsToDelete = array_fill_keys($ingredient->attributeIds(), null);
 
-        if(!empty($request->ingredientAttributes)) {
+        if(!empty($request->nutrients)) {
 
-            foreach($request->ingredientAttributes as $attributeData) {
+            foreach($request->nutrients as $attributeData) {
+
+                // Don't create an attribute with an empty value
+                if(empty($attributeData['value'])) {
+                    continue;
+                }
 
                 $attribute = NULL;
 
@@ -269,7 +279,7 @@ class IngredientController extends JsonApiController
                     $attribute = Attribute::find($attributeData['id']);
                     $response['method'] = 'loaded existing attribute';
                     // Once we loaded an attribute remove it from the list of all ids
-                    unset($existingAttributeIds[$attribute->id]);
+                    unset($idsToDelete[$attribute->id]);
                 }
 
                 // Create a new attribute if necessary
@@ -297,9 +307,10 @@ class IngredientController extends JsonApiController
         }
 
         // If there are any attribute ids left in here then they have been deleted
-        if(!empty($existingAttributeIds)) {
-            Attribute::whereIn('id', $existingAttributeIds)->delete();
-            $response['deleted_attribute_ids'] = $existingAttributeIds;
+        if(!empty($idsToDelete)) {
+            $idsToDelete = array_keys($idsToDelete);
+            Attribute::deleteMany($idsToDelete);
+            $response['deleted_attribute_ids'] = $idsToDelete;
         }
 
         if(empty($response['error'])) {
@@ -313,13 +324,23 @@ class IngredientController extends JsonApiController
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Ingredient  $ingredient
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-//    public function destroy(Ingredient $ingredient)
-//    {
-//        //
-//    }
+    public function destroy($id, Request $request)
+    {
+        $ingredient = Ingredient::findOrFail($id);
+        $ingredient->delete();
+
+        return response()
+            ->json([
+                'deleted' => true
+            ]);
+    }
+
+    public function test() {
+        die('foobar');
+    }
+
 }

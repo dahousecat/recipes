@@ -20,6 +20,8 @@
     import Flash from '../../helpers/flash'
     import Auth from '../../store/auth'
     import { post } from '../../helpers/api'
+    import { loading } from '../../helpers/misc';
+
     export default {
         data() {
             return {
@@ -30,6 +32,9 @@
                 error: {},
                 isProcessing: false
             }
+        },
+        created() {
+            loading(false);
         },
         methods: {
             login() {

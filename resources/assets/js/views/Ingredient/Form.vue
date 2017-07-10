@@ -1,5 +1,5 @@
 <template>
-    <div class="form">
+    <div class="form ingredient-form">
 
         <h1 class="form__title">Ingredient form</h1>
 
@@ -20,32 +20,48 @@
                             <input type="text" class="form__control" v-model="form.name">
                             <small class="error__control" v-if="error.name">{{error.name[0]}}</small>
                         </div>
-                        <div class="form__group" v-if="typeof form.units.quantity !== 'undefined'">
-                            <label>
-                                How much does one {{form.name}} weight? (grams)
-                                <a :href="getWeightUrl()" target="_blank" v-if="form.name">
-                                    <i class="fa fa-question-circle" aria-hidden="true"></i>
-                                </a>
-                            </label>
-                            <input type="text" class="form__control" v-model="form.weight">
-                            <small class="error__control" v-if="error.weight">{{error.weight[0]}}</small>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Units -->
-                <div class="col-s-4 form__panel">
+                <div class="col-s-4 form__panel ingredient-form__unit-types unit-types">
                     <div class="">
                         <div class="form__title">Would you measure {{form.name}} using...</div>
 
-                        <div class="row" v-for="(unitType, unitTypeName) in unitTypes">
-                            <div class="col-s-1">
-                                <input :id="unitTypeName" type="checkbox" class="form__control"
-                                       v-model="unitType.checked" @change="setUnitsFromUnitTypes()">
+                        <small class="error-msg" v-if="error.units">{{error.units[0]}}</small>
+
+                        <!--loop unit types-->
+                        <div class="unit-types__group" v-for="(unitType, unitTypeName) in unitTypes">
+                            <div class="row unit-types__row">
+                                <div class="col-s-1">
+                                    <input :id="unitTypeName" type="checkbox" class="form__control"
+                                           v-model="unitType.checked" @change="setUnitsFromUnitTypes()">
+                                </div>
+                                <div class="col-s-11">
+                                    <label :for="unitTypeName">{{ unitType.label }}</label>
+                                </div>
                             </div>
-                            <div class="col-s-11">
-                                <label :for="unitTypeName">{{ unitType.label }}</label>
+                            <div class="row unit-types__row" v-if="unitType.term && unitType.checked">
+                                <div class="col-s-8">
+                                    <label :for="unitTypeName + '_weight'" class="unit-types__label">
+                                        How much does {{unitType.term}} weight?
+                                        <a :href="getWeightUrl(unitType)" :title="getWeightTitle(unitType)" target="_blank" v-if="form.name">
+                                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </label>
+                                </div>
+                                <div class="col-s-4 flex">
+                                    <input :id="unitTypeName + '_weight'" type="input" class="unit-types__weight"
+                                           v-model="form[unitType.key]" @change="setUnitsFromUnitTypes()">
+                                    <span class="unit-types__unit" title="Grams">g</span>
+                                </div>
                             </div>
+                            <div class="row unit-types__error-row" v-if="unitType.term && unitType.checked">
+                                <div class="col-s-12">
+                                    <small class="error-msg" v-if="error[unitType.key]">{{error[unitType.key][0]}}</small>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="row">
@@ -142,20 +158,30 @@
                 units: [],
                 unitTypes: {
                     volume: {
-                        label: 'Volume (Litres or cups)',
+                        label: 'Volume (Litres, cups, teaspoons etc)',
                         checked: false,
+                        term: 'one cup',
+                        key: 'weight_one_cup',
+                        suffix: ' of',
                     },
                     weight: {
                         label: 'Weight (Kilograms or pounds)',
                         checked: false,
+                        term: false,
                     },
                     length: {
                         label: 'Length (Centimeters or inches)',
                         checked: false,
+                        term: 'one cm',
+                        key: 'weight_one_cm',
+                        suffix: ' of',
                     },
                     quantity: {
                         label: 'Quantity (Count how many)',
                         checked: false,
+                        term: 'one',
+                        key: 'weight_one',
+                        suffix: '',
                     },
                 },
                 attributeTypes: [],
@@ -196,21 +222,41 @@
                         loading(false);
                     });
             },
-            getWeightUrl() {
-                return 'https://www.google.com.au/search?q=how+much+does+one+' +
-                    this.form.name + '+weight?';
+            getWeightUrl(unitType) {
+
+                let url = 'https://www.google.com.au/search?q=';
+                let query = '1+cup+of+' + this.form.name.toLowerCase()+'+in+grams';
+                return url + query;
+
+//                return 'https://www.google.com.au/search?q=how+much+does+' + (unitType.term.replace(' ', '+')) +
+//                    unitType.suffix + '+' + this.form.name.toLowerCase() + '+weigh+in+grams?';
+//
+//                return '1 cup of ';
+//                return 'https://www.google.com.au/search?q=how+much+does+' + (unitType.term.replace(' ', '+')) +
+//                    unitType.suffix + '+' + this.form.name.toLowerCase() + '+weigh+in+grams?';
+            },
+            getWeightTitle(unitType) {
+                return 'How much does ' + unitType.term + unitType.suffix + ' ' + this.form.name.toLowerCase() + ' weigh in grams?';
             },
             setUnitsFromUnitTypes() {
-                this.form.units = {};
+                let form = this.form;
+                form.units = {};
 
                 for (var name in this.units) {
                     if (this.units.hasOwnProperty(name)) {
                         let unit = this.units[name];
                         if(this.unitTypes[unit.type].checked) {
-                            this.form.units[name] = unit;
+                            form.units[name] = unit;
                         }
                     }
                 }
+
+                // If there is only 1 unit type available set it as the default
+                if(Object.keys(form.units).length === 1) {
+                    let key = Object.keys(form.units)[0];
+                    form.default_unit_id = form.units[key].id;
+                }
+
             },
             setUnitTypesFromUnits() {
                 console.log('set types from units');
@@ -270,10 +316,37 @@
             },
             save() {
                 loading(true);
-                post(this.storeURL, this.form)
+
+                console.log(this.form);
+
+                // Clone the form so we don't alter the original
+                let data = JSON.parse(JSON.stringify(this.form));
+
+                console.log(data);
+
+                // Units just needs to be an array of ids
+                data.units = this.getUnitsIds();
+
+                // If volume is not a unit type in use clear the cup weight value
+                if(!this.unitTypes.volume.checked) {
+                    data.weight_one_cup = '';
+                }
+
+                // If length is not a unit type in use clear the cm weight value
+                if(!this.unitTypes.length.checked) {
+                    data.weight_one_cm = '';
+                }
+
+                // If volume is not a unit type in use clear the cup weight value
+                if(!this.unitTypes.quantity.checked) {
+                    data.weight_one = '';
+                }
+
+                post(this.storeURL, data)
                     .then((res) => {
                         loading(false);
-                        Flash.setSuccess('Ingredient saved.')
+                        Flash.setSuccess('Ingredient saved.');
+                        this.$router.push('/ingredients');
                     })
                     .catch((err) => {
                         loading(false);
@@ -281,6 +354,16 @@
                             this.error = err.response.data
                         }
                     })
+            },
+            getUnitsIds() {
+                let ids = [];
+                for (var name in this.form.units) {
+                    if (this.form.units.hasOwnProperty(name)) {
+                        let unit = this.form.units[name];
+                        ids.push(unit.id);
+                    }
+                }
+                return ids;
             }
         },
     }

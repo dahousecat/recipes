@@ -1,48 +1,47 @@
 <template>
     <div class="nutrients" :class="[updating ? 'loading' : '']">
-        <div class="recipe__box">
-            <h3 class="recipe__sub_title">Nutrition</h3>
 
-            <div class="recipe__nutrition__inner">
-                <div class="form__group nutrition-row">
-                    <div class="nutrition-row__unit">
-                        Amount per
-                    </div>
-                    <div class="nutrition-row__value">
-                        <select v-model="amountPer" @change="updatNutrition()" class="form__control">
-                            <option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
-                        </select>
-                    </div>
+        <h3 class="recipe__sub_title">Nutrition</h3>
+
+        <div class="recipe__nutrition__inner">
+            <div class="form__group nutrition-row">
+                <div class="nutrition-row__unit">
+                    Amount per
                 </div>
-
-                <div class="form__group nutrition-row" v-if="Object.keys(nutrients).length == 0">
-                    Add some ingredients to see the recipe nutrients
-                </div>
-
-                <div class="form__group nutrition-row" v-if="typeof nutrients.energy != 'undefined'">
-                    <div class="nutrition-row__unit">
-                        <select v-model="energyUnit" @change="recalculateEnergy()" class="form__control">
-                            <option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
-                        </select>
-                    </div>
-                    <div class="nutrition-row__value">
-                        {{ nutrients.energy.displayValue }}
-                    </div>
-                </div>
-
-                <div class="form__group nutrition-row"
-                     v-for="(nutrient, safe_name, index) in nutrients"
-                     v-if="safe_name!='energy'">
-                    <div class="nutrition-row__unit">
-                        {{ nutrient.name }}
-                    </div>
-                    <div class="nutrition-row__value">
-                        {{ nutrient.displayValue }}
-                    </div>
+                <div class="nutrition-row__value">
+                    <select v-model="amountPer" @change="updatNutrition()" class="form__control">
+                        <option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
+                    </select>
                 </div>
             </div>
 
+            <div class="nutrition-row" v-if="Object.keys(nutrients).length == 0">
+                Add some ingredients to see the recipe nutrients
+            </div>
+
+            <div class="nutrition-row" v-if="typeof nutrients.energy != 'undefined'">
+                <div class="nutrition-row__unit">
+                    <select v-model="energyUnit" @change="recalculateEnergy()" class="form__control">
+                        <option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
+                    </select>
+                </div>
+                <div class="nutrition-row__value">
+                    {{ nutrients.energy.displayValue }}
+                </div>
+            </div>
+
+            <div class="nutrition-row"
+                 v-for="(nutrient, safe_name, index) in nutrients"
+                 v-if="safe_name!='energy'">
+                <div class="nutrition-row__unit">
+                    {{ nutrient.name }}
+                </div>
+                <div class="nutrition-row__value">
+                    {{ nutrient.displayValue }}
+                </div>
+            </div>
         </div>
+
     </div>
 </template>
 <script type="text/javascript">

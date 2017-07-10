@@ -180,6 +180,8 @@ return [
         'Conner\Kint\KintServiceProvider',
 //        Barryvdh\Debugbar\ServiceProvider::class,
 
+        App\Services\Validation\ValidationExtensionServiceProvider::class,
+
     ],
 
     /*

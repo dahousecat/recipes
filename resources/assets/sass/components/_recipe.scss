@@ -1,0 +1,67 @@
+.recipe__header {
+  background: $color__alto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1.2rem;
+  margin: $gutter 0;
+}
+
+.recipe__panel {
+  background-color: $color__alto;
+  padding: 1rem;
+  border-left: 0.8rem solid $color__background;
+  border-right: 0.8rem solid $color__background;
+
+  @include mq($from: l) {
+    width: 50%;
+  }
+}
+
+.recipe__rows {
+  min-height: 10rem;
+  position: relative;
+}
+
+.recipe__rows--empty::after {
+  content: 'Drag some ingredients here to start your recipe.';
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 4rem;
+  text-align: center;
+}
+
+.recipe__ingredient {
+  background-color: $color__apple;
+  display: inline-block;
+  margin: 0.2rem;
+  padding: 0.4rem 1rem 0.4rem 2.7rem;
+  border-radius: 0.9rem;
+  font-size: 1.4rem;
+  position: relative;
+  color: white;
+
+  &::before {
+    color: lighten($color__apple, 25%);
+    position: absolute;
+    left: 0;
+    line-height: 0.8;
+  }
+}
+
+.recipe__directions-inner {
+  display: flex;
+  align-content: space-between;
+}
+
+.recipe__directions-button {
+  width: 3rem;
+  height: 3rem;
+  padding: 0px;
+  line-height: 1;
+  margin: 1.3rem 1rem 0 1rem;
+}
