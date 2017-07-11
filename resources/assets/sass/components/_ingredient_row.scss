@@ -24,14 +24,15 @@
   color: white;
   font-weight: bold;
   line-height: 2.4;
+  flex: 0 0 35%;
 }
 
 .ingredient_row__amount {
-  max-width: 6rem;
+  flex: 0 0 14%;
 }
 
 .ingredient_row__unit {
-  min-width: 10rem;
+  flex: 0 0 10rem;
   text-transform: capitalize;
 }
 

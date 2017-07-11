@@ -296,9 +296,16 @@
                 loading(true, 'nutrients-panel');
                 get('/api/ndb/view/' + item.id)
                     .then((res) => {
+                        console.log(res, 'res');
                         loading(false, 'nutrients-panel');
                         for (let i = 0; i < res.data.length; i++) {
                             let row = res.data[i];
+                            console.log(row, 'row');
+
+                            if(typeof this.form.nutrients[row.attribute_safe_name] === 'undefined') {
+                                this.form.nutrients[row.attribute_safe_name] = {};
+                            }
+
                             this.form.nutrients[row.attribute_safe_name].value = row.value;
                         }
                     })

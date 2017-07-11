@@ -20,7 +20,7 @@
             </div>
 
             <div class="nutrition-row" v-if="typeof nutrients.energy != 'undefined'">
-                <div class="nutrition-row__unit">
+                <div class="nutrition-row__unit nutrition-row__unit--wide">
                     <select v-model="energyUnit" @change="recalculateEnergy()" class="form__control">
                         <option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
                     </select>
@@ -101,6 +101,8 @@
         methods: {
             updatNutrition() {
 
+                console.log('updatNutrition');
+
                 let nutrients = {};
                 let totalWeight = 0;
 
@@ -108,7 +110,9 @@
                 for (let i = 0; i < this.rows.length; i++) {
                     let row = this.rows[i];
 
-                    if(row.unit_id !== row.unit.id) {
+                    console.log(row, 'row');
+
+                    if(typeof row.unit === 'undefined' || row.unit_id !== row.unit.id) {
                         // The rows unit id has changed, reload the unit.
                         row.unit = getUnit(row.unit_id, this.units);
                     }
@@ -179,22 +183,13 @@
                         row.weight = grams;
                         break;
                     case 'length':
-                        // TODO: add code
-                        row.weight = null;
+                        row.weight = row.ingredient.weight_one_cm * row.value;
                         break;
                     case 'volume':
-                        // TODO: add code
-                        row.weight = null;
+                        row.weight = row.ingredient.weight_one_cup * row.value;
                         break;
                     case 'quantity':
-                        if(typeof row.ingredient.weight !== 'undefined') {
-                            // The attribute weight is the weight of one whole ingredient
-
-                            row.weight = row.ingredient.weight * row.value;
-                        } else {
-                            console.log('ERROR: No weight for ' + row.ingredient.name);
-                            row.weight = 0;
-                        }
+                        row.weight = row.ingredient.weight_one * row.value;
                         break;
                 }
 

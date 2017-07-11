@@ -11,14 +11,12 @@ use Illuminate\Validation\Rules\In;
 Use Neomerx\JsonApi\Encoder\Encoder;
 use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
 
-class IngredientController extends JsonApiController
+class IngredientController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth:api')
             ->except(['index', 'show']);
-
-        parent::__construct();
     }
 
     /**
@@ -181,10 +179,20 @@ class IngredientController extends JsonApiController
      * @param  \App\Models\Ingredient  $ingredient
      * @return \Illuminate\Http\Response
      */
-//    public function show(Ingredient $ingredient)
-//    {
-//        //
-//    }
+    public function show($id, Request $request)
+    {
+        $ingredient = Ingredient::with('units', 'attributes.attributeType')->findOrFail($id)->toArray();
+
+        $ingredient['nutrients'] = $this->keyArray($ingredient['attributes'], ['attribute_type', 'safe_name']);
+        unset($ingredient['attributes']);
+
+        $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
+
+        return response()
+            ->json([
+                'ingredient' => $ingredient,
+            ]);
+    }
 
     public function edit($id, Request $request)
     {

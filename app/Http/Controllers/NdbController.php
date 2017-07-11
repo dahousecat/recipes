@@ -70,7 +70,7 @@ class NdbController extends Controller
 
                         $results[] = [
                             'attribute_id' => $attribute->id,
-                            'attribute_safe_name' => str_replace(' ', '_', $attribute->name),
+                            'attribute_safe_name' => $attribute->safe_name,
                             'unit' => $nutrient->unit,
                             'value' => $nutrient->value,
                         ];

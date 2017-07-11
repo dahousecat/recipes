@@ -54,10 +54,10 @@ class RecipeController extends JsonApiController
     {
         $form = Recipe::form();
         $units = Unit::all()->toArray();
-        $ingredients = Ingredient::select('id', 'default_unit_id', 'name', 'weight')
-            ->with(['units' => function($query){
-                $query->get(['unit_id', 'type', 'name']);
-            }])
+        $ingredients = Ingredient::select('id', 'name', 'default_unit_id')
+//            ->with(['units' => function($query){
+//                $query->get(['unit_id', 'type', 'name']);
+//            }])
             ->limit(20)->get();
         $attributeTypes = AttributeType::all()->toArray();
 
