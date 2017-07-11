@@ -167,7 +167,7 @@
                         checked: false,
                         term: 'one cup',
                         key: 'weight_one_cup',
-                        suffix: ' of',
+                        suffix: ' of ',
                     },
                     weight: {
                         label: 'Weight (Kilograms or pounds)',
@@ -179,7 +179,7 @@
                         checked: false,
                         term: 'one cm',
                         key: 'weight_one_cm',
-                        suffix: ' of',
+                        suffix: ' of ',
                     },
                     quantity: {
                         label: 'Quantity (Count how many)',
@@ -228,8 +228,11 @@
             },
             getWeightUrl(unitType) {
 
+                console.log(unitType);
+
                 let url = 'https://www.google.com.au/search?q=';
-                let query = '1+cup+of+' + this.form.name.toLowerCase()+'+in+grams';
+//                let query = 'weight+of+1+' + unitType.term + '+' + this.form.name.toLowerCase()+'+in+grams';
+                let query = 'how+much+does+' + unitType.term + '+' + unitType.suffix + this.form.name.toLowerCase() +  '+weight+in+grams?';
                 return url + query;
 
 //                return 'https://www.google.com.au/search?q=how+much+does+' + (unitType.term.replace(' ', '+')) +
@@ -296,7 +299,6 @@
                 loading(true, 'nutrients-panel');
                 get('/api/ndb/view/' + item.id)
                     .then((res) => {
-                        console.log(res, 'res');
                         loading(false, 'nutrients-panel');
                         for (let i = 0; i < res.data.length; i++) {
                             let row = res.data[i];

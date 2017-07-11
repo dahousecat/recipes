@@ -33,6 +33,6 @@ class CreateRowsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('row');
+        Schema::dropIfExists('rows');
     }
 }

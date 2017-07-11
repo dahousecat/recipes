@@ -14,6 +14,7 @@ class CreateAttributesTable extends Migration
     public function up()
     {
         Schema::create('attributes', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->increments('id');
 //            $table->foreign('unit_id')->references('id')->on('units');
             $table->integer('ingredient_id')->unsigned();

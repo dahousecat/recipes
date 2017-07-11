@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\In;
 Use Neomerx\JsonApi\Encoder\Encoder;
 use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Illuminate\Validation\Rule;
 
 class IngredientController extends Controller
 {
@@ -85,11 +86,10 @@ class IngredientController extends Controller
 
         $attributeTypes = AttributeType::all()->toArray();
         foreach($attributeTypes as &$type) {
-            $type['safe_name'] = str_replace(' ', '_', $type['name']);
             $form['nutrients'][$type['safe_name']] = [
                 'id' => null,
                 'value' => '',
-                'type_id' => $type['id'],
+                'attribute_type_id' => $type['id'],
                 'type_name' => $type['name'],
             ];
         }
@@ -132,7 +132,7 @@ class IngredientController extends Controller
 //            'attributes' => 'array',
 //            'attributes.*.unit_id' => 'required|numeric|min:1',
 //            'attributes.*.value' => 'required|numeric',
-//            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
+//            'attributes.*.type_id' => 'required|numeric|min:1',
 //        ]);
 //
 //        $unit_ids = [];
@@ -145,7 +145,7 @@ class IngredientController extends Controller
 //        $attributes = [];
 //        if(!empty($request->nutrients)) {
 //            foreach($request->nutrients as $attribute) {
-//                $attribute['attribute_type_id'] = $attribute['type_id'];
+//                $attribute['type_id'] = $attribute['type_id'];
 //                $attributes[] = new Attribute($attribute);
 //            }
 //        }
@@ -254,7 +254,14 @@ class IngredientController extends Controller
      */
     public function update($id, Request $request)
     {
-        $this->validate($request, $this->validationRules());
+        $this->validate($request, $this->validationRules($id));
+
+//        Validator::make($data, [
+//            'email' => [
+//                'required',
+//                Rule::unique('users')->ignore($user->id),
+//            ],
+//        ]);
 
         $response = [];
 
@@ -334,9 +341,9 @@ class IngredientController extends Controller
             ->json($response);
     }
 
-    private function validationRules() {
+    private function validationRules($id = null) {
         return [
-            'name' => 'required|max:255',
+            'name' => 'required|max:255|unique:ingredients,name' . ($id ? ',' . $id : ''),
             'weight_one' => 'required_if_quantity_unit|present|positive',
             'weight_one_cup' => 'required_if_volume_unit|present|positive',
             'weight_one_cm' => 'required_if_length_unit|present|positive',
@@ -363,10 +370,6 @@ class IngredientController extends Controller
             ->json([
                 'deleted' => true
             ]);
-    }
-
-    public function test() {
-        die('foobar');
     }
 
 }

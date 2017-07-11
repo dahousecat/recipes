@@ -136,7 +136,6 @@
 	import { toMulipartedForm, objectToFormData } from '../../helpers/form';
 	import ImageUpload from '../../components/ImageUpload.vue';
 	import draggable from 'vuedraggable';
-	import ingredientForm from '../Ingredient/IngredientForm.vue';
 	import Nutrients from '../../components/Nutrients.vue';
     import { loading } from '../../helpers/misc';
 
@@ -146,7 +145,6 @@
 		components: {
 			ImageUpload,
 			draggable,
-            ingredientForm,
             Nutrients,
 		},
 		data() {
