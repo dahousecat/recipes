@@ -1,0 +1,11 @@
+a {
+  color: $color__burnham;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 200ms;
+
+  &:hover {
+    color: darken($color__burnham, 25%);
+    text-decoration: underline;
+  }
+}

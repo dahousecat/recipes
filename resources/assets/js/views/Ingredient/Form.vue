@@ -18,7 +18,7 @@
                         <div class="form__group">
                             <label>Name</label>
                             <input type="text" class="form__control" v-model="form.name">
-                            <small class="error__control" v-if="error.name">{{error.name[0]}}</small>
+                            <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
                         </div>
                     </div>
                 </div>
@@ -72,6 +72,11 @@
                                 <select type="text" class="form__control" v-model="form.default_unit_id">
                                     <option v-for="(unit, index) in form.units" :value="unit.id">{{unit.name}}</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="row unit-types__error-row" v-if="error.default_unit_id">
+                            <div class="col-s-12">
+                                <small class="error-msg">{{error.default_unit_id[0]}}</small>
                             </div>
                         </div>
                     </div>
@@ -203,7 +208,6 @@
         },
         methods: {
             init() {
-                console.log('init ' + this.$route.meta.mode);
                 loading(true);
                 if(this.$route.meta.mode === 'edit') {
                     this.initializeURL = `/api/ingredients/${this.$route.params.id}/edit`;
@@ -259,7 +263,6 @@
 
             },
             setUnitTypesFromUnits() {
-                console.log('set types from units');
 
                 // Loop unitTypes to uncheck all
                 for (var name in this.unitTypes) {
@@ -272,7 +275,6 @@
                 for (var name in this.form.units) {
                     if (this.form.units.hasOwnProperty(name)) {
                         let unit = this.form.units[name];
-                        console.log(unit, 'unit');
                         this.unitTypes[unit.type].checked = true;
                     }
                 }
@@ -317,12 +319,8 @@
             save() {
                 loading(true);
 
-                console.log(this.form);
-
                 // Clone the form so we don't alter the original
                 let data = JSON.parse(JSON.stringify(this.form));
-
-                console.log(data);
 
                 // Units just needs to be an array of ids
                 data.units = this.getUnitsIds();

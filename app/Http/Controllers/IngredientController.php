@@ -112,31 +112,7 @@ class IngredientController extends JsonApiController
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|max:255',
-            'image' => 'image',
-            'units' => 'array',
-            'units.*.id' => 'required|numeric|min:1',
-            'attributes' => 'array',
-            'attributes.*.unit_id' => 'required|numeric|min:1',
-            'attributes.*.value' => 'required|numeric',
-            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
-        ]);
-
-        $unit_ids = [];
-        if(!empty($request->units)) {
-            foreach($request->units as $unit) {
-                $unit_ids[] = $unit['id'];
-            }
-        }
-
-        $attributes = [];
-        if(!empty($request->nutrients)) {
-            foreach($request->nutrients as $attribute) {
-                $attribute['attribute_type_id'] = $attribute['type_id'];
-                $attributes[] = new Attribute($attribute);
-            }
-        }
+        $this->validate($request, $this->validationRules());
 
         $ingredient = new Ingredient($request->only(
             'name',
@@ -145,19 +121,57 @@ class IngredientController extends JsonApiController
             'weight_one_cm',
             'default_unit_id'
         ));
+        $ingredient->user_id = $request->user()->id;
+        $ingredient->save();
 
-        $request->user()->ingredients()
-            ->save($ingredient);
+        return $this->update($ingredient->id, $request);
 
-        $ingredient->units()->sync($unit_ids);
-        $ingredient->attributes()->saveMany($attributes);
-
-        return response()
-            ->json([
-                'saved' => true,
-                'id' => $ingredient->id,
-                'message' => 'You have successfully created an ingredient!'
-            ]);
+//        $this->validate($request, [
+//            'name' => 'required|max:255',
+//            'image' => 'image',
+//            'units' => 'array',
+//            'units.*.id' => 'required|numeric|min:1',
+//            'attributes' => 'array',
+//            'attributes.*.unit_id' => 'required|numeric|min:1',
+//            'attributes.*.value' => 'required|numeric',
+//            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
+//        ]);
+//
+//        $unit_ids = [];
+//        if(!empty($request->units)) {
+//            foreach($request->units as $unit) {
+//                $unit_ids[] = $unit['id'];
+//            }
+//        }
+//
+//        $attributes = [];
+//        if(!empty($request->nutrients)) {
+//            foreach($request->nutrients as $attribute) {
+//                $attribute['attribute_type_id'] = $attribute['type_id'];
+//                $attributes[] = new Attribute($attribute);
+//            }
+//        }
+//
+//        $ingredient = new Ingredient($request->only(
+//            'name',
+//            'weight_one',
+//            'weight_one_cup',
+//            'weight_one_cm',
+//            'default_unit_id'
+//        ));
+//
+//        $request->user()->ingredients()
+//            ->save($ingredient);
+//
+//        $ingredient->units()->sync($unit_ids);
+//        $ingredient->attributes()->saveMany($attributes);
+//
+//        return response()
+//            ->json([
+//                'saved' => true,
+//                'id' => $ingredient->id,
+//                'message' => 'You have successfully created an ingredient!'
+//            ]);
 
     }
 
@@ -232,18 +246,7 @@ class IngredientController extends JsonApiController
      */
     public function update($id, Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|max:255',
-            'weight_one' => 'required_if_quantity_unit|present|positive',
-            'weight_one_cup' => 'required_if_volume_unit|present|positive',
-            'weight_one_cm' => 'required_if_length_unit|present|positive',
-            'units' => 'array|required',
-            'attributes' => 'array',
-            'attributes.*.unit_id' => 'required|numeric|min:1',
-            'attributes.*.value' => 'required|numeric',
-            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
-            'default_unit_id' => 'numeric|min:1',
-        ]);
+        $this->validate($request, $this->validationRules());
 
         $response = [];
 
@@ -321,6 +324,21 @@ class IngredientController extends JsonApiController
 
         return response()
             ->json($response);
+    }
+
+    private function validationRules() {
+        return [
+            'name' => 'required|max:255',
+            'weight_one' => 'required_if_quantity_unit|present|positive',
+            'weight_one_cup' => 'required_if_volume_unit|present|positive',
+            'weight_one_cm' => 'required_if_length_unit|present|positive',
+            'units' => 'array|required',
+            'attributes' => 'array',
+            'attributes.*.unit_id' => 'required|numeric|min:1',
+            'attributes.*.value' => 'required|numeric',
+            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
+            'default_unit_id' => 'numeric|min:1|required',
+        ];
     }
 
     /**
