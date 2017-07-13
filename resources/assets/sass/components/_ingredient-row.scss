@@ -1,13 +1,16 @@
-.ingredient_row {
+.ingredient-row {
   background-color: $color__st_tropaz;
   padding: 0.4rem;
   border: 1px solid $color__gallery;
-  display: flex;
-  justify-content: space-between;
   border-radius: 0.6rem;
 }
 
-.ingredient_row__handle {
+.ingredient-row__controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ingredient-row__handle {
   padding: 0.6rem 0.2rem 0rem 0.1rem;
 
   &::before {
@@ -15,32 +18,32 @@
   }
 }
 
-.ingredient_row__segment {
+.ingredient-row__segment {
   width: 33.33333%;
   line-height: 2.4;
 }
 
-.ingredient_row__name {
+.ingredient-row__name {
   color: white;
   font-weight: bold;
   line-height: 2.4;
   flex: 0 0 35%;
 }
 
-.ingredient_row__amount {
+.ingredient-row__amount {
   flex: 0 0 14%;
 }
 
-.ingredient_row__unit {
+.ingredient-row__unit {
   flex: 0 0 10rem;
   text-transform: capitalize;
 }
 
-.ingredient_row__control {
+.ingredient-row__control {
   margin: 0;
 }
 
-.ingredient_row__remove_button {
+.ingredient-row__remove_button {
   width: 2rem;
   height: 2rem;
   padding: 0;

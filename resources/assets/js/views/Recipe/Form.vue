@@ -45,35 +45,43 @@
 							   @start="dragStart" @end="dragEnd"
 							   class="recipe__rows">
 
-						<div v-for="(row, index) in form.rows" class="ingredient_row">
+						<ingredient-row
+								v-for="(row, index) in form.rows"
+								:row="row"
+								:recalculate="row.recalculate"
+								@recalculateNutrition="recalculateNutrition = true"
+								@removeIngredient="removeIngredient(index)">
+						</ingredient-row>
 
-							<div class="grabber ingredient_row__handle"></div>
+						<!--<div v-for="(row, index) in form.rows" class="ingredient_row">-->
 
-							<!--name-->
-							<div class="ingredient_row__name">
-								{{row.ingredient.name}}
-							</div>
+							<!--<div class="grabber ingredient_row__handle"></div>-->
 
-							<!--amount-->
-							<div class="ingredient_row__amount">
-								<input type="text" class="ingredient_row__control"
-									   v-model="row.value"
-									   @change="recalculateNutrition = true"
-									   :class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">
-							</div>
+							<!--&lt;!&ndash;name&ndash;&gt;-->
+							<!--<div class="ingredient_row__name">-->
+								<!--{{row.ingredient.name}}-->
+							<!--</div>-->
 
-							<!--unit-->
-							<div class="ingredient_row__unit">
-								<select v-model="row.unit_id" @change="recalculateNutrition=true" class="ingredient_row__control">
-									<option v-for="(unit, index) in row.ingredient.units" :value="unit.id">{{unit.name}}</option>
-								</select>
-							</div>
+							<!--&lt;!&ndash;amount&ndash;&gt;-->
+							<!--<div class="ingredient_row__amount">-->
+								<!--<input type="text" class="ingredient_row__control"-->
+									   <!--v-model="row.value"-->
+									   <!--@change="recalculateNutrition = true"-->
+									   <!--:class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">-->
+							<!--</div>-->
 
-							<!--remove-->
-							<div class="ingredient_row__remove">
-								<button @click="removeIngredient(index)" class="ingredient_row__remove_button">&times;</button>
-							</div>
-						</div>
+							<!--&lt;!&ndash;unit&ndash;&gt;-->
+							<!--<div class="ingredient_row__unit">-->
+								<!--<select v-model="row.unit_id" @change="recalculateNutrition=true" class="ingredient_row__control">-->
+									<!--<option v-for="(unit, index) in row.ingredient.units" :value="unit.id">{{unit.name}}</option>-->
+								<!--</select>-->
+							<!--</div>-->
+
+							<!--&lt;!&ndash;remove&ndash;&gt;-->
+							<!--<div class="ingredient_row__remove">-->
+								<!--<button @click="removeIngredient(index)" class="ingredient_row__remove_button">&times;</button>-->
+							<!--</div>-->
+						<!--</div>-->
 					</draggable>
 
 				</div>
@@ -137,6 +145,7 @@
 	import ImageUpload from '../../components/ImageUpload.vue';
 	import draggable from 'vuedraggable';
 	import Nutrients from '../../components/Nutrients.vue';
+	import IngredientRow from '../../components/IngredientRow.vue';
     import { loading } from '../../helpers/misc';
 
 	Vue.use(draggable);
@@ -146,6 +155,7 @@
 			ImageUpload,
 			draggable,
             Nutrients,
+            IngredientRow,
 		},
 		data() {
 			return {
@@ -218,8 +228,9 @@
 					for(let i = 0; i < res.data.ingredients.length; i++) {
 					    let ingredient = res.data.ingredients[i];
 
-					    // Set an empty array here so we can fill it when needed
-					    ingredient.nutrients = [];
+					    // Set an empty object here so we can fill it when needed
+					    ingredient.nutrients = {};
+					    ingredient.units = {};
 
 					    // If unit_id is not set and there is only one unit available set it as a default
 						if(ingredient.default_unit_id === null && ingredient.units.length === 1) {
@@ -233,6 +244,8 @@
 							unit_id: ingredient.default_unit_id,
 							unit: getUnit(ingredient.default_unit_id, this.units),
 							value: 1,
+							nutrients: {},
+                            recalculate: false,
 						});
 					}
                     Vue.set(this.$data, 'ingredients', items);
@@ -272,18 +285,18 @@
 				});
 
 			},
-			fetchIngredientDetails(item) {
+			fetchIngredientDetails(row) {
 
 			    let _this = this;
 
                 return new Promise(function(resolve, reject){
 
-                    if(typeof item === 'undefined') {
-                        // This item doesn't even have an ingredient. Get outa here.
+                    if(typeof row === 'undefined') {
+                        // This row doesn't even have an ingredient. Get outa here.
                         resolve();
                         return;
                     }
-                    let ingredient = item.ingredient;
+                    let ingredient = row.ingredient;
 
                     if(typeof ingredient.weight_one !== 'undefined') {
                         // They have already been fetched. Nothing to do.
@@ -299,7 +312,7 @@
                             ingredient.weight_one = res.data.ingredient.weight_one;
                             ingredient.weight_one_cup = res.data.ingredient.weight_one_cup;
                             ingredient.weight_one_cm = res.data.ingredient.weight_one_cm;
-
+                            row.recalculate = true;
                             loading(false);
                             resolve();
                         })

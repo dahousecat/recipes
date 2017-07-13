@@ -62,6 +62,14 @@
                 default: false,
             },
         },
+        watch: {
+            recalculate: function() {
+                if(this.recalculate) {
+                    this.updatNutrition();
+                    this.$emit('nutritionUpdated');
+                }
+            }
+        },
         data() {
             return {
                 nutrients: {},
@@ -88,14 +96,6 @@
                 conversions: {
                     caloriesInKj: 0.239006,
                 },
-            }
-        },
-        watch: {
-            recalculate: function() {
-                if(this.recalculate) {
-                    this.updatNutrition();
-                    this.$emit('nutritionUpdated');
-                }
             }
         },
         methods: {
