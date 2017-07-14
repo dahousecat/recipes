@@ -14,6 +14,8 @@ use Illuminate\Validation\Rule;
 
 class IngredientController extends Controller
 {
+    const ML_IN_CUP = 240;
+
     public function __construct()
     {
         $this->middleware('auth:api')
@@ -187,6 +189,11 @@ class IngredientController extends Controller
         unset($ingredient['attributes']);
 
         $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
+
+        // In the DB we store the weight of one cup - but the weight on one ml will be more useful so convert now
+        if(!empty($ingredient['weight_one_cup'])) {
+            $ingredient['weight_one_ml'] = $ingredient['weight_one_cup'] / self::ML_IN_CUP;
+        }
 
         return response()
             ->json([

@@ -53,35 +53,6 @@
 								@removeIngredient="removeIngredient(index)">
 						</ingredient-row>
 
-						<!--<div v-for="(row, index) in form.rows" class="ingredient_row">-->
-
-							<!--<div class="grabber ingredient_row__handle"></div>-->
-
-							<!--&lt;!&ndash;name&ndash;&gt;-->
-							<!--<div class="ingredient_row__name">-->
-								<!--{{row.ingredient.name}}-->
-							<!--</div>-->
-
-							<!--&lt;!&ndash;amount&ndash;&gt;-->
-							<!--<div class="ingredient_row__amount">-->
-								<!--<input type="text" class="ingredient_row__control"-->
-									   <!--v-model="row.value"-->
-									   <!--@change="recalculateNutrition = true"-->
-									   <!--:class="[error[`rows.${index}.amount`] ? 'error__bg' : '']">-->
-							<!--</div>-->
-
-							<!--&lt;!&ndash;unit&ndash;&gt;-->
-							<!--<div class="ingredient_row__unit">-->
-								<!--<select v-model="row.unit_id" @change="recalculateNutrition=true" class="ingredient_row__control">-->
-									<!--<option v-for="(unit, index) in row.ingredient.units" :value="unit.id">{{unit.name}}</option>-->
-								<!--</select>-->
-							<!--</div>-->
-
-							<!--&lt;!&ndash;remove&ndash;&gt;-->
-							<!--<div class="ingredient_row__remove">-->
-								<!--<button @click="removeIngredient(index)" class="ingredient_row__remove_button">&times;</button>-->
-							<!--</div>-->
-						<!--</div>-->
 					</draggable>
 
 				</div>
@@ -264,21 +235,28 @@
 
 				this.isDragging = false;
 
-				let item = this.editIngredient.length === 1 ? this.editIngredient[0] :  this.form.rows[evt.newIndex];
+				let row = this.editIngredient.length === 1 ? this.editIngredient[0] :  this.form.rows[evt.newIndex];
 				let _this = this;
 
+				console.log(row, 'row at drag end');
+
+				console.log(typeof _this.form.rows[evt.newIndex]);
+
 				// Make sure the nutrients for this ingredient are set
-				this.fetchIngredientDetails(item).then(function(){
+				this.fetchIngredientDetails(row).then(function(){
 
                     if(_this.editIngredient.length === 1) {
                         // Ingredient dropped on the edit ingredient zone
                         _this.showIngredientModal = true;
 
-                    } else if(typeof _this.form.rows[evt.newIndex] === 'Object') {
+                    } else if(typeof _this.form.rows[evt.newIndex] === 'object') {
                         // Ingredient added to recipe
-                        _this.recalculateNutrition = true;
+						// Recalculate this row - this will trigger recalculating the recipe nutrients
+						console.log('Triggering row recalculation');
+                        _this.form.rows[evt.newIndex].recalculate = true;
                     } else {
                         // Ingredient returned to pantry
+						// No need to recalculate this row - just recalculate the recipe nutrients
                         _this.recalculateNutrition = true;
                     }
 
@@ -311,8 +289,8 @@
                             ingredient.units = res.data.ingredient.units;
                             ingredient.weight_one = res.data.ingredient.weight_one;
                             ingredient.weight_one_cup = res.data.ingredient.weight_one_cup;
+                            ingredient.weight_one_ml = res.data.ingredient.weight_one_ml;
                             ingredient.weight_one_cm = res.data.ingredient.weight_one_cm;
-                            row.recalculate = true;
                             loading(false);
                             resolve();
                         })

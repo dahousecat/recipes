@@ -1,7 +1,10 @@
 // Vendor
-@import "../../../node_modules/font-awesome/scss/font-awesome.scss";
-@import "../../../node_modules/responsive-bp/src/sass/responsive.scss";
-@import "../../../node_modules/sass-mq/_mq.scss";
+@import "~font-awesome/scss/font-awesome.scss";
+@import "~responsive-bp/src/sass/responsive.scss";
+@import "~sass-mq/_mq.scss";
+//@import "../../../node_modules/vue2-animate/src/vue";
+
+@import "~vue2-animate/dist/vue2-animate.css";
 
 // Variables
 @import "variables/breakpoints";

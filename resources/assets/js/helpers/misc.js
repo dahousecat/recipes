@@ -12,15 +12,29 @@ export function convertEnergyUnit(old_value, new_unit) {
 }
 
 export function formatNumber(number) {
-    let dp = number < 1 ? 1 : 0;
-    return number.toFixed(dp);
+    let dp = number < 1 ? 2 : 1;
+
+    // the plus here is converting back to a float so any additional zeros are stripped off the end
+    // https://stackoverflow.com/a/12830454/967168
+    return +number.toFixed(dp);
 }
 
 export function getUnit(id, units) {
     id = parseInt(id);
-    for (let i = 0; i < units.length; i++) {
-        if(parseInt(units[i].id) === id) {
-            return units[i];
+    if(typeof units === 'object') {
+        for (let unitName in units) {
+            if (units.hasOwnProperty(unitName)) {
+                let unit = units[unitName];
+                if(parseInt(unit.id) === id) {
+                    return unit;
+                }
+            }
+        }
+    } else {
+        for (let i = 0; i < units.length; i++) {
+            if(parseInt(units[i].id) === id) {
+                return units[i];
+            }
         }
     }
 }
