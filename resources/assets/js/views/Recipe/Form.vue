@@ -48,8 +48,7 @@
 						<ingredient-row
 								v-for="(row, index) in form.rows"
 								:row="row"
-								:recalculate="row.recalculate"
-								@recalculateNutrition="recalculateNutrition = true"
+								@rowUpdated="rowUpdated(row)"
 								@removeIngredient="removeIngredient(index)">
 						</ingredient-row>
 
@@ -64,8 +63,8 @@
 					<h3 class="recipe__sub_title">Pantry</h3>
 
 					<div class="form__group">
-						<label>Search</label>
-						<input type="text" class="form__control" v-model="ingredient">
+						<label for="search">Search</label>
+						<input id="search" type="text" class="form__control" v-model="ingredient">
 					</div>
 
 					<draggable v-model="ingredients" :options='{group:"recipe"}' @start="dragStart" @end="dragEnd">
@@ -176,56 +175,87 @@
 						.then((res) => {
 							Vue.set(this.$data, 'ingredients', this.rowify(res.data.ingredients));
 						})
-			}
+			},
+            '$route' (to, from) {
+			    console.log('route change');
+                this.init();
+            }
 		},
 
 		// Run on initialization
 		created() {
-			if(this.$route.meta.mode === 'edit') {
-				this.initializeURL = `/api/recipes/${this.$route.params.id}/edit`;
-				this.storeURL = `/api/recipes/${this.$route.params.id}?_method=PUT`;
-				this.action = 'Update';
-			}
-			get(this.initializeURL)
-				.then((res) => {
-					Vue.set(this.$data, 'form', res.data.form);
-					Vue.set(this.$data, 'units', res.data.units);
-					Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
-
-					// Ingredients can turn into rows when they are dragged there.
-					// Because of this we need to put the ingredient properties in their own namespace.
-					// Whilst we are about it lets set some default values for each row
-					let items = []; // I will call a row / ingredient and "item"
-					for(let i = 0; i < res.data.ingredients.length; i++) {
-					    let ingredient = res.data.ingredients[i];
-
-					    // Set an empty object here so we can fill it when needed
-					    ingredient.nutrients = {};
-					    ingredient.units = {};
-
-					    // If unit_id is not set and there is only one unit available set it as a default
-						if(ingredient.default_unit_id === null && ingredient.units.length === 1) {
-                            ingredient.default_unit_id = ingredient.units[0].unit_id;
-						}
-
-					    // We need a unit_id AND unit as that is the selects model. When it's updated the unit is
-						// automatically updated.
-					    items.push({
-							ingredient: ingredient,
-							unit_id: ingredient.default_unit_id,
-							unit: getUnit(ingredient.default_unit_id, this.units),
-							value: 1,
-							nutrients: {},
-                            recalculate: false,
-						});
-					}
-                    Vue.set(this.$data, 'ingredients', items);
-
-				});
+			this.init();
 
 		},
 		methods: {
-			dragStart(evt){
+		    init() {
+                if(this.$route.meta.mode === 'edit') {
+                    this.initializeURL = `/api/recipes/${this.$route.params.id}/edit`;
+                    this.storeURL = `/api/recipes/${this.$route.params.id}?_method=PUT`;
+                    this.action = 'Update';
+                } else {
+                    this.initializeURL = `/api/recipes/create`;
+                    this.storeURL = `/api/recipes`;
+                    this.action = 'Create';
+				}
+
+                get(this.initializeURL)
+                    .then((res) => {
+                        Vue.set(this.$data, 'form', res.data.form);
+                        Vue.set(this.$data, 'units', res.data.units);
+                        Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
+
+                        this.prepareIngredients(res.data);
+
+
+						// Just set data so wait till next tick to update the recipe rows
+						let _this = this;
+						this.$nextTick(function () {
+							for (let i = 0; i < _this.form.rows.length; i++) {
+								console.log('Set row nutrition recalculate to true');
+								_this.form.rows[i].recalculate = true;
+							}
+
+							// And then the tick after that to update the recipe nutrients
+							Vue.nextTick(function () {
+								_this.recalculateNutrition = true;
+							});
+						});
+
+
+                    });
+			},
+			prepareIngredients(data) {
+                // Ingredients can turn into rows when they are dragged there.
+                // Because of this we need to put the ingredient properties in their own namespace.
+                let ingredients = [];
+                for(let i = 0; i < data.ingredients.length; i++) {
+                    let ingredient = data.ingredients[i];
+
+                    // Set an empty object here so we can fill it when needed
+                    ingredient.nutrients = {};
+                    ingredient.units = {};
+
+                    // If unit_id is not set and there is only one unit available set it as a default
+                    if(ingredient.default_unit_id === null && ingredient.units.length === 1) {
+                        ingredient.default_unit_id = ingredient.units[0].unit_id;
+                    }
+
+                    // We need a unit_id AND unit as that is the selects model. When it's updated the unit is
+                    // automatically updated.
+                    ingredients.push({
+                        ingredient: ingredient,
+                        unit_id: ingredient.default_unit_id,
+                        unit: getUnit(ingredient.default_unit_id, this.units),
+                        value: 1,
+                        nutrients: {},
+                        recalculate: false,
+                        recalculateRecipeNutrition: false,
+                    });
+                }
+                Vue.set(this.$data, 'ingredients', ingredients);
+			},
+			dragStart(){
 
 				this.isDragging = true;
 				// let item = this.ingredients[evt.oldIndex];
@@ -238,10 +268,6 @@
 				let row = this.editIngredient.length === 1 ? this.editIngredient[0] :  this.form.rows[evt.newIndex];
 				let _this = this;
 
-				console.log(row, 'row at drag end');
-
-				console.log(typeof _this.form.rows[evt.newIndex]);
-
 				// Make sure the nutrients for this ingredient are set
 				this.fetchIngredientDetails(row).then(function(){
 
@@ -250,10 +276,15 @@
                         _this.showIngredientModal = true;
 
                     } else if(typeof _this.form.rows[evt.newIndex] === 'object') {
+
                         // Ingredient added to recipe
 						// Recalculate this row - this will trigger recalculating the recipe nutrients
-						console.log('Triggering row recalculation');
                         _this.form.rows[evt.newIndex].recalculate = true;
+
+                        // If this is set to true after the now nutrients are updated it will trigger a recipe
+						// nutrition update
+                        _this.form.rows[evt.newIndex].recalculateRecipeNutrition = true;
+
                     } else {
                         // Ingredient returned to pantry
 						// No need to recalculate this row - just recalculate the recipe nutrients
@@ -264,8 +295,6 @@
 
 			},
 			fetchIngredientDetails(row) {
-
-			    let _this = this;
 
                 return new Promise(function(resolve, reject){
 
@@ -340,24 +369,37 @@
                 return rows;
 			},
 			save() {
-				let data = {
-				    name: this.form.name,
-				    description: this.form.description,
-				    image: this.form.image,
-				    directions: this.form.directions,
-                    rows: [],
-				};
 
-                for (let i = 0; i < this.form.rows.length; i++) {
-                    let row = this.form.rows[i];
-                    data.rows.push({
-						id: null,
-						ingredient_id: row.ingredient_id,
+                // Clone the form so we don't alter the original
+                let data = JSON.parse(JSON.stringify(this.form));
+
+                // Remove empty directions
+                for (let i = 0; i < data.directions.length; i++) {
+					if(data.directions[i].description.length === 0) {
+                        data.directions.splice(i, 1);
+					}
+                }
+
+                // Remove empty image
+                if(!data.image) {
+                    delete data.image;
+				}
+
+				// Prepare rows
+				let rowData = [];
+                for (let i = 0; i < data.rows.length; i++) {
+                    let row = data.rows[i];
+                    rowData.push({
+						ingredient_id: row.ingredient.id,
 						delta: i,
-						unit_id: row.unit_id,
-						unit_value: row.amount,
+						unit_id: row.unit.id,
+						value: row.value,
 					});
                 }
+
+                data.rows = rowData;
+
+                console.log(data, 'save recipe data');
 
 				post(this.storeURL, objectToFormData(data))
 				    .then((res) => {
@@ -388,6 +430,12 @@
 				this.ingredients.push(this.form.rows[index]);
                 this.form.rows.splice(index, 1);
                 this.recalculateNutrition = true;
+			},
+            rowUpdated(row) {
+			    row.recalculate = false;
+			    if(row.recalculateRecipeNutrition) {
+                    this.recalculateNutrition = true;
+				}
 			},
 		}
 	}

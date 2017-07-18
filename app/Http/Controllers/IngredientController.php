@@ -14,8 +14,6 @@ use Illuminate\Validation\Rule;
 
 class IngredientController extends Controller
 {
-    const ML_IN_CUP = 240;
-
     public function __construct()
     {
         $this->middleware('auth:api')
@@ -126,53 +124,6 @@ class IngredientController extends Controller
 
         return $this->update($ingredient->id, $request);
 
-//        $this->validate($request, [
-//            'name' => 'required|max:255',
-//            'image' => 'image',
-//            'units' => 'array',
-//            'units.*.id' => 'required|numeric|min:1',
-//            'attributes' => 'array',
-//            'attributes.*.unit_id' => 'required|numeric|min:1',
-//            'attributes.*.value' => 'required|numeric',
-//            'attributes.*.type_id' => 'required|numeric|min:1',
-//        ]);
-//
-//        $unit_ids = [];
-//        if(!empty($request->units)) {
-//            foreach($request->units as $unit) {
-//                $unit_ids[] = $unit['id'];
-//            }
-//        }
-//
-//        $attributes = [];
-//        if(!empty($request->nutrients)) {
-//            foreach($request->nutrients as $attribute) {
-//                $attribute['type_id'] = $attribute['type_id'];
-//                $attributes[] = new Attribute($attribute);
-//            }
-//        }
-//
-//        $ingredient = new Ingredient($request->only(
-//            'name',
-//            'weight_one',
-//            'weight_one_cup',
-//            'weight_one_cm',
-//            'default_unit_id'
-//        ));
-//
-//        $request->user()->ingredients()
-//            ->save($ingredient);
-//
-//        $ingredient->units()->sync($unit_ids);
-//        $ingredient->attributes()->saveMany($attributes);
-//
-//        return response()
-//            ->json([
-//                'saved' => true,
-//                'id' => $ingredient->id,
-//                'message' => 'You have successfully created an ingredient!'
-//            ]);
-
     }
 
     /**
@@ -214,6 +165,7 @@ class IngredientController extends Controller
         $units = $this->keyArray(Unit::all()->toArray(), 'name');
 
         // Add default values for attributes that don't exist
+        // TODO: Find out if this is really necessary... seems surplus
         foreach($attributeTypes as $type) {
           if(!isset($form['nutrients'][$type['safe_name']])) {
             $form['nutrients'][$type['safe_name']] = [
@@ -232,24 +184,6 @@ class IngredientController extends Controller
                 'units' => $units,
                 'attributeTypes' => $attributeTypes,
             ]);
-    }
-
-    private function keyArray($inArray, $pathToKey) {
-      $outArray = [];
-      $pathToKey = is_array($pathToKey) ? $pathToKey : [$pathToKey];
-      foreach($inArray as $value) {
-        $ref = $value;
-        foreach($pathToKey as $pathElement) {
-          if(!isset($ref[$pathElement])) {
-            print_r(debug_backtrace());
-            trigger_error('Key ' . $pathElement . ' is not set in this array: ' . print_r($ref, true));
-          } else {
-            $ref = $ref[$pathElement];
-          }
-        }
-        $outArray[$ref] = $value;
-      }
-      return $outArray;
     }
 
     /**
@@ -297,7 +231,7 @@ class IngredientController extends Controller
                     continue;
                 }
 
-                $attribute = NULL;
+                $attribute = null;
 
                 // Try and load an existing attribute
                 if(!empty($attributeData['id'])) {

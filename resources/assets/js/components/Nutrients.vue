@@ -103,7 +103,7 @@
         methods: {
             updatNutrition() {
 
-                console.log('update recipe nutrition');
+                console.log('Calculate recipe nutrition');
 
                 let nutrients = {};
                 this.recipeWeight = 0;

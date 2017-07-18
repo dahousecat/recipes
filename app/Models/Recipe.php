@@ -28,6 +28,11 @@ class Recipe extends Model
     	return $this->hasMany(RecipeDirection::class);
     }
 
+    public function rowIds() {
+
+        return $this->rows()->pluck('id')->toArray();
+    }
+
     public static function form()
     {
         return [

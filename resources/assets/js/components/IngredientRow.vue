@@ -63,10 +63,6 @@
                 type: [Object],
                 default: {},
             },
-            recalculate: {
-                type: [Boolean],
-                default: false,
-            },
         },
         data() {
             return {
@@ -74,17 +70,26 @@
                 showNutrients: false,
             };
         },
+        computed: {
+            // Computed recalcualte so we don't need to do a deep watch
+            recalculate() {
+                return this.row.recalculate;
+            }
+        },
         watch: {
             recalculate: function() {
-                this.calculateNutrition();
-            }
+                if(this.recalculate) {
+                    this.calculateNutrition();
+                }
+
+            },
         },
         methods: {
             calculateNutrition() {
 
                 let row = this.row;
 
-                console.log('update ' + row.ingredient.name + ' nutrition');
+                console.log('Calculate row nutrition for ' + row.ingredient.name);
 
                 if(typeof row.unit === 'undefined' || row.unit_id !== row.unit.id) {
                     // The rows unit id has changed, reload the unit.
@@ -113,6 +118,11 @@
                 for (let nutrientName in row.ingredient.nutrients) {
                     if (row.ingredient.nutrients.hasOwnProperty(nutrientName)) {
                         let ingredientNutrient = row.ingredient.nutrients[nutrientName];
+
+                        if(typeof row.nutrients === 'undefined') {
+                            row.nutrients = {};
+                        }
+
                         // Nutrients are stored per 100g so divide by 100 first
                         row.nutrients[nutrientName] = {
                             'value': (ingredientNutrient.value / 100) * row.weight,
@@ -123,8 +133,8 @@
 
                 this.updateDisplayNutrients();
 
-                // Trigger a recalculation of the global recipe nutrients
-                this.$emit('recalculateNutrition');
+                // Send a signal that we are done updating our nutritional values
+                this.$emit('rowUpdated');
             },
             updateDisplayNutrients() {
                 this.displayNutrients = {};

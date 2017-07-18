@@ -16,8 +16,8 @@
                 <div class="col-s-4 form__panel">
                     <div class="">
                         <div class="form__group">
-                            <label>Name</label>
-                            <input type="text" class="form__control" v-model="form.name">
+                            <label for="name">Name</label>
+                            <input id="name" type="text" class="form__control" v-model="form.name">
                             <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
                         </div>
                     </div>
@@ -203,6 +203,7 @@
         },
         watch: {
             '$route' (to, from) {
+                console.log('route change');
                 this.init();
             }
         },
@@ -216,6 +217,7 @@
                 } else {
                     this.initializeURL = `/api/ingredients/create`;
                     this.storeURL = `/api/ingredients`;
+                    this.action = 'Create';
                 }
                 get(this.initializeURL)
                     .then((res) => {
@@ -231,16 +233,8 @@
                 console.log(unitType);
 
                 let url = 'https://www.google.com.au/search?q=';
-//                let query = 'weight+of+1+' + unitType.term + '+' + this.form.name.toLowerCase()+'+in+grams';
                 let query = 'how+much+does+' + unitType.term + '+' + unitType.suffix + this.form.name.toLowerCase() +  '+weight+in+grams?';
                 return url + query;
-
-//                return 'https://www.google.com.au/search?q=how+much+does+' + (unitType.term.replace(' ', '+')) +
-//                    unitType.suffix + '+' + this.form.name.toLowerCase() + '+weigh+in+grams?';
-//
-//                return '1 cup of ';
-//                return 'https://www.google.com.au/search?q=how+much+does+' + (unitType.term.replace(' ', '+')) +
-//                    unitType.suffix + '+' + this.form.name.toLowerCase() + '+weigh+in+grams?';
             },
             getWeightTitle(unitType) {
                 return 'How much does ' + unitType.term + unitType.suffix + ' ' + this.form.name.toLowerCase() + ' weigh in grams?';
