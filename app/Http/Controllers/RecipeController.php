@@ -74,42 +74,9 @@ class RecipeController extends Controller
         $recipe = new Recipe($request->only('name', 'description'));
         $request->user()->recipes()->save($recipe);
 
-        $this->update($recipe->id, $request);
+        $message = 'You have successfully created a recipe!';
+        $this->update($recipe->id, $request, $message);
 
-//    	$rows = [];
-//        foreach($request->rows as $row) {
-//            $rows[] = new Row($row);
-//        }
-//
-//	    $directions = [];
-//        if(!empty($request->directions)) {
-//            foreach($request->directions as $direction) {
-//                if(empty($direction->description)) {
-//                    continue;
-//                }
-//                $directions[] = new RecipeDirection($direction);
-//            }
-//        }
-//
-//        $recipe = new Recipe($request->only('name', 'description'));
-//
-//    	if($request->hasFile('image') && $request->file('image')->isValid()) {
-//            $filename = $this->getFileName($request->image);
-//            $request->image->move(base_path('public/images'), $filename);
-//            $recipe->image = $filename;
-//    	}
-//
-//    	$request->user()->recipes()->save($recipe);
-//
-//    	$recipe->rows()->saveMany($rows);
-//    	$recipe->directions()->saveMany($directions);
-//
-//    	return response()
-//    	    ->json([
-//    	        'saved' => true,
-//    	        'id' => $recipe->id,
-//                'message' => 'You have successfully created recipe!'
-//    	    ]);
     }
 
     private function getFileName($file)
@@ -127,7 +94,6 @@ class RecipeController extends Controller
                 'recipe' => $recipe
             ]);
     }
-
 
     public function edit($id, Request $request)
     {
@@ -183,36 +149,69 @@ class RecipeController extends Controller
             ]);
     }
 
-    public function update($id, Request $request)
+    public function update($id, Request $request, $message = 'You have successfully updated a recipe!')
     {
         $this->validate($request, $this->validationRules());
 
         $recipe = Recipe::find($id);
 
+        $recipe->name = $request->name;
+        $recipe->description = $request->description;
+
+        $response = [];
+
         // Get a list of all existing row ids
-        $idsToDelete = array_fill_keys($recipe->rowIds(), null);
+        $rowIdsToDelete = array_fill_keys($recipe->rowIds(), null);
 
-        $rows = [];
-        foreach($request->rows as $rowData) {
+        if(!empty($request->rows)) {
+            foreach($request->rows as $rowData) {
+                $row = null;
+                if(isset($rowData['id'])) {
+                    $row = Row::find($rowData['id']);
 
-            $row = null;
+                    // Once we loaded a row remove it from the list of all ids
+                    unset($rowIdsToDelete[$row->id]);
+                } else {
+                    $row = new Row();
+                }
 
-            if(isset($row['id'])) {
-                $row = Row::find($row['id']);
+                $row->recipe_id     = $recipe->id;
+                $row->ingredient_id = $rowData['ingredient_id'];
+                $row->delta         = $rowData['delta'];
+                $row->unit_id       = $rowData['unit_id'];
+                $row->value         = $rowData['value'];
 
-                // Once we loaded a row remove it from the list of all ids
-                unset($idsToDelete[$row->id]);
+                $row->save();
             }
-            $row = new Row($row);
         }
 
-        $directions = [];
+        // If there are any row ids left in here then they have been deleted
+        if(!empty($rowIdsToDelete)) {
+            $rowIdsToDelete = array_keys($rowIdsToDelete);
+            Row::deleteMany($rowIdsToDelete);
+            $response['deleted_attribute_ids'] = $rowIdsToDelete;
+        }
+
+        // Get a list of all existing direction ids
+        $directionIdsToDelete = array_fill_keys($recipe->directionIds(), null);
+
         if(!empty($request->directions)) {
-            foreach($request->directions as $direction) {
-                if(empty($direction->description)) {
+            foreach($request->directions as $directionData) {
+                if(empty($directionData['description'])) {
                     continue;
                 }
-                $directions[] = new RecipeDirection($direction);
+
+                if(!empty($direction['id'])) {
+                    $direction = RecipeDirection::find($direction['id']);
+                    unset($directionIdsToDelete[$direction['id']]);
+                } else {
+                    $direction = new RecipeDirection();
+                }
+
+                $direction->recipe_id = $recipe->id;
+                $direction->description = $directionData['description'];
+                $direction->save();
+
             }
         }
 
@@ -224,95 +223,13 @@ class RecipeController extends Controller
 
         $request->user()->recipes()->save($recipe);
 
-        $recipe->rows()->saveMany($rows);
-        $recipe->directions()->saveMany($directions);
-
         return response()
             ->json([
                 'saved' => true,
                 'id' => $recipe->id,
-                'message' => 'You have successfully created recipe!'
+                'message' => $message
             ]);
 
-        ////////////////////
-
-        $recipe = $request->user()->recipes()
-            ->findOrFail($id);
-
-        $ingredients = [];
-        $ingredientsUpdated = [];
-
-        if(!empty($request->ingredients)) {
-            foreach($request->ingredients as $ingredient) {
-                if(isset($ingredient['id'])) {
-                    RecipeIngredient::where('recipe_id', $recipe->id)
-                        ->where('id', $ingredient['id'])
-                        ->update($ingredient);
-
-                    $ingredientsUpdated[] = $ingredient['id'];
-                } else {
-                    $ingredients[] = new RecipeIngredient($ingredient);
-                }
-            }
-        }
-
-        $directions = [];
-        $directionsUpdated = [];
-
-        if(!empty($request->directions)) {
-            foreach($request->directions as $direction) {
-                if(isset($direction['id'])) {
-                    RecipeDirection::where('recipe_id', $recipe->id)
-                        ->where('id', $direction['id'])
-                        ->update($direction);
-
-                    $directionsUpdated[] = $direction['id'];
-                } else {
-                    echo 'new direction<br>';
-                    $directions[] = new RecipeDirection($direction);
-                }
-
-            }
-        }
-
-
-        $recipe->name = $request->name;
-        $recipe->description = $request->description;
-
-        // upload image
-        if ($request->hasfile('image') && $request->file('image')->isValid()) {
-            $filename = $this->getFileName($request->image);
-            $request->image->move(base_path('/public/images'), $filename);
-
-            // remove old image
-            File::delete(base_path('/public/images/'.$recipe->image));
-            $recipe->image = $filename;
-        }
-
-        $recipe->save();
-
-        RecipeIngredient::whereNotIn('id', $ingredientsUpdated)
-            ->where('recipe_id', $recipe->id)
-            ->delete();
-
-        RecipeDirection::whereNotIn('id', $directionsUpdated)
-            ->where('recipe_id', $recipe->id)
-            ->delete();
-
-        if(count($ingredients)) {
-            $recipe->ingredients()->saveMany($ingredients);
-        }
-
-        if(count($directions)) {
-            $recipe->directions()->saveMany($directions);
-        }
-
-        return response()
-            ->json([
-                'saved' => true,
-                'id' => $recipe->id,
-                'message' => 'You have successfully updated recipe!'
-            ]);
     }
 
     private function validationRules($id = null) {

@@ -49,4 +49,13 @@ class Row extends Model
         ];
     }
 
+    public static function deleteMany($ids) {
+        foreach($ids as $id) {
+            $row = static::find($id);
+            if($row) {
+                $row->delete();
+            }
+        }
+    }
+
 }

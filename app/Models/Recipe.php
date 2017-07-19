@@ -33,6 +33,11 @@ class Recipe extends Model
         return $this->rows()->pluck('id')->toArray();
     }
 
+    public function directionIds()
+    {
+        return $this->directions()->pluck('id')->toArray();
+    }
+
     public static function form()
     {
         return [
