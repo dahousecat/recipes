@@ -25,14 +25,26 @@ class RecipesTableSeeder extends Seeder
 
             foreach($data->rows as $row) {
 
+                \DB::enableQueryLog();
+
                 $ingredient = Ingredient::loadByName($row->ingredient);
-                $unit = Unit::loadByName($data->unit);
+                $unit = Unit::loadByName($row->unit);
+
+                if(empty($ingredient)) {
+                    echo $row->ingredient . ' not found';
+
+                    d(\DB::getQueryLog());
+
+                    // Raspberries, frozen
+                    // Raspberries, frozen
+                }
 
                 $recipe->rows()->create([
                     'ingredient_id' => $ingredient->id,
                     'delta' => $row->delta,
                     'unit_id' => $unit->id,
-                    'value' => '',
+                    'value' => $row->value,
+                    'weight' => empty($row->weight) ? 0 : $row->weight,
                 ]);
             }
         }

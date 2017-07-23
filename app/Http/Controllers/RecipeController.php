@@ -34,6 +34,8 @@ class RecipeController extends Controller
     {
         if(isset($_GET['sortBy'])) {
 
+            $recipes = Recipe::recipesSortedByAttribute($_GET['sortBy']);
+
         } else {
             $recipes = Recipe::orderBy('created_at', 'desc')
                 ->get(['id', 'name', 'image']);
@@ -125,18 +127,6 @@ class RecipeController extends Controller
 
         $this->prepareRows($form['rows']);
 
-//        foreach($form['rows'] as &$row) {
-//            $row['recalculate'] = false;
-//            $ingredient =& $row['ingredient'];
-//            $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
-//            $ingredient['nutrients'] = $this->keyArray($ingredient['attributes'], ['attribute_type', 'safe_name']);
-//
-//            // In the DB we store the weight of one cup - but the weight on one ml will be more useful so convert now
-//            if(!empty($ingredient['weight_one_cup'])) {
-//                $ingredient['weight_one_ml'] = $ingredient['weight_one_cup'] / self::ML_IN_CUP;
-//            }
-//        }
-
         $units = Unit::all()->toArray();
         $ingredients = Ingredient::select('id', 'name', 'default_unit_id')
             ->limit(20)->get();
@@ -183,6 +173,7 @@ class RecipeController extends Controller
                 $row->delta         = $rowData['delta'];
                 $row->unit_id       = $rowData['unit_id'];
                 $row->value         = $rowData['value'];
+                $row->weight        = $rowData['weight'];
 
                 $row->save();
             }

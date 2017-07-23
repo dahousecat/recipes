@@ -12,6 +12,7 @@ class Row extends Model
         'delta',
         'unit_id',
         'value',
+        'weight',
     ];
 
     public $timestamps = false;

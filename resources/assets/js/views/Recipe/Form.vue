@@ -399,6 +399,7 @@
 						delta: i,
 						unit_id: row.unit.id,
 						value: row.value,
+						weight: row.weight,
 					});
                 }
 
