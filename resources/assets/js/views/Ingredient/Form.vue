@@ -12,8 +12,9 @@
 
             <div class="row equal-height">
 
-                <!-- Basic Details -->
                 <div class="col-s-4 form__panel">
+
+                    <!-- Basic Details -->
                     <div class="">
                         <div class="form__group">
                             <label for="name">Name</label>
@@ -21,10 +22,8 @@
                             <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
                         </div>
                     </div>
-                </div>
 
-                <!-- Units -->
-                <div class="col-s-4 form__panel ingredient-form__unit-types unit-types">
+                    <!-- Units -->
                     <div class="">
                         <div class="form__title">Would you measure {{form.name}} using...</div>
 
@@ -80,11 +79,10 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- Nutrients -->
-                <div class="col-s-4 form__panel" id="nutrients-panel">
+                <!-- Nutrients 1 -->
+                <div class="col-s-4 form__panel ingredient-form__unit-types unit-types">
 
                     <div class="">
 
@@ -92,21 +90,40 @@
 
                         <button @click="searchNdb()" :disabled="form.name.length ? false : true">Autofill</button>
 
-                        <div class="row" v-for="(type, index) in attributeTypes">
-                            <div class="col-s-6">
-                                <label>
-                                    {{capitalize(type.name)}} ({{type.unit}})
-                                    <a :href="getSearchUrl(type)" target="_blank">
-                                        <i class="fa fa-question-circle" aria-hidden="true" v-if="form.name"></i>
-                                    </a>
-                                </label>
-                            </div>
-                            <div class="col-s-6">
-                                <input type="text" class="form__control"
-                                       v-model="form.nutrients[type.safe_name].value">
-                            </div>
-                        </div>
+                        <h3>Energy</h3>
+                        <nutrients-form
+                                :attributeTypes="attributeTypes"
+                                :form="form"
+                                :category="'other'">
+                        </nutrients-form>
+
+                        <h3>Macronutrients</h3>
+                        <nutrients-form
+                            :attributeTypes="attributeTypes"
+                            :form="form"
+                            :category="'macronutrients'">
+                        </nutrients-form>
+
+                        <h3>Minerals</h3>
+                        <nutrients-form
+                                :attributeTypes="attributeTypes"
+                                :form="form"
+                                :category="'minerals'">
+                        </nutrients-form>
+
                     </div>
+
+                </div>
+
+                <!-- Nutrients 2 -->
+                <div class="col-s-4 form__panel" id="nutrients-panel">
+
+                    <h3>Vitamins</h3>
+                    <nutrients-form
+                            :attributeTypes="attributeTypes"
+                            :form="form"
+                            :category="'vitamins'">
+                    </nutrients-form>
 
                 </div>
             </div>
@@ -115,21 +132,13 @@
 
         <!-- Select NDB modal -->
         <modal :show="!!Object.keys(ndb.groups).length" @close="ndb.groups = {}">
-            <h2 slot="title">Select the closest match</h2>
 
-            <ul class="ingredient-list">
-                <li v-for="(group, key, index) in ndb.groups">
+            <ndb-ingredients :ndb="ndb"
+                             :ingredient="form.name"
+                             @close="ndb.groups = {}"
+                             @updateNutrients="updateNutrients">
+            </ndb-ingredients>
 
-                    <span class="ingredient-list__heading">{{key}}</span>
-
-                    <ul class="ingredient-list__child-list">
-                        <li v-for="(item, index) in group" class="ingredient-list__row">
-                            <a @click="selectNdbIngredient(item)">{{item.name}}</a>
-                        </li>
-                    </ul>
-
-                </li>
-            </ul>
         </modal>
 
     </div>
@@ -142,10 +151,14 @@
     import { convertEnergyUnit, formatNumber, getUnit, loading } from '../../helpers/misc';
     import { toMulipartedForm, objectToFormData } from '../../helpers/form';
     import Modal from '../../components/Modal.vue';
+    import NutrientsForm from '../../components/NutrientsForm.vue';
+    import NdbIngredients from '../../components/NdbIngredients.vue';
 
     export default {
         components: {
             Modal,
+            NutrientsForm,
+            NdbIngredients,
         },
         data() {
             return {
@@ -224,14 +237,12 @@
                         Vue.set(this.$data, 'form', res.data.form);
                         Vue.set(this.$data, 'units', res.data.units);
                         Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
+
                         this.setUnitTypesFromUnits();
                         loading(false);
                     });
             },
             getWeightUrl(unitType) {
-
-                console.log(unitType);
-
                 let url = 'https://www.google.com.au/search?q=';
                 let query = 'how+much+does+' + unitType.term + '+' + unitType.suffix + this.form.name.toLowerCase() +  '+weight+in+grams?';
                 return url + query;
@@ -288,36 +299,14 @@
                         console.log(error);
                     });
             },
-            selectNdbIngredient(item) {
-                this.ndb.groups = {};
-                loading(true, 'nutrients-panel');
-                get('/api/ndb/view/' + item.id)
-                    .then((res) => {
-                        loading(false, 'nutrients-panel');
-                        for (let i = 0; i < res.data.length; i++) {
-                            let row = res.data[i];
-                            console.log(row, 'row');
-
-                            if(typeof this.form.nutrients[row.attribute_safe_name] === 'undefined') {
-                                this.form.nutrients[row.attribute_safe_name] = {};
-                            }
-
-                            this.form.nutrients[row.attribute_safe_name].value = row.value;
-                        }
-                    })
-                    .catch(function (error) {
-                        loading(false);
-                        console.log(error);
-                    });
-            },
-            getSearchUrl(type) {
-                let attribute = type.name === 'energy' ? this.energyUnit : type.name;
-                return 'https://www.google.com.au/search?q=how+many+' +
-                    attribute +
-                    '+are+there+in+100g+of+' + this.form.name;
-            },
-            capitalize(string) {
-                return string.charAt(0).toUpperCase() + string.slice(1);
+            updateNutrients(data) {
+                for (let i = 0; i < data.length; i++) {
+                    let row = data[i];
+                    if(typeof this.form.nutrients[row.attribute_safe_name] === 'undefined') {
+                        this.form.nutrients[row.attribute_safe_name] = {};
+                    }
+                    this.form.nutrients[row.attribute_safe_name].value = row.value;
+                }
             },
             save() {
                 loading(true);

@@ -14,6 +14,11 @@
   display: block;
   color: white;
   font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    background-color: lighten($color__st_tropaz, 10%);
+  }
 }
 
 .ingredient-list__row {
@@ -33,4 +38,35 @@
   list-style-type: none;
   margin: 0.5rem 0;
   padding: 0rem 0 0 1rem;
+}
+
+.ingredient-list__form {
+  background-color: $color__gallery;
+  max-width: 38rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ingredient-list__form-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ingredient-list__form-label {
+  margin: 0;
+  line-height: 1.8;
+}
+
+.ingredient-list__form-text {
+  max-width: 20rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.ingredient-list__form-button {
+  height: 3rem;
+  line-height: 1;
+}
+
+.ingredient-list__form-desc {
+  font-size: 1.2rem;
 }

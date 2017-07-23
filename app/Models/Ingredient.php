@@ -77,6 +77,11 @@ class Ingredient extends Model
         return json_encode($units);
     }
 
+    public static function loadByName($name)
+    {
+        return self::where('name', $name)->first();
+    }
+
     public static function form()
     {
         return [

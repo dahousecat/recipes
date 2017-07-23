@@ -12,15 +12,26 @@
   padding: 1rem;
   border-left: 0.8rem solid $color__background;
   border-right: 0.8rem solid $color__background;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 
   @include mq($from: l) {
     width: 50%;
   }
 }
 
+.recipe__box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+}
+
 .recipe__rows {
   min-height: 10rem;
   position: relative;
+  flex: 1;
 }
 
 .recipe__rows--empty::after {
@@ -64,4 +75,23 @@
   padding: 0px;
   line-height: 1;
   margin: 1.3rem 1rem 0 1rem;
+}
+
+.drop-zone {
+  border: 0.3rem dashed $color__apple;
+  animation-name: pulse;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+.sortable-ghost {
+  margin: 1rem;
+}
+
+@keyframes pulse {
+  0%   {border-color: $color__apple;}
+  25%  {border-color: lighten($color__apple, 15%);}
+  50%  {border-color: $color__apple;}
+  75%  {border-color: lighten($color__apple, 15%);}
+  100% {border-color: $color__apple;}
 }

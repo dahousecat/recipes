@@ -27,6 +27,11 @@
   padding: 0.6rem 0.2rem 0 0;
   cursor: pointer;
   transition: transform 200ms;
+  margin-left: 1rem;
+
+  .ingredient-row--draggable & {
+    margin-left: 0;
+  }
 
   &::after {
     content: "\f0d7";
@@ -53,6 +58,33 @@
 
 .ingredient-row__amount {
   flex: 0 0 14%;
+  display: flex;
+}
+
+.ingredient-row__steppers {
+  display: flex;
+  flex-direction: column;
+  height: 3.4rem;
+  margin: 0.4rem 0 0 0.6rem;
+  font-size: 2.6rem;
+}
+
+.ingredient-row__stepper {
+  height: 1.7rem;
+  line-height: 0.6;
+  padding: 0 0.5rem;
+  color: lighten($color__st_tropaz, 25%);
+  cursor: pointer;
+
+  &:hover {
+    color: lighten($color__st_tropaz, 50%);
+  }
+}
+
+.ingredient-row__stepper--disabled {
+  &:hover {
+    color: lighten($color__st_tropaz, 25%);
+  }
 }
 
 .ingredient-row__unit {
@@ -80,24 +112,43 @@
   color: white;
   font-size: 1.4rem;
   padding: 0;
-  max-width: 28rem;
   margin: 0 auto;
-  max-height: 0;
-  transition: max-height 200ms ease;
-  overflow: hidden;
+  display: none;
 }
 
 .ingredient-row__nutrients--active {
-  max-height: 20rem;
+  display: block;
 }
 
 .ingredient-row__nutrients-inner {
   padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ingredient-row__nutrients-group {
+  flex: 1;
+  max-width: 15rem;
+}
+
+.ingredient-row__nutrients-group--other {
+  margin: 0 1rem;
+  max-width: initial;
+}
+
+.ingredient-row__nutrient-group-title {
+  color: lighten($color__st_tropaz, 70%);
 }
 
 .ingredient-row__nutrient {
   display: flex;
-  border-bottom: 0.1rem solid white;
+  border-bottom: 0.1rem solid lighten($color__st_tropaz, 25%);
+  color: lighten($color__st_tropaz, 60%);
+  justify-content: space-between;
+}
+
+.ingredient-row__nutrient--energy {
+  //border-bottom: 0.1rem solid lighten($color__st_tropaz, 50%);
 }
 
 .ingredient-row__nutrient-unit {

@@ -27,7 +27,7 @@ class IngredientController extends Controller
      */
     public function index()
     {
-        $ingredients = Ingredient::all();
+        $ingredients = Ingredient::select('id', 'name', 'default_unit_id')->get();
 
         return response()
             ->json([
@@ -44,7 +44,7 @@ class IngredientController extends Controller
 
     public function search($text)
     {
-        $ingredients = Ingredient::where('name', 'like', "%$text%")->get();
+        $ingredients = Ingredient::where('name', 'like', "%$text%")->select('id', 'name', 'default_unit_id')->get();
 
         return response()
             ->json([

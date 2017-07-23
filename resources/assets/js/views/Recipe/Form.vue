@@ -40,8 +40,8 @@
 					<h3 class="recipe__sub_title">Ingredients</h3>
 
 					<draggable v-model="form.rows"
-							   :class="{ 'drop-zone': this.isDragging, 'recipe__rows--empty': !form.rows.length }"
-							   :options='{group:"recipe", handle:".ingredient_row__handle", filter: ".empty-message"}'
+							   :class="{ 'drop-zone': this.isDragging, 'ingredient-row--empty': !form.rows.length }"
+							   :options='{group:"recipe", handle:".ingredient-row__handle", filter: ".empty-message"}'
 							   @start="dragStart" @end="dragEnd"
 							   class="recipe__rows">
 
@@ -173,7 +173,7 @@
 				let url = str.length > 1 ? '/api/ingredients/search/' + str : '/api/ingredients';
 				get(url)
 						.then((res) => {
-							Vue.set(this.$data, 'ingredients', this.rowify(res.data.ingredients));
+                            this.prepareIngredients(res.data);
 						})
 			},
             '$route' (to, from) {
@@ -275,7 +275,11 @@
                         // Ingredient dropped on the edit ingredient zone
                         _this.showIngredientModal = true;
 
+                        console.log('ingredient dropped in edit zone');
+
                     } else if(typeof _this.form.rows[evt.newIndex] === 'object') {
+
+                        console.log('ingredient added to recipe');
 
                         // Ingredient added to recipe
 						// Recalculate this row - this will trigger recalculating the recipe nutrients
@@ -286,6 +290,9 @@
                         _this.form.rows[evt.newIndex].recalculateRecipeNutrition = true;
 
                     } else {
+
+                        console.log('ingredient returned to pantry');
+
                         // Ingredient returned to pantry
 						// No need to recalculate this row - just recalculate the recipe nutrients
                         _this.recalculateNutrition = true;
@@ -299,6 +306,7 @@
                 return new Promise(function(resolve, reject){
 
                     if(typeof row === 'undefined') {
+                        console.log('Row has no ingredient. Can\'t fetch details.');
                         // This row doesn't even have an ingredient. Get outa here.
                         resolve();
                         return;
@@ -306,12 +314,16 @@
                     let ingredient = row.ingredient;
 
                     if(typeof ingredient.weight_one !== 'undefined') {
+                        console.log('Row has weight_one. No need to fetch details.');
                         // They have already been fetched. Nothing to do.
                         resolve();
                         return;
                     }
 
 					loading(true);
+
+                    console.log('Fetching ' + ingredient.name + ' details');
+
                     get('/api/ingredients/' + ingredient.id)
                         .then((res) => {
                             ingredient.nutrients = res.data.ingredient.nutrients;
@@ -360,13 +372,6 @@
                             reject();
                         });
                 });
-			},
-			rowify(ingredients) {
-			    let rows = [];
-                for (let i = 0; i < ingredients.length; i++) {
-                    rows.push({ingredient: ingredients[i]});
-                }
-                return rows;
 			},
 			save() {
 

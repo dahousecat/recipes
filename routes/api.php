@@ -22,4 +22,6 @@ Route::get('ingredient/{id}/attributes', 'IngredientController@attributes');
 Route::get('ndb/search/{term}', 'NdbController@search');
 Route::get('ndb/view/{ndbno}', 'NdbController@view');
 
+Route::get('dri', 'DriScraperController@test');
+
 //Route::get('/search',['uses' => 'SearchController@getSearch','as' => 'search']);

@@ -1,57 +1,69 @@
 <template>
     <div class="nutrients" :class="[updating ? 'loading' : '']">
 
-        <h3 class="recipe__sub_title">Nutrition</h3>
+        <h3 class="nutrients__title">Nutrition</h3>
 
-        <div class="recipe__nutrition__inner">
-            <div class="form__group nutrition-row">
-                <div class="nutrition-row__unit">
-                    Amount per
-                </div>
-                <div class="nutrition-row__value">
-                    <select v-model="amountPer" @change="updatNutrition()" class="form__control">
-                        <option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
-                    </select>
-                </div>
-            </div>
+        <div class="nutrients__inner">
 
-            <div class="nutrition-row" v-if="Object.keys(nutrients).length == 0">
+            <div class="nutrients__empty-msg" v-if="Object.keys(nutrients).length == 0">
                 Add some ingredients to see the recipe nutrients
             </div>
 
-            <div class="nutrition-row" v-if="typeof displayNutrients.energy != 'undefined'">
-                <div class="nutrition-row__unit nutrition-row__unit--wide">
-                    <select v-model="energyUnit" @change="recalculateEnergy()" class="form__control">
-                        <option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
-                    </select>
+            <div class="nutrients__top" v-if="Object.keys(nutrients).length > 0">
+
+                <div class="nutrients__row">
+                    <div class="nutrients__unit">
+                        Amount per
+                    </div>
+                    <div class="nutrients__value">
+                        <select v-model="amountPer" @change="updatNutrition()" class="nutrients__select">
+                            <option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="nutrition-row__value">
-                    {{ displayNutrients.energy.value }} {{ displayNutrients.energy.unit }}
+
+                <!--<nutrient-rows-->
+                        <!--:displayNutrients="displayNutrients" :category="'other'"-->
+                        <!--:parentClass="'nutrients'" :title="''" ></nutrient-rows>-->
+
+                <div class="nutrients__row" v-if="typeof displayNutrients.energy != 'undefined'">
+                    <div class="nutrients__unit">
+                        <select v-model="energyUnit" @change="recalculateEnergy()" class="nutrients__select">
+                            <option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
+                        </select>
+                    </div>
+                    <div class="nutrients__value">
+                        {{ displayNutrients.energy.value }} {{ displayNutrients.energy.unit }}
+                    </div>
                 </div>
+
             </div>
 
-            <div class="nutrition-row"
-                 v-for="(nutrient, name) in displayNutrients"
-                 v-if="name!='energy'">
-                <div class="nutrition-row__unit">
-                    {{ name }}
-                </div>
-                <div class="nutrition-row__value">
-                    {{ nutrient.value }} {{ nutrient.unit }}
-                </div>
+            <div class="nutrients__columns" v-if="Object.keys(nutrients).length > 0">
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'macronutrients'"
+                               :parentClass="'nutrients'"></nutrient-rows>
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'minerals'"
+                               :parentClass="'nutrients'"></nutrient-rows>
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'vitamins'"
+                               :parentClass="'nutrients'"></nutrient-rows>
             </div>
+
         </div>
 
     </div>
 </template>
 <script type="text/javascript">
     import { convertEnergyUnit, formatNumber, getUnit } from '../helpers/misc';
+    import NutrientRows from '../components/NutrientRows.vue';
 
     export default {
+        components: {
+            NutrientRows,
+        },
         props: {
             rows: {
                 type: [Array],
-                default: [],
+                default: () => [],
             },
             units: {
                 type: [Array],
@@ -121,6 +133,8 @@
                                 nutrients[nutrientName] = {
                                     'unit': nutrient.unit,
                                     'value': nutrient.value,
+                                    'category': nutrient.category,
+                                    'name': nutrient.name,
                                 };
                             } else {
                                 nutrients[nutrientName].value += nutrient.value;
@@ -164,6 +178,8 @@
                         this.displayNutrients[nutrientName] = {
                             'value': formatNumber(nutrient.value),
                             'unit': nutrient.unit,
+                            'category': nutrient.category,
+                            'name': nutrient.name,
                         };
                     }
                 }

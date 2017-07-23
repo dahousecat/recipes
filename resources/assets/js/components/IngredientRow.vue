@@ -1,10 +1,10 @@
 <template>
-    <div class="ingredient-row">
+    <div class="ingredient-row" :class="draggable?'ingredient-row--draggable':''">
 
         <div class="ingredient-row__controls">
 
             <div class="ingredient-row__toggles">
-                <div class="grabber ingredient-row__handle"></div>
+                <div v-if="draggable" class="grabber ingredient-row__handle"></div>
 
                 <div class="ingredient-row__nutrients-toggle"
                      @click="showNutrients=!showNutrients"
@@ -22,6 +22,19 @@
                 <input type="text" class="ingredient-row__control"
                        v-model="row.value"
                        @change="calculateNutrition()">
+                <div class="ingredient-row__steppers">
+                    <i class="fa fa-caret-up ingredient-row__stepper"
+                       :class="canStep(row.value, 'up') ? '' : 'ingredient-row__stepper--disabled'"
+                       @click="step(row, 'up')"
+                       :title="getStep(row.value, 'up')">
+
+                    </i>
+                    <i class="fa fa-caret-down ingredient-row__stepper"
+                       :class="canStep(row.value, 'down') ? '' : 'ingredient-row__stepper--disabled'"
+                       @click="step(row, 'down')"
+                       :title="getStep(row.value, 'down')">
+                    </i>
+                </div>
             </div>
 
             <!--unit-->
@@ -38,16 +51,15 @@
         </div>
 
         <div class="ingredient-row__nutrients" :class="showNutrients?'ingredient-row__nutrients--active':''">
+
+            <nutrient-rows :displayNutrients="displayNutrients" :category="'other'" :title="''"></nutrient-rows>
+
             <div class="ingredient-row__nutrients-inner">
-                <div class="ingredient-row__nutrient"
-                     v-for="(nutrient, name) in displayNutrients">
-                    <div class="ingredient-row__nutrient-unit">
-                        {{ name }}
-                    </div>
-                    <div class="ingredient-row__nutrient-value">
-                        {{ nutrient.value }} {{ nutrient.unit }}
-                    </div>
-                </div>
+
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'macronutrients'"></nutrient-rows>
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'minerals'"></nutrient-rows>
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'vitamins'"></nutrient-rows>
+
             </div>
         </div>
 
@@ -56,12 +68,20 @@
 
 <script type="text/javascript">
     import { formatNumber, getUnit } from '../helpers/misc';
+    import NutrientRows from '../components/NutrientRows.vue';
 
     export default {
+        components: {
+            NutrientRows,
+        },
         props: {
             row: {
                 type: [Object],
                 default: {},
+            },
+            draggable: {
+                type: Boolean,
+                default: true,
             },
         },
         data() {
@@ -83,6 +103,9 @@
                 }
 
             },
+        },
+        created() {
+            this.$emit('foobar');
         },
         methods: {
             calculateNutrition() {
@@ -115,6 +138,7 @@
                         break;
                 }
 
+                // Loop ingredient nutrients to set row nutrients
                 for (let nutrientName in row.ingredient.nutrients) {
                     if (row.ingredient.nutrients.hasOwnProperty(nutrientName)) {
                         let ingredientNutrient = row.ingredient.nutrients[nutrientName];
@@ -126,7 +150,9 @@
                         // Nutrients are stored per 100g so divide by 100 first
                         row.nutrients[nutrientName] = {
                             'value': (ingredientNutrient.value / 100) * row.weight,
-                            'unit': ingredientNutrient.attribute_type.unit
+                            'unit': ingredientNutrient.attribute_type.unit,
+                            'name': ingredientNutrient.attribute_type.name,
+                            'category': ingredientNutrient.attribute_type.category,
                         };
                     }
                 }
@@ -135,6 +161,7 @@
 
                 // Send a signal that we are done updating our nutritional values
                 this.$emit('rowUpdated');
+                this.$emit('foobar');
             },
             updateDisplayNutrients() {
                 this.displayNutrients = {};
@@ -144,10 +171,36 @@
                         this.displayNutrients[nutrientName] = {
                             'value': formatNumber(nutrient.value),
                             'unit': nutrient.unit,
+                            'name': nutrient.name,
+                            'category': nutrient.category,
                         };
                     }
                 }
             },
+            getStep(value, direction) {
+                let mod;
+                if(value < 1 && direction == 'up' || value <= 1 && direction == 'down') {
+                    mod = 0.25;
+                } else if(value < 2) {
+                    mod = 0.5;
+                } else {
+                    mod = 1;
+                }
+                if(direction === 'up') {
+                    return value + mod;
+                } else {
+                    return value - mod < 0 ? 0 : value - mod;
+                }
+
+            },
+            canStep(value, direction) {
+                let newValue = this.getStep(value, direction);
+                return value !== newValue;
+            },
+            step(row, direction) {
+                row.value = this.getStep(row.value, direction);
+                this.calculateNutrition();
+            }
         }
     }
 </script>

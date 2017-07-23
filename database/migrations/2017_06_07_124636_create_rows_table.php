@@ -23,6 +23,7 @@ class CreateRowsTable extends Migration
             $table->integer('unit_id')->unsigned();
 //            $table->foreign('unit_id')->references('id')->on('units');
             $table->integer('value')->unsigned();
+            $table->float('weight', 10, 5)->unsigned();
         });
     }
 

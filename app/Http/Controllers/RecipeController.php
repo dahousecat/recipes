@@ -32,17 +32,13 @@ class RecipeController extends Controller
 
     public function index()
     {
-    	$recipes = Recipe::orderBy('created_at', 'desc')
-//    		->get(['id', 'name', 'image']);
-    		->get();
+        if(isset($_GET['sortBy'])) {
 
-//        $recipes = Recipe::all();
+        } else {
+            $recipes = Recipe::orderBy('created_at', 'desc')
+                ->get(['id', 'name', 'image']);
+        }
 
-        // Encode the model data for json:api consumption
-//        $encoder = Encoder::instance($this->modelSchemaMappings, $this->encoderOptions);
-//        $encodedData = $encoder->encodeData($recipes);
-//        return response($encodedData)
-//            ->header('Content-Type', 'application/json');
 
     	return response()
     		->json([
@@ -75,7 +71,7 @@ class RecipeController extends Controller
         $request->user()->recipes()->save($recipe);
 
         $message = 'You have successfully created a recipe!';
-        $this->update($recipe->id, $request, $message);
+        return $this->update($recipe->id, $request, $message);
 
     }
 
@@ -86,25 +82,27 @@ class RecipeController extends Controller
 
     public function show($id)
     {
-        $recipe = Recipe::with(['user', 'rows.ingredient', 'rows.unit', 'directions'])
-            ->findOrFail($id);
 
-        return response()
-            ->json([
-                'recipe' => $recipe
-            ]);
-    }
-
-    public function edit($id, Request $request)
-    {
-        $form = $request->user()->recipes()->with(
+        $recipe = Recipe::with(
+            'user',
             'rows.ingredient.attributes.attributeType',
             'rows.ingredient.units',
-//            'rows.unit',
             'directions'
         )->findOrFail($id)->toArray();
 
-        foreach($form['rows'] as &$row) {
+        $this->prepareRows($recipe['rows']);
+
+        $units = Unit::all()->toArray();
+
+        return response()
+            ->json([
+                'recipe' => $recipe,
+                'units' => $units,
+            ]);
+    }
+
+    private function prepareRows(&$rows) {
+        foreach($rows as &$row) {
             $row['recalculate'] = false;
             $ingredient =& $row['ingredient'];
             $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
@@ -115,15 +113,29 @@ class RecipeController extends Controller
                 $ingredient['weight_one_ml'] = $ingredient['weight_one_cup'] / self::ML_IN_CUP;
             }
         }
+    }
 
-//            ->with(['rows' => function($query) {
-//                $query->get(['id', 'ingredient_id', 'unit_id', 'value']);
-//            }, 'directions' => function($query) {
-//                $query->get(['id', 'description']);
-//            }, 'rows.ingredient.units'])
-//            ->findOrFail($id, [
-//                'id', 'name', 'description', 'image'
-//            ]);
+    public function edit($id, Request $request)
+    {
+        $form = $request->user()->recipes()->with(
+            'rows.ingredient.attributes.attributeType',
+            'rows.ingredient.units',
+            'directions'
+        )->findOrFail($id)->toArray();
+
+        $this->prepareRows($form['rows']);
+
+//        foreach($form['rows'] as &$row) {
+//            $row['recalculate'] = false;
+//            $ingredient =& $row['ingredient'];
+//            $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
+//            $ingredient['nutrients'] = $this->keyArray($ingredient['attributes'], ['attribute_type', 'safe_name']);
+//
+//            // In the DB we store the weight of one cup - but the weight on one ml will be more useful so convert now
+//            if(!empty($ingredient['weight_one_cup'])) {
+//                $ingredient['weight_one_ml'] = $ingredient['weight_one_cup'] / self::ML_IN_CUP;
+//            }
+//        }
 
         $units = Unit::all()->toArray();
         $ingredients = Ingredient::select('id', 'name', 'default_unit_id')
@@ -138,15 +150,6 @@ class RecipeController extends Controller
                 'attributeTypes' => $attributeTypes,
             ]);
 
-        //////
-
-
-
-
-        return response()
-            ->json([
-                'form' => $form
-            ]);
     }
 
     public function update($id, Request $request, $message = 'You have successfully updated a recipe!')
@@ -258,14 +261,14 @@ class RecipeController extends Controller
         $recipe = $request->user()->recipes()
             ->findOrFail($id);
 
-        RecipeIngredient::where('recipe_id', $recipe->id)
+        Row::where('recipe_id', $recipe->id)
             ->delete();
 
         RecipeDirection::where('recipe_id', $recipe->id)
             ->delete();
 
         // remove image
-        File::delete(base_path('/public/images/'.$recipe->image));
+        File::delete(base_path('/public/images/' . $recipe->image));
 
         $recipe->delete();
 

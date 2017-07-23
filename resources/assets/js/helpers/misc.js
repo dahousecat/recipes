@@ -46,3 +46,7 @@ export function loading(val, id='overlay') {
         document.getElementById(id).classList.remove('loading');
     }
 }
+
+export function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
