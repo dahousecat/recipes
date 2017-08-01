@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attribute;
 use App\Models\AttributeType;
 use App\Models\Ingredient;
 use Illuminate\Http\Request;
@@ -26,26 +27,31 @@ class RecipeController extends Controller
     {
     	$this->middleware('auth:api')
     		->except(['index', 'show']);
-
-//    	parent::__construct();
     }
 
     public function index()
     {
         if(isset($_GET['sortBy'])) {
-
             $recipes = Recipe::recipesSortedByAttribute($_GET['sortBy']);
-
         } else {
             $recipes = Recipe::orderBy('created_at', 'desc')
-                ->get(['id', 'name', 'image']);
+                ->get(['id', 'name', 'image', 'portions']);
         }
 
+        $data = ['recipes' => $recipes];
+
+        if(!empty($_GET['with'])) {
+            foreach($_GET['with'] as $with) {
+                $attributeType = AttributeType::where('safe_name', $with)->first();
+                if(!empty($attributeType)) {
+                    $data[$with]['recipes'] = Recipe::recipesSortedByAttribute($with);
+                    $data[$with]['attributeType'] = $attributeType;
+                }
+            }
+        }
 
     	return response()
-    		->json([
-    			'recipes' => $recipes
-    		]);
+    		->json($data);
     }
 
     public function create()
@@ -69,7 +75,7 @@ class RecipeController extends Controller
     {
     	$this->validate($request, $this->validationRules());
 
-        $recipe = new Recipe($request->only('name', 'description'));
+        $recipe = new Recipe($request->only('name', 'description', 'portions'));
         $request->user()->recipes()->save($recipe);
 
         $message = 'You have successfully created a recipe!';
@@ -150,6 +156,7 @@ class RecipeController extends Controller
 
         $recipe->name = $request->name;
         $recipe->description = $request->description;
+        $recipe->portions = $request->portions;
 
         $response = [];
 
@@ -230,8 +237,8 @@ class RecipeController extends Controller
         return [
             'name' => 'required|max:255',
             'description' => 'max:3000',
-            'image' => 'image'
-            ,
+            'image' => 'image',
+            'portions' => 'integer|min:1|max:1000',
 //    		'ingredients' => 'required|array|min:1',
 //    		'ingredients.*.name' => 'required|max:255',
 //    		'ingredients.*.qty' => 'required|max:255',

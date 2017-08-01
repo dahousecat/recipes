@@ -1,10 +1,7 @@
 // Vendor
+@import "~normalize.css/normalize.css";
 @import "~font-awesome/scss/font-awesome.scss";
-@import "~responsive-bp/src/sass/responsive.scss";
 @import "~sass-mq/_mq.scss";
-//@import "../../../node_modules/vue2-animate/src/vue";
-
-@import "~vue2-animate/dist/vue2-animate.css";
 
 // Variables
 @import "variables/breakpoints";

@@ -29,6 +29,11 @@
 					<textarea class="form__control form__description" v-model="form.description"></textarea>
 					<small class="error__control" v-if="error.description">{{error.description[0]}}</small>
 				</div>
+				<div class="form__group">
+					<label>How many portions is this recipe for?</label>
+					<input type="text" class="form__control" v-model="form.portions">
+					<small class="error__control" v-if="error.portions">{{error.portions[0]}}</small>
+				</div>
 			</div>
 		</div>
 
@@ -207,7 +212,6 @@
 
                         this.prepareIngredients(res.data);
 
-
 						// Just set data so wait till next tick to update the recipe rows
 						let _this = this;
 						this.$nextTick(function () {
@@ -222,6 +226,7 @@
 							});
 						});
 
+						this.$emit('finishedLoading');
 
                     });
 			},

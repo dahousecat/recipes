@@ -131,11 +131,11 @@
         </fieldset>
 
         <!-- Select NDB modal -->
-        <modal :show="!!Object.keys(ndb.groups).length" @close="ndb.groups = {}">
+        <modal :show="ndb.showPopup" @close="ndb.showPopup = false">
 
             <ndb-ingredients :ndb="ndb"
                              :ingredient="form.name"
-                             @close="ndb.groups = {}"
+                             @close="ndb.showPopup = false"
                              @updateNutrients="updateNutrients">
             </ndb-ingredients>
 
@@ -204,8 +204,9 @@
                 },
                 attributeTypes: [],
                 ndb: {
-                    'name': '',
-                    'groups': {},
+                    name: '',
+                    groups: {},
+                    showPopup: false,
                 },
                 energyUnit: 'calorie',
                 nutritionPer: 100, // grams
@@ -240,6 +241,7 @@
 
                         this.setUnitTypesFromUnits();
                         loading(false);
+                        this.$emit('finishedLoading');
                     });
             },
             getWeightUrl(unitType) {
@@ -293,6 +295,7 @@
                     .then((res) => {
                         loading(false);
                         this.ndb.groups = res.data.groups;
+                        this.ndb.showPopup = true;
                     })
                     .catch(function (error) {
                         loading(false);

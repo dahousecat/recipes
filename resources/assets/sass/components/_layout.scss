@@ -9,7 +9,29 @@
   margin-right: -($gutter / 2);
 }
 
-[class*=col-] {
-  border-left: ($gutter / 2) solid transparent;
-  border-right: ($gutter / 2) solid transparent;
+.row--s {
+  @include mq($from: s) {
+    display: flex;
+    margin-bottom: 1.6rem;
+    margin-left: -($gutter / 2);
+    margin-right: -($gutter / 2);
+  }
+}
+
+@mixin panel {
+  background-color: $color__alto;
+  padding: 1rem;
+  border-left: 0.8rem solid $color__background;
+  border-right: 0.8rem solid $color__background;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  @include mq($from: l) {
+    width: 50%;
+  }
+}
+
+.panel {
+  @include panel;
 }

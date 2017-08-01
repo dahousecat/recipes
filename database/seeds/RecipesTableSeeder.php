@@ -21,22 +21,15 @@ class RecipesTableSeeder extends Seeder
                 'user_id' => 1,
                 'name' => $data->name,
                 'description' => $data->description,
+                'portions' => empty($data->portions) ? 2 : $data->portions,
             ]);
 
             foreach($data->rows as $row) {
-
-                \DB::enableQueryLog();
-
                 $ingredient = Ingredient::loadByName($row->ingredient);
                 $unit = Unit::loadByName($row->unit);
 
                 if(empty($ingredient)) {
                     echo $row->ingredient . ' not found';
-
-                    d(\DB::getQueryLog());
-
-                    // Raspberries, frozen
-                    // Raspberries, frozen
                 }
 
                 $recipe->rows()->create([

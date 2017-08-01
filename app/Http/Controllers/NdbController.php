@@ -35,13 +35,15 @@ class NdbController extends Controller
 
         $return['groups'] = [];
 
-        foreach($data->list->item as $item) {
-            if($item->ds == 'SR') {
-                if(empty($_GET['group']) || $_GET['group'] == $item->group) {
-                    $return['groups'][$item->group][] = [
-                        'name' => $item->name,
-                        'id' => $item->ndbno,
-                    ];
+        if(!empty($data->list->item)) {
+            foreach($data->list->item as $item) {
+                if($item->ds == 'SR') {
+                    if(empty($_GET['group']) || $_GET['group'] == $item->group) {
+                        $return['groups'][$item->group][] = [
+                            'name' => $item->name,
+                            'id' => $item->ndbno,
+                        ];
+                    }
                 }
             }
         }

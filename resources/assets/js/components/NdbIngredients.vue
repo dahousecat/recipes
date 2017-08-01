@@ -18,6 +18,9 @@
 
         </div>
 
+        <div class="ingredient-list__empty-msg" v-if="!Object.keys(ndb.groups).length">
+            No search results found for {{lastSearchedTerm}}. Try using the American word, e.g. Zucchini not Courgette.
+        </div>
 
         <ul class="ingredient-list">
             <li v-for="(group, key, index) in ndb.groups">
@@ -43,6 +46,7 @@
         data() {
             return {
                 term: '',
+                lastSearchedTerm: '',
                 group: false,
             };
         },
@@ -57,7 +61,7 @@
             },
         },
         created() {
-            this.term = this.ingredient;
+            this.term = this.lastSearchedTerm = this.ingredient;
         },
         methods: {
             groupClick(key) {
@@ -72,6 +76,7 @@
                 }
                 get(url)
                     .then((res) => {
+                        this.lastSearchedTerm = this.term;
                         loading(false, 'ingredient-list');
                         this.ndb.groups = res.data.groups;
                     })

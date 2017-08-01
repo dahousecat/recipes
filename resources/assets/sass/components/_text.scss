@@ -1,12 +1,27 @@
 a {
-  color: $color__burnham;
+  color: darkgreen;
   text-decoration: none;
   cursor: pointer;
   transition: color 200ms;
 
   &:hover {
-    color: darken($color__burnham, 25%);
-    text-decoration: underline;
+    color: darken(darkgreen, 25%);
+    text-decoration: none;
+  }
+}
+
+.btn {
+  padding: 0.6rem 1.8rem;
+  background-color: #dadada;
+  border: solid 1px #c0c0c0;
+  cursor: pointer;
+  display: inline-block;
+  min-height: 2rem;
+  transition: background-color 200ms;
+
+  &:hover {
+    text-decoration: none;
+    background-color: #cdcdcd;
   }
 }
 

@@ -120,6 +120,10 @@
   display: block;
 }
 
+.ingredient-row__nutrients-header {
+  padding: 1rem;
+}
+
 .ingredient-row__nutrients-inner {
   padding: 1rem;
   display: flex;
@@ -129,11 +133,10 @@
 .ingredient-row__nutrients-group {
   flex: 1;
   max-width: 15rem;
-}
 
-.ingredient-row__nutrients-group--other {
-  margin: 0 1rem;
-  max-width: initial;
+  .ingredient-row__nutrients-header & {
+    margin: 0;
+  }
 }
 
 .ingredient-row__nutrient-group-title {
@@ -145,10 +148,6 @@
   border-bottom: 0.1rem solid lighten($color__st_tropaz, 25%);
   color: lighten($color__st_tropaz, 60%);
   justify-content: space-between;
-}
-
-.ingredient-row__nutrient--energy {
-  //border-bottom: 0.1rem solid lighten($color__st_tropaz, 50%);
 }
 
 .ingredient-row__nutrient-unit {

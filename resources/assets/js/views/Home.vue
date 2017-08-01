@@ -1,20 +1,23 @@
 <template>
     <div class="home">
 
-        <div class="flex-row">
+        <div class="row--s">
 
-            <div class="recipe__panel">
-                <h3 class="recipe__sub_title">All recipes</h3>
+            <home-panel :recipes="recipes" :title="'All recipes'"></home-panel>
 
-                <div class="recipe__item" v-for="recipe in recipes">
-                    <router-link class="recipe__inner" :to="`/recipes/${recipe.id}`">
-                        <img :src="`/images/${recipe.image}`" v-if="recipe.image">
-                        <p class="recipe__name">{{recipe.name}}</p>
-                    </router-link>
-                </div>
-            </div>
+            <home-panel
+                    :recipes="vitamin_c.recipes"
+                    :attributeType="vitamin_c.attributeType">
+            </home-panel>
 
+        </div>
 
+        <div class="row--s">
+
+            <home-panel
+                    :recipes="fibre.recipes"
+                    :attributeType="fibre.attributeType">
+            </home-panel>
 
         </div>
 
@@ -22,18 +25,35 @@
 
 </template>
 <script type="text/javascript">
+    import Vue from 'vue';
+    import { formatNumber } from '../helpers/misc';
     import { get } from '../helpers/api'
+    import HomePanel from '../components/HomePanel.vue';
+
     export default {
+        components: {
+            HomePanel,
+        },
         data() {
             return {
-                recipes: []
+                recipes: [],
+                vitamin_c: [],
+                fibre: [],
             }
         },
         created() {
-            get('/api/recipes')
+            get('/api/recipes?with[]=vitamin_c&with[]=fibre')
                 .then((res) => {
-                    this.recipes = res.data.recipes
+                    Vue.set(this.$data, 'recipes', res.data.recipes);
+                    Vue.set(this.$data, 'vitamin_c', res.data.vitamin_c);
+                    Vue.set(this.$data, 'fibre', res.data.fibre);
+                    this.$emit('finishedLoading');
                 })
+        },
+        methods: {
+            formatNumber(number) {
+                return formatNumber(number);
+            }
         }
     }
 </script>

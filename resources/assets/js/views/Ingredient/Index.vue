@@ -52,6 +52,7 @@
                 .then((res) => {
                     this.ingredients = res.data.ingredients
                     loading(false);
+                    this.$emit('finishedLoading');
                 })
         },
         methods: {

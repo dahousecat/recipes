@@ -103,7 +103,6 @@
                     let _this = this;
                     this.$nextTick(function () {
                         for (let i = 0; i < _this.recipe.rows.length; i++) {
-                            console.log('Set row nutrition recalculate to true');
                             _this.recipe.rows[i].recalculate = true;
                         }
 
@@ -131,13 +130,11 @@
                 this.recalculateNutrition = true;
             },
             rowUpdated(row) {
-			    console.log('Row updated');
                 row.recalculate = false;
-                this.recalculateNutrition = true;
+                if(row.recalculateRecipeNutrition) {
+                    this.recalculateNutrition = true;
+                }
             },
-            foobar() {
-			    console.log('foobar');
-			}
 		}
 	}
 </script>
@@ -145,7 +142,6 @@
 <style lang="scss">
 	@import "../../../sass/variables/colours";
 
-	// random scss
 	.recipe__display-list {
 		list-style-type: none;
 		padding: 0;

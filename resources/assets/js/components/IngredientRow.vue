@@ -3,6 +3,7 @@
 
         <div class="ingredient-row__controls">
 
+            <!--grabber and dropdown toggle-->
             <div class="ingredient-row__toggles">
                 <div v-if="draggable" class="grabber ingredient-row__handle"></div>
 
@@ -52,14 +53,21 @@
 
         <div class="ingredient-row__nutrients" :class="showNutrients?'ingredient-row__nutrients--active':''">
 
-            <nutrient-rows :displayNutrients="displayNutrients" :category="'other'" :title="''"></nutrient-rows>
+            <div class="ingredient-row__nutrients-header">
+                <div class="ingredient-row__nutrient ingredient-row__nutrient--weight">
+                    <div class="ingredient-row__nutrient-unit">Weight</div>
+                    <div class="ingredient-row__nutrient-value" :title="weightDescription">
+                        {{formatNumber(row.weight)}}g
+                    </div>
+                </div>
+
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'other'" :title="''"></nutrient-rows>
+            </div>
 
             <div class="ingredient-row__nutrients-inner">
-
                 <nutrient-rows :displayNutrients="displayNutrients" :category="'macronutrients'"></nutrient-rows>
                 <nutrient-rows :displayNutrients="displayNutrients" :category="'minerals'"></nutrient-rows>
                 <nutrient-rows :displayNutrients="displayNutrients" :category="'vitamins'"></nutrient-rows>
-
             </div>
         </div>
 
@@ -88,6 +96,7 @@
             return {
                 displayNutrients: {},
                 showNutrients: false,
+                weightDescription: '',
             };
         },
         computed: {
@@ -103,9 +112,6 @@
                 }
 
             },
-        },
-        created() {
-            this.$emit('foobar');
         },
         methods: {
             calculateNutrition() {
@@ -158,10 +164,10 @@
                 }
 
                 this.updateDisplayNutrients();
+                this.updateWeightDescription();
 
                 // Send a signal that we are done updating our nutritional values
                 this.$emit('rowUpdated');
-                this.$emit('foobar');
             },
             updateDisplayNutrients() {
                 this.displayNutrients = {};
@@ -200,6 +206,50 @@
             step(row, direction) {
                 row.value = this.getStep(row.value, direction);
                 this.calculateNutrition();
+            },
+            formatNumber(number) {
+                return formatNumber(number);
+            },
+            updateWeightDescription() {
+
+                let row = this.row;
+
+                // If the row is defined in grams it needs no explanation.
+                if(row.unit.type === 'weight') {
+                    this.weightDescription = '';
+                    return;
+                }
+
+                let desc = '1 ';
+                let weight_this_unit;
+
+                if(row.unit.type !== 'quantity') {
+                    desc = desc + row.unit.name + ' ';
+                }
+
+                switch(row.unit.type) {
+                    case 'length':
+                        desc = desc + row.ingredient.name + ' weighs ' + row.ingredient.weight_one_cm + 'g per cm. ';
+                        break;
+                    case 'volume':
+
+                        weight_this_unit = formatNumber(row.ingredient.weight_one_ml * row.unit.ml);
+
+                        desc = desc + row.ingredient.name + ' weighs ' + weight_this_unit + 'g. ';
+                        break;
+                    case 'quantity':
+
+                        weight_this_unit = row.ingredient.weight_one;
+
+                        desc = desc + row.ingredient.name + ' weighs ' + weight_this_unit + 'g. ';
+                        break;
+                }
+
+
+
+                desc = desc + row.value + ' x ' + weight_this_unit + 'g = ' + formatNumber(row.weight) + 'g';
+
+                this.weightDescription = desc;
             }
         }
     }

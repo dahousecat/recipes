@@ -23,6 +23,7 @@
     "jquery": "^3.2.1",
     "jquery-ui-bundle": "^1.12.1",
     "node-sass": "^4.5.3",
+    "normalize.css": "^7.0.0",
     "responsive-bp": "^4.1.3",
     "sass-mq": "^3.3.2",
     "vue": "^2.2.2",

@@ -8,7 +8,7 @@
             <div :class="parentClass + '__nutrient-unit'">
                 {{ nutrient.name }}
             </div>
-            <div :class="parentClass + 'ingredient-row__nutrient-value'">
+            <div :class="parentClass + '__nutrient-value'">
                 {{ nutrient.value }} {{ nutrient.unit }}
             </div>
         </div>
