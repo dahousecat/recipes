@@ -1,58 +1,69 @@
 <template>
     <div class="nutrients" :class="[updating ? 'loading' : '']">
-        <div class="recipe__box">
-            <h3 class="recipe__sub_title">Nutrition</h3>
 
-            <div class="recipe__nutrition__inner">
-                <div class="form__group nutrition-row">
-                    <div class="nutrition-row__unit">
+        <h3 class="nutrients__title">Nutrition</h3>
+
+        <div class="nutrients__inner">
+
+            <div class="nutrients__empty-msg" v-if="Object.keys(nutrients).length == 0">
+                Add some ingredients to see the recipe nutrients
+            </div>
+
+            <div class="nutrients__top" v-if="Object.keys(nutrients).length > 0">
+
+                <div class="nutrients__row">
+                    <div class="nutrients__unit">
                         Amount per
                     </div>
-                    <div class="nutrition-row__value">
-                        <select v-model="amountPer" @change="updatNutrition()" class="form__control">
+                    <div class="nutrients__value">
+                        <select v-model="amountPer" @change="updatNutrition()" class="nutrients__select">
                             <option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="form__group nutrition-row" v-if="Object.keys(nutrients).length == 0">
-                    Add some ingredients to see the recipe nutrients
-                </div>
+                <!--<nutrient-rows-->
+                        <!--:displayNutrients="displayNutrients" :category="'other'"-->
+                        <!--:parentClass="'nutrients'" :title="''" ></nutrient-rows>-->
 
-                <div class="form__group nutrition-row" v-if="typeof nutrients.energy != 'undefined'">
-                    <div class="nutrition-row__unit">
-                        <select v-model="energyUnit" @change="recalculateEnergy()" class="form__control">
+                <div class="nutrients__row" v-if="typeof displayNutrients.energy != 'undefined'">
+                    <div class="nutrients__unit">
+                        <select v-model="energyUnit" @change="recalculateEnergy()" class="nutrients__select">
                             <option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
                         </select>
                     </div>
-                    <div class="nutrition-row__value">
-                        {{ nutrients.energy.displayValue }}
+                    <div class="nutrients__value">
+                        {{ displayNutrients.energy.value }} {{ displayNutrients.energy.unit }}
                     </div>
                 </div>
 
-                <div class="form__group nutrition-row"
-                     v-for="(nutrient, safe_name, index) in nutrients"
-                     v-if="safe_name!='energy'">
-                    <div class="nutrition-row__unit">
-                        {{ nutrient.name }}
-                    </div>
-                    <div class="nutrition-row__value">
-                        {{ nutrient.displayValue }}
-                    </div>
-                </div>
+            </div>
+
+            <div class="nutrients__columns" v-if="Object.keys(nutrients).length > 0">
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'macronutrients'"
+                               :parentClass="'nutrients'"></nutrient-rows>
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'minerals'"
+                               :parentClass="'nutrients'"></nutrient-rows>
+                <nutrient-rows :displayNutrients="displayNutrients" :category="'vitamins'"
+                               :parentClass="'nutrients'"></nutrient-rows>
             </div>
 
         </div>
+
     </div>
 </template>
 <script type="text/javascript">
     import { convertEnergyUnit, formatNumber, getUnit } from '../helpers/misc';
+    import NutrientRows from '../components/NutrientRows.vue';
 
     export default {
+        components: {
+            NutrientRows,
+        },
         props: {
             rows: {
                 type: [Array],
-                default: [],
+                default: () => [],
             },
             units: {
                 type: [Array],
@@ -63,9 +74,18 @@
                 default: false,
             },
         },
+        watch: {
+            recalculate: function() {
+                if(this.recalculate) {
+                    this.updatNutrition();
+                    this.$emit('nutritionUpdated');
+                }
+            }
+        },
         data() {
             return {
                 nutrients: {},
+                displayNutrients: {},
                 amountPer: 'recipe',
                 amountPerOptions: [
                     {'value': 'recipe', 'name': 'Recipe'},
@@ -89,64 +109,50 @@
                 conversions: {
                     caloriesInKj: 0.239006,
                 },
-            }
-        },
-        watch: {
-            recalculate: function() {
-                if(this.recalculate) {
-                    this.updatNutrition();
-                    this.$emit('nutritionUpdated');
-                }
+                recipeWeight: 0,
             }
         },
         methods: {
             updatNutrition() {
 
+                console.log('Calculate recipe nutrition');
+
                 let nutrients = {};
-                let totalWeight = 0;
+                this.recipeWeight = 0;
 
                 // Loop rows
                 for (let i = 0; i < this.rows.length; i++) {
                     let row = this.rows[i];
+                    this.recipeWeight += row.weight;
 
-                    if(row.unit_id !== row.unit.id) {
-                        // The rows unit id has changed, reload the unit.
-                        row.unit = getUnit(row.unit_id, this.units);
-                    }
-
-                    this.setRowWeight(row);
-                    totalWeight += parseInt(row.weight);
-
-                    for (let nutrientName in row.ingredient.nutrients) {
-                        if (row.ingredient.nutrients.hasOwnProperty(nutrientName)) {
-                            let nutrient = row.ingredient.nutrients[nutrientName];
-
+                    // Loop row nutrients
+                    for (let nutrientName in row.nutrients) {
+                        if (row.nutrients.hasOwnProperty(nutrientName)) {
+                            let nutrient = row.nutrients[nutrientName];
                             if(typeof nutrients[nutrientName] === 'undefined') {
                                 nutrients[nutrientName] = {
-                                    per_100_g: nutrient.value,
-                                    name: nutrient.attribute_type.name,
+                                    'unit': nutrient.unit,
+                                    'value': nutrient.value,
+                                    'category': nutrient.category,
+                                    'name': nutrient.name,
                                 };
                             } else {
-                                nutrients[nutrientName].per_100_g += nutrient.value;
+                                nutrients[nutrientName].value += nutrient.value;
                             }
                         }
                     }
                 }
 
-                // Keep the global recipe total weight up to date.
-                this.totalWeight = totalWeight;
-
-                // Now we have the total of each nutrition per 100g for the whole recipe.
+                // Now we have the total nutrients for the whole recipe.
 
                 // Next divide by serving size
                 for (let nutrientName in nutrients) {
                     if (nutrients.hasOwnProperty(nutrientName)) {
                         let nutrient = nutrients[nutrientName];
 
-                        if(this.amountPer === 'recipe') {
-                            nutrient.value = (nutrient.per_100_g / 100) * totalWeight;
-                        } else {
-                            nutrient.value = (nutrient.per_100_g / 100) * parseInt(this.amountPer);
+                        if(this.amountPer !== 'recipe') {
+                            let nutrientsInOneGram = nutrient.value / this.recipeWeight;
+                            nutrient.value = nutrientsInOneGram * parseInt(this.amountPer);
                         }
 
                         if(nutrientName === 'energy') {
@@ -154,17 +160,29 @@
                             let conversionFactor = this.energyUnit === 'calorie' ? 1 : this.conversions.caloriesInKj;
                             nutrient.value = nutrient.value / conversionFactor;
                         }
-
-                        nutrient.displayValue = formatNumber(nutrient.value);
-
                     }
                 }
 
-                // Update the global nutrients
                 this.nutrients = nutrients;
+
+                this.updateDisplayNutrients();
 
                 this.nutritionUpdating = false;
 
+            },
+            updateDisplayNutrients() {
+                this.displayNutrients = {};
+                for (let nutrientName in this.nutrients) {
+                    if (this.nutrients.hasOwnProperty(nutrientName)) {
+                        let nutrient = this.nutrients[nutrientName];
+                        this.displayNutrients[nutrientName] = {
+                            'value': formatNumber(nutrient.value),
+                            'unit': nutrient.unit,
+                            'category': nutrient.category,
+                            'name': nutrient.name,
+                        };
+                    }
+                }
             },
             setRowWeight(row) {
 
@@ -180,30 +198,26 @@
                         row.weight = grams;
                         break;
                     case 'length':
-                        // TODO: add code
-                        row.weight = null;
+                        row.weight = row.ingredient.weight_one_cm * row.value;
                         break;
                     case 'volume':
-                        // TODO: add code
-                        row.weight = null;
+                        row.weight = row.ingredient.weight_one_cup * row.value;
                         break;
                     case 'quantity':
-                        if(typeof row.ingredient.weight !== 'undefined') {
-                            // The attribute weight is the weight of one whole ingredient
-
-                            row.weight = row.ingredient.weight * row.value;
-                        } else {
-                            console.log('ERROR: No weight for ' + row.ingredient.name);
-                            row.weight = 0;
-                        }
+                        row.weight = row.ingredient.weight_one * row.value;
                         break;
                 }
 
             },
             recalculateEnergy() {
-                let energy = convertEnergyUnit(this.nutrients.energy.value, this.energyUnit);
-                this.nutrients.energy.value = energy;
-                this.nutrients.energy.displayValue = formatNumber(energy);
+                let value;
+                if(this.energyUnit === 'calorie') {
+                    value = this.nutrients.energy.value;
+                } else {
+                    const caloriesInKj = 0.239006;
+                    value = this.nutrients.energy.value / caloriesInKj;
+                }
+                this.displayNutrients.energy.value = formatNumber(value);
             },
         }
     }

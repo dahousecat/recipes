@@ -10,6 +10,7 @@ class AttributeType extends Model
 
     protected $fillable = [
         'name',
+        'safe_name',
         'unit',
     ];
 
@@ -21,8 +22,8 @@ class AttributeType extends Model
         return $this->hasMany('App\Models\Attribute');
     }
 
-    public static function loadByName($name) {
-        return self::where('name', $name)->first();
+    public static function loadByName($safe_name) {
+        return self::where('safe_name', $safe_name)->first();
     }
 
 }

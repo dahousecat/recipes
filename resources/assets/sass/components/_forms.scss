@@ -6,6 +6,11 @@ input,
   padding: 0.6rem 1rem;
 }
 
+select {
+  -webkit-appearance: menulist;
+  background-image: none;
+}
+
 button {
   padding: 0.6rem 1.8rem;
 }
@@ -30,4 +35,10 @@ button {
 
 .form__actions {
   margin-bottom: 1rem;
+}
+
+.error-msg {
+  color: red;
+  margin-bottom: 1rem;
+  display: block;
 }

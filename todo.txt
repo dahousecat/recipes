@@ -1,0 +1,13 @@
+******* TODO *******
+
+1. Re-do menu
+2. Search page
+3. Create ingredient in modal from recipe page
+4. Responsive styling
+5. Host
+6. Add more recipes
+7. Testing
+
+******* DONE *******
+
+1. The whole site so far! :)

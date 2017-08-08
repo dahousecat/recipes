@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRowTable extends Migration
+class CreateRowsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -23,6 +23,7 @@ class CreateRowTable extends Migration
             $table->integer('unit_id')->unsigned();
 //            $table->foreign('unit_id')->references('id')->on('units');
             $table->integer('value')->unsigned();
+            $table->float('weight', 10, 5)->unsigned();
         });
     }
 
@@ -33,6 +34,6 @@ class CreateRowTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('row');
+        Schema::dropIfExists('rows');
     }
 }

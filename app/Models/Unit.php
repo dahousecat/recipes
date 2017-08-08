@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\EnumOptions;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class Unit extends Model
 {
@@ -34,8 +34,13 @@ class Unit extends Model
     /**
      * Return an array of possible types of unit
      */
-    public static function getTypes() {
-        return static::enumOptions('type');
+    public static function getTypes($ids = null) {
+        if(is_null($ids)) {
+            return static::enumOptions('type');
+        } else {
+            $ids = is_array($ids) ? $ids : [$ids];
+            return DB::table('units')->whereIn('id', $ids)->distinct()->pluck('type')->toArray();
+        }
     }
 
     /**
@@ -57,4 +62,5 @@ class Unit extends Model
         }
         return $units;
     }
+
 }

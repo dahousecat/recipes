@@ -6,7 +6,12 @@ body {
   font-size: 16px; /* px fallback */
   font-size: 1.6rem; /* default font-size for document */
   line-height: 1.5; /* a nice line-height */
-  background-color: $color__gallery;
+  background-color: $color__background;
+  font-family: Tahoma, Helvetica, Arial, sans-serif;
+
+  &.noscroll {
+    overflow: hidden;
+  }
 }
 
 #overlay {
@@ -29,4 +34,72 @@ body {
 
 .modal-overlay {
   padding-top: 4.4rem;
+}
+
+.panel {
+  box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
+  background: white;
+  padding: 15px;
+}
+
+.grabber {
+  &::before {
+    content: "\f142 \f142";
+    letter-spacing: 0.1em;
+    font-family: FontAwesome;
+    margin-right: 0.4rem;
+    font-size: 1.2rem;
+    position: relative;
+    top: 0rem;
+    margin-left: 0.1rem;
+    color: lighten($color__st_tropaz, 25%);
+    padding: 1rem;
+    cursor: -webkit-grab;
+  }
+}
+
+.container {
+  max-width: 97rem;
+  margin: 0 auto;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 500ms;
+    z-index: 9;
+  }
+}
+
+.container--loading {
+  &::before {
+    opacity: 1;
+    pointer-events: all;
+  }
+  &::after {
+    content: '';
+    margin: auto;
+    font-size: 0.8rem;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    position: relative;
+    text-indent: -9999em;
+    -webkit-animation: spinney 1.1s infinite ease;
+    animation: spinney 1.1s infinite ease;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    position: absolute;
+    top: calc(34vh + 2rem);
+    left: 50%;
+    z-index: 20;
+  }
 }

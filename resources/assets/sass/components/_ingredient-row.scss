@@ -1,0 +1,161 @@
+.ingredient-row {
+  background-color: $color__st_tropaz;
+  padding: 0.4rem;
+  border: 1px solid $color__gallery;
+  border-radius: 0.6rem;
+}
+
+.ingredient-row__controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ingredient-row__handle {
+  padding: 0.6rem 0 0 0.1rem;
+
+  &::before {
+    color: lighten($color__st_tropaz, 25%);
+  }
+}
+
+.ingredient-row__toggles {
+  display: flex;
+  flex: 0 0 4rem;
+}
+
+.ingredient-row__nutrients-toggle {
+  padding: 0.6rem 0.2rem 0 0;
+  cursor: pointer;
+  transition: transform 200ms;
+  margin-left: 1rem;
+
+  .ingredient-row--draggable & {
+    margin-left: 0;
+  }
+
+  &::after {
+    content: "\f0d7";
+    color: lighten($color__st_tropaz, 25%);
+    font-family: FontAwesome;
+  }
+}
+
+.ingredient-row__nutrients-toggle--active {
+  transform: rotate(180deg);
+}
+
+.ingredient-row__segment {
+  width: 33.33333%;
+  line-height: 2.4;
+}
+
+.ingredient-row__name {
+  color: white;
+  font-weight: bold;
+  line-height: 2.4;
+  flex: 0 0 35%;
+}
+
+.ingredient-row__amount {
+  flex: 0 0 14%;
+  display: flex;
+}
+
+.ingredient-row__steppers {
+  display: flex;
+  flex-direction: column;
+  height: 3.4rem;
+  margin: 0.4rem 0 0 0.6rem;
+  font-size: 2.6rem;
+}
+
+.ingredient-row__stepper {
+  height: 1.7rem;
+  line-height: 0.6;
+  padding: 0 0.5rem;
+  color: lighten($color__st_tropaz, 25%);
+  cursor: pointer;
+
+  &:hover {
+    color: lighten($color__st_tropaz, 50%);
+  }
+}
+
+.ingredient-row__stepper--disabled {
+  &:hover {
+    color: lighten($color__st_tropaz, 25%);
+  }
+}
+
+.ingredient-row__unit {
+  flex: 0 0 10rem;
+  text-transform: capitalize;
+}
+
+.ingredient-row__control {
+  border: none;
+  padding: 0.4rem 0.7rem;
+  margin: 0.4rem 0 0 0;
+  font-size: 1.4rem;
+  background-color: lighten($color__st_tropaz, 50%);
+}
+
+.ingredient-row__remove_button {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  line-height: 1;
+  margin: 0.9rem 0.8rem 0 0;
+}
+
+.ingredient-row__nutrients {
+  color: white;
+  font-size: 1.4rem;
+  padding: 0;
+  margin: 0 auto;
+  display: none;
+}
+
+.ingredient-row__nutrients--active {
+  display: block;
+}
+
+.ingredient-row__nutrients-header {
+  padding: 1rem;
+}
+
+.ingredient-row__nutrients-inner {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ingredient-row__nutrients-group {
+  flex: 1;
+  max-width: 15rem;
+
+  .ingredient-row__nutrients-header & {
+    margin: 0;
+  }
+}
+
+.ingredient-row__nutrient-group-title {
+  color: lighten($color__st_tropaz, 70%);
+}
+
+.ingredient-row__nutrient {
+  display: flex;
+  border-bottom: 0.1rem solid lighten($color__st_tropaz, 25%);
+  color: lighten($color__st_tropaz, 60%);
+  justify-content: space-between;
+}
+
+.ingredient-row__nutrient-unit {
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.ingredient-row__nutrient-value {
+  text-align: right;
+  width: 100%;
+}

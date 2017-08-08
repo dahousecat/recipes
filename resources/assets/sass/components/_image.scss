@@ -1,0 +1,14 @@
+.image {
+  width: 30rem;
+  margin: 8rem auto;
+}
+
+.image__preview {
+  position: relative;
+}
+
+.image__close {
+  position: absolute;
+  right: 0;
+  top: 0;
+}

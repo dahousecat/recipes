@@ -1,5 +1,5 @@
 <template>
-    <div class="form">
+    <div class="form ingredient-form">
 
         <h1 class="form__title">Ingredient form</h1>
 
@@ -12,40 +12,55 @@
 
             <div class="row equal-height">
 
-                <!-- Basic Details -->
                 <div class="col-s-4 form__panel">
+
+                    <!-- Basic Details -->
                     <div class="">
                         <div class="form__group">
-                            <label>Name</label>
-                            <input type="text" class="form__control" v-model="form.name">
-                            <small class="error__control" v-if="error.name">{{error.name[0]}}</small>
-                        </div>
-                        <div class="form__group" v-if="typeof form.units.quantity !== 'undefined'">
-                            <label>
-                                How much does one {{form.name}} weight? (grams)
-                                <a :href="getWeightUrl()" target="_blank" v-if="form.name">
-                                    <i class="fa fa-question-circle" aria-hidden="true"></i>
-                                </a>
-                            </label>
-                            <input type="text" class="form__control" v-model="form.weight">
-                            <small class="error__control" v-if="error.weight">{{error.weight[0]}}</small>
+                            <label for="name">Name</label>
+                            <input id="name" type="text" class="form__control" v-model="form.name">
+                            <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
                         </div>
                     </div>
-                </div>
 
-                <!-- Units -->
-                <div class="col-s-4 form__panel">
+                    <!-- Units -->
                     <div class="">
                         <div class="form__title">Would you measure {{form.name}} using...</div>
 
-                        <div class="row" v-for="(unitType, unitTypeName) in unitTypes">
-                            <div class="col-s-1">
-                                <input :id="unitTypeName" type="checkbox" class="form__control"
-                                       v-model="unitType.checked" @change="updateUnits()">
+                        <small class="error-msg" v-if="error.units">{{error.units[0]}}</small>
+
+                        <!--loop unit types-->
+                        <div class="unit-types__group" v-for="(unitType, unitTypeName) in unitTypes">
+                            <div class="row unit-types__row">
+                                <div class="col-s-1">
+                                    <input :id="unitTypeName" type="checkbox" class="form__control"
+                                           v-model="unitType.checked" @change="setUnitsFromUnitTypes()">
+                                </div>
+                                <div class="col-s-11">
+                                    <label :for="unitTypeName">{{ unitType.label }}</label>
+                                </div>
                             </div>
-                            <div class="col-s-11">
-                                <label :for="unitTypeName">{{ unitType.label }}</label>
+                            <div class="row unit-types__row" v-if="unitType.term && unitType.checked">
+                                <div class="col-s-8">
+                                    <label :for="unitTypeName + '_weight'" class="unit-types__label">
+                                        How much does {{unitType.term}} weight?
+                                        <a :href="getWeightUrl(unitType)" :title="getWeightTitle(unitType)" target="_blank" v-if="form.name">
+                                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </label>
+                                </div>
+                                <div class="col-s-4 flex">
+                                    <input :id="unitTypeName + '_weight'" type="input" class="unit-types__weight"
+                                           v-model="form[unitType.key]" @change="setUnitsFromUnitTypes()">
+                                    <span class="unit-types__unit" title="Grams">g</span>
+                                </div>
                             </div>
+                            <div class="row unit-types__error-row" v-if="unitType.term && unitType.checked">
+                                <div class="col-s-12">
+                                    <small class="error-msg" v-if="error[unitType.key]">{{error[unitType.key][0]}}</small>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="row">
@@ -58,12 +73,16 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="row unit-types__error-row" v-if="error.default_unit_id">
+                            <div class="col-s-12">
+                                <small class="error-msg">{{error.default_unit_id[0]}}</small>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
 
-                <!-- Nutrients -->
-                <div class="col-s-4 form__panel" id="nutrients-panel">
+                <!-- Nutrients 1 -->
+                <div class="col-s-4 form__panel ingredient-form__unit-types unit-types">
 
                     <div class="">
 
@@ -71,21 +90,40 @@
 
                         <button @click="searchNdb()" :disabled="form.name.length ? false : true">Autofill</button>
 
-                        <div class="row" v-for="(type, index) in attributeTypes">
-                            <div class="col-s-6">
-                                <label>
-                                    {{capitalize(type.name)}} ({{type.unit}})
-                                    <a :href="getSearchUrl(type)" target="_blank">
-                                        <i class="fa fa-question-circle" aria-hidden="true" v-if="form.name"></i>
-                                    </a>
-                                </label>
-                            </div>
-                            <div class="col-s-6">
-                                <input type="text" class="form__control"
-                                       v-model="form.nutrients[type.safe_name].value">
-                            </div>
-                        </div>
+                        <h3>Energy</h3>
+                        <nutrients-form
+                                :attributeTypes="attributeTypes"
+                                :form="form"
+                                :category="'other'">
+                        </nutrients-form>
+
+                        <h3>Macronutrients</h3>
+                        <nutrients-form
+                            :attributeTypes="attributeTypes"
+                            :form="form"
+                            :category="'macronutrients'">
+                        </nutrients-form>
+
+                        <h3>Minerals</h3>
+                        <nutrients-form
+                                :attributeTypes="attributeTypes"
+                                :form="form"
+                                :category="'minerals'">
+                        </nutrients-form>
+
                     </div>
+
+                </div>
+
+                <!-- Nutrients 2 -->
+                <div class="col-s-4 form__panel" id="nutrients-panel">
+
+                    <h3>Vitamins</h3>
+                    <nutrients-form
+                            :attributeTypes="attributeTypes"
+                            :form="form"
+                            :category="'vitamins'">
+                    </nutrients-form>
 
                 </div>
             </div>
@@ -93,22 +131,14 @@
         </fieldset>
 
         <!-- Select NDB modal -->
-        <modal :show="!!Object.keys(ndb.groups).length" @close="ndb.groups = {}">
-            <h2 slot="title">Select the closest match</h2>
+        <modal :show="ndb.showPopup" @close="ndb.showPopup = false">
 
-            <ul class="ingredient-list">
-                <li v-for="(group, key, index) in ndb.groups">
+            <ndb-ingredients :ndb="ndb"
+                             :ingredient="form.name"
+                             @close="ndb.showPopup = false"
+                             @updateNutrients="updateNutrients">
+            </ndb-ingredients>
 
-                    <span class="ingredient-list__heading">{{key}}</span>
-
-                    <ul class="ingredient-list__child-list">
-                        <li v-for="(item, index) in group" class="ingredient-list__row">
-                            <a @click="selectNdbIngredient(item)">{{item.name}}</a>
-                        </li>
-                    </ul>
-
-                </li>
-            </ul>
         </modal>
 
     </div>
@@ -121,10 +151,14 @@
     import { convertEnergyUnit, formatNumber, getUnit, loading } from '../../helpers/misc';
     import { toMulipartedForm, objectToFormData } from '../../helpers/form';
     import Modal from '../../components/Modal.vue';
+    import NutrientsForm from '../../components/NutrientsForm.vue';
+    import NdbIngredients from '../../components/NdbIngredients.vue';
 
     export default {
         components: {
             Modal,
+            NutrientsForm,
+            NdbIngredients,
         },
         data() {
             return {
@@ -142,58 +176,116 @@
                 units: [],
                 unitTypes: {
                     volume: {
-                        label: 'Volume (Litres or cups)',
+                        label: 'Volume (Litres, cups, teaspoons etc)',
                         checked: false,
+                        term: 'one cup',
+                        key: 'weight_one_cup',
+                        suffix: ' of ',
                     },
                     weight: {
                         label: 'Weight (Kilograms or pounds)',
                         checked: false,
+                        term: false,
                     },
                     length: {
                         label: 'Length (Centimeters or inches)',
                         checked: false,
+                        term: 'one cm',
+                        key: 'weight_one_cm',
+                        suffix: ' of ',
                     },
                     quantity: {
                         label: 'Quantity (Count how many)',
                         checked: false,
+                        term: 'one',
+                        key: 'weight_one',
+                        suffix: '',
                     },
                 },
                 attributeTypes: [],
                 ndb: {
-                    'name': '',
-                    'groups': {},
+                    name: '',
+                    groups: {},
+                    showPopup: false,
                 },
                 energyUnit: 'calorie',
                 nutritionPer: 100, // grams
             }
         },
         created() {
-            if(this.$route.meta.mode === 'edit') {
-                this.initializeURL = `/api/ingredients/${this.$route.params.id}/edit`;
-                this.storeURL = `/api/ingredients/${this.$route.params.id}?_method=PUT`;
-                this.action = 'Update';
+            this.init();
+        },
+        watch: {
+            '$route' (to, from) {
+                console.log('route change');
+                this.init();
             }
-            get(this.initializeURL)
-                .then((res) => {
-                    Vue.set(this.$data, 'form', res.data.form);
-                    Vue.set(this.$data, 'units', res.data.units);
-                    Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
-                });
         },
         methods: {
-            getWeightUrl() {
-                return 'https://www.google.com.au/search?q=how+much+does+one+' +
-                    this.form.name + '+weight?';
+            init() {
+                loading(true);
+                if(this.$route.meta.mode === 'edit') {
+                    this.initializeURL = `/api/ingredients/${this.$route.params.id}/edit`;
+                    this.storeURL = `/api/ingredients/${this.$route.params.id}?_method=PUT`;
+                    this.action = 'Update';
+                } else {
+                    this.initializeURL = `/api/ingredients/create`;
+                    this.storeURL = `/api/ingredients`;
+                    this.action = 'Create';
+                }
+                get(this.initializeURL)
+                    .then((res) => {
+                        Vue.set(this.$data, 'form', res.data.form);
+                        Vue.set(this.$data, 'units', res.data.units);
+                        Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
+
+                        this.setUnitTypesFromUnits();
+                        loading(false);
+                        this.$emit('finishedLoading');
+                    });
             },
-            updateUnits() {
-                this.form.units = {};
+            getWeightUrl(unitType) {
+                let url = 'https://www.google.com.au/search?q=';
+                let query = 'how+much+does+' + unitType.term + '+' + unitType.suffix + this.form.name.toLowerCase() +  '+weight+in+grams?';
+                return url + query;
+            },
+            getWeightTitle(unitType) {
+                return 'How much does ' + unitType.term + unitType.suffix + ' ' + this.form.name.toLowerCase() + ' weigh in grams?';
+            },
+            setUnitsFromUnitTypes() {
+                let form = this.form;
+                form.units = {};
 
                 for (var name in this.units) {
                     if (this.units.hasOwnProperty(name)) {
                         let unit = this.units[name];
                         if(this.unitTypes[unit.type].checked) {
-                            this.form.units[name] = unit;
+                            form.units[name] = unit;
                         }
+                    }
+                }
+
+                // If there is only 1 unit type available set it as the default
+                if(Object.keys(form.units).length === 1) {
+                    let key = Object.keys(form.units)[0];
+                    form.default_unit_id = form.units[key].id;
+                }
+
+            },
+            setUnitTypesFromUnits() {
+
+                // Loop unitTypes to uncheck all
+                for (var name in this.unitTypes) {
+                    if (this.unitTypes.hasOwnProperty(name)) {
+                        this.unitTypes[name].checked = false;
+                    }
+                }
+
+                // Loop form units to check active types
+                for (var name in this.form.units) {
+                    if (this.form.units.hasOwnProperty(name)) {
+                        let unit = this.form.units[name];
+                        this.unitTypes[unit.type].checked = true;
                     }
                 }
             },
@@ -203,43 +295,51 @@
                     .then((res) => {
                         loading(false);
                         this.ndb.groups = res.data.groups;
+                        this.ndb.showPopup = true;
                     })
                     .catch(function (error) {
                         loading(false);
                         console.log(error);
                     });
             },
-            selectNdbIngredient(item) {
-                this.ndb.groups = {};
-                loading(true, 'nutrients-panel');
-                get('/api/ndb/view/' + item.id)
-                    .then((res) => {
-                        loading(false, 'nutrients-panel');
-                        for (let i = 0; i < res.data.length; i++) {
-                            let row = res.data[i];
-                            this.form.nutrients[row.attribute_safe_name].value = row.value;
-                        }
-                    })
-                    .catch(function (error) {
-                        loading(false);
-                        console.log(error);
-                    });
-            },
-            getSearchUrl(type) {
-                let attribute = type.name === 'energy' ? this.energyUnit : type.name;
-                return 'https://www.google.com.au/search?q=how+many+' +
-                    attribute +
-                    '+are+there+in+100g+of+' + this.form.name;
-            },
-            capitalize(string) {
-                return string.charAt(0).toUpperCase() + string.slice(1);
+            updateNutrients(data) {
+                for (let i = 0; i < data.length; i++) {
+                    let row = data[i];
+                    if(typeof this.form.nutrients[row.attribute_safe_name] === 'undefined') {
+                        this.form.nutrients[row.attribute_safe_name] = {};
+                    }
+                    this.form.nutrients[row.attribute_safe_name].value = row.value;
+                }
             },
             save() {
                 loading(true);
-                post(this.storeURL, this.form)
+
+                // Clone the form so we don't alter the original
+                let data = JSON.parse(JSON.stringify(this.form));
+
+                // Units just needs to be an array of ids
+                data.units = this.getUnitsIds();
+
+                // If volume is not a unit type in use clear the cup weight value
+                if(!this.unitTypes.volume.checked) {
+                    data.weight_one_cup = '';
+                }
+
+                // If length is not a unit type in use clear the cm weight value
+                if(!this.unitTypes.length.checked) {
+                    data.weight_one_cm = '';
+                }
+
+                // If volume is not a unit type in use clear the cup weight value
+                if(!this.unitTypes.quantity.checked) {
+                    data.weight_one = '';
+                }
+
+                post(this.storeURL, data)
                     .then((res) => {
                         loading(false);
-                        Flash.setSuccess('Ingredient saved.')
+                        Flash.setSuccess('Ingredient saved.');
+                        this.$router.push('/ingredients');
                     })
                     .catch((err) => {
                         loading(false);
@@ -247,7 +347,17 @@
                             this.error = err.response.data
                         }
                     })
+            },
+            getUnitsIds() {
+                let ids = [];
+                for (var name in this.form.units) {
+                    if (this.form.units.hasOwnProperty(name)) {
+                        let unit = this.form.units[name];
+                        ids.push(unit.id);
+                    }
+                }
+                return ids;
             }
-        }
+        },
     }
 </script>

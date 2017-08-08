@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use Faker\Factory;
 use App\Models\Recipe;
-use App\Models\RecipeDirection;
+use App\Models\Ingredient;
+use App\Models\Unit;
 
 class RecipesTableSeeder extends Seeder
 {
@@ -14,33 +14,32 @@ class RecipesTableSeeder extends Seeder
      */
     public function run()
     {
-        $faker = Factory::create();
+        $recipes = json_decode(file_get_contents(__DIR__ . '/recipeTableSeederData.json'));
 
-        Recipe::truncate();
-        RecipeDirection::truncate();
+        foreach($recipes as $i => $data) {
+            $recipe = Recipe::create([
+                'user_id' => 1,
+                'name' => $data->name,
+                'description' => $data->description,
+                'portions' => empty($data->portions) ? 2 : $data->portions,
+            ]);
 
-        foreach(range(1, 10) as $i) {
-        	$recipe = Recipe::create([
-        		'user_id' => $i,
-        		'name' => $faker->sentence,
-        		'description' => $faker->paragraph(mt_rand(10, 20)),
-        		'image' => 'test.png'
-        	]);
+            foreach($data->rows as $row) {
+                $ingredient = Ingredient::loadByName($row->ingredient);
+                $unit = Unit::loadByName($row->unit);
 
-//        	foreach(range(1, mt_rand(3, 12)) as $j) {
-//        		RecipeIngredient::create([
-//        			'recipe_id' => $recipe->id,
-//        			'name' => $faker->word,
-//        			'qty' => mt_rand(1, 12).' Kg'
-//        		]);
-//        	}
+                if(empty($ingredient)) {
+                    echo $row->ingredient . ' not found';
+                }
 
-        	foreach(range(1, mt_rand(5, 12)) as $k) {
-        		RecipeDirection::create([
-        			'recipe_id' => $recipe->id,
-        			'description' => $faker->sentence,
-        		]);
-        	}
+                $recipe->rows()->create([
+                    'ingredient_id' => $ingredient->id,
+                    'delta' => $row->delta,
+                    'unit_id' => $unit->id,
+                    'value' => $row->value,
+                    'weight' => empty($row->weight) ? 0 : $row->weight,
+                ]);
+            }
         }
     }
 }

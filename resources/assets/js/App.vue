@@ -2,27 +2,45 @@
 	<div class="wrapper">
 
 		<header class="header">
-			<div class="container">
-				<router-link to="/" class="header__link">Smoothie Recipes</router-link>
-				<nav role="navigation" data-navigation="" class="navigation" id="main-nav">
-					<button aria-controls="main-nav" aria-expanded="false" class="navigation__button">
-						Menu <i class="fa fa-bars navigation__bars" aria-hidden="true"></i>
+			<div class="container header__container">
+				<h1 class="header__title">
+					<router-link to="/"
+								 @click.native="navClick" class="header__link">Smoothie Recipes</router-link>
+				</h1>
+				<nav role="navigation" data-navigation="" class="navigation" id="main-nav"
+					 :class="menuExpanded ? 'navigation--active' : ''"
+					 :aria-expanded="menuExpanded ? 'true' : 'false'">
+					<button aria-controls="main-nav"
+							class="navigation__button"
+							@click="toggleMenu">
+						<div class="navigation__text">Menu</div>
+						<div class="navigation__icon">
+							<span class="navigation__bar"></span>
+							<span class="navigation__bar"></span>
+							<span class="navigation__bar"></span>
+							<span class="navigation__bar"></span>
+						</div>
 					</button>
-					<ul class="navigation__container">
+					<ul class="navigation__list">
 						<li class="navigation__item" v-if="guest">
-							<router-link to="/login" class="navigation__link">Login</router-link>
+							<router-link to="/login"
+										 @click.native="navClick" class="navigation__link">Login</router-link>
 						</li>
 						<li class="navigation__item" v-if="guest">
-							<router-link to="/register" class="navigation__link">Register</router-link>
+							<router-link to="/register"
+										 @click.native="navClick" class="navigation__link">Register</router-link>
 						</li>
 						<li class="navigation__item" v-if="auth">
-							<router-link to="/recipes/create" class="navigation__link">Create recipe</router-link>
+							<router-link to="/recipes/create"
+										 @click.native="navClick" class="navigation__link">Create recipe</router-link>
 						</li>
 						<li class="navigation__item">
-							<router-link to="/ingredients" class="navigation__link">Ingredients</router-link>
+							<router-link to="/ingredients"
+										 @click.native="navClick" class="navigation__link">Ingredients</router-link>
 						</li>
 						<li class="navigation__item" v-if="auth">
-							<router-link to="/ingredients/create" class="navigation__link">Create ingredient</router-link>
+							<router-link to="/ingredients/create"
+										 @click.native="navClick" class="navigation__link">Create ingredient</router-link>
 						</li>
 						<li class="navigation__item" v-if="auth">
 							<a @click.stop="logout" class="navigation__link">Logout</a>
@@ -32,14 +50,18 @@
 			</div>
 		</header>
 
-		<div class="container">
+		<div class="container"
+			 :class="contentLoading ? 'container--loading' : ''">
+
+			<div class="mobile-nav-scrim" :class="menuExpanded ? 'mobile-nav-scrim--visible' : ''"></div>
+
 			<div class="flash flash--error" v-if="flash.error">
 				{{flash.error}}
 			</div>
 			<div class="flash flash--success" v-if="flash.success">
 				{{flash.success}}
 			</div>
-			<router-view></router-view>
+			<router-view @finishedLoading="finishedLoading"></router-view>
 		</div>
 
 	</div>
@@ -48,6 +70,7 @@
 	import Auth from './store/auth'
 	import Flash from './helpers/flash'
 	import { post, interceptors } from './helpers/api'
+	
 	export default {
 		created() {
 
@@ -71,7 +94,10 @@
 		data() {
 			return {
 				authState: Auth.state,
-				flash: Flash.state
+				flash: Flash.state,
+				menuExpanded: false,
+				contentLoading: false,
+				body: document.querySelector('body'),
 			}
 		},
 		computed: {
@@ -86,14 +112,29 @@
 			}
 		},
 		methods: {
+            finishedLoading() {
+                this.contentLoading = false;
+			},
+            toggleMenu() {
+		        this.menuExpanded = !this.menuExpanded;
+                this.body.classList.toggle('noscroll', this.menuExpanded);
+			},
+		    navClick() {
+                this.menuExpanded = false;
+                this.contentLoading = true;
+                this.body.classList.remove('noscroll');
+			},
 			logout() {
+			    this.menuExpanded = false;
+                this.contentLoading = true;
 				post('/api/logout')
 				    .then((res) => {
 				        if(res.data.done) {
 				            // remove token
-				            Auth.remove()
-				            Flash.setSuccess('You have successfully logged out.')
-				            this.$router.push('/login')
+				            Auth.remove();
+				            Flash.setSuccess('You have successfully logged out.');
+				            this.$router.push('/login');
+				            this.finishedLoading();
 				        }
 				    })
 			}

@@ -12,6 +12,7 @@ class Row extends Model
         'delta',
         'unit_id',
         'value',
+        'weight',
     ];
 
     public $timestamps = false;
@@ -47,6 +48,15 @@ class Row extends Model
             'unit' => '',
             'amount' => '',
         ];
+    }
+
+    public static function deleteMany($ids) {
+        foreach($ids as $id) {
+            $row = static::find($id);
+            if($row) {
+                $row->delete();
+            }
+        }
     }
 
 }

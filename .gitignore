@@ -11,4 +11,6 @@ Homestead.yaml
 public/build
 public/js
 public/css
+*.sql
+*.sql.gz
 .vagrant

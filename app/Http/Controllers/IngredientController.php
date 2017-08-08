@@ -10,15 +10,14 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\In;
 Use Neomerx\JsonApi\Encoder\Encoder;
 use Neomerx\JsonApi\Encoder\Parameters\EncodingParameters;
+use Illuminate\Validation\Rule;
 
-class IngredientController extends JsonApiController
+class IngredientController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth:api')
             ->except(['index', 'show']);
-
-        parent::__construct();
     }
 
     /**
@@ -28,7 +27,7 @@ class IngredientController extends JsonApiController
      */
     public function index()
     {
-        $ingredients = Ingredient::all();
+        $ingredients = Ingredient::select('id', 'name', 'default_unit_id')->get();
 
         return response()
             ->json([
@@ -45,7 +44,7 @@ class IngredientController extends JsonApiController
 
     public function search($text)
     {
-        $ingredients = Ingredient::where('name', 'like', "%$text%")->get();
+        $ingredients = Ingredient::where('name', 'like', "%$text%")->select('id', 'name', 'default_unit_id')->get();
 
         return response()
             ->json([
@@ -87,11 +86,10 @@ class IngredientController extends JsonApiController
 
         $attributeTypes = AttributeType::all()->toArray();
         foreach($attributeTypes as &$type) {
-            $type['safe_name'] = str_replace(' ', '_', $type['name']);
             $form['nutrients'][$type['safe_name']] = [
                 'id' => null,
                 'value' => '',
-                'type_id' => $type['id'],
+                'attribute_type_id' => $type['id'],
                 'type_name' => $type['name'],
             ];
         }
@@ -112,49 +110,19 @@ class IngredientController extends JsonApiController
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|max:255',
-            'image' => 'image',
-            'units' => 'array',
-            'units.*.id' => 'required|numeric|min:1',
-            'attributes' => 'array',
-            'attributes.*.unit_id' => 'required|numeric|min:1',
-            'attributes.*.value' => 'required|numeric',
-            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
-        ]);
+        $this->validate($request, $this->validationRules());
 
-        $units = [];
-        if(!empty($request->units)) {
-            foreach($request->units as $unit) {
-                $units[] = new Unit($unit);
-            }
-        }
+        $ingredient = new Ingredient($request->only(
+            'name',
+            'weight_one',
+            'weight_one_cup',
+            'weight_one_cm',
+            'default_unit_id'
+        ));
+        $ingredient->user_id = $request->user()->id;
+        $ingredient->save();
 
-        $attributes = [];
-        if(!empty($request->attributes)) {
-            foreach($request->attributes as $attribute) {
-                $attributes[] = new Attribute($attribute);
-            }
-        }
-
-        if(!$request->id) {
-            $ingredient = new Ingredient($request->only('name', 'weight'));
-        } else {
-            $ingredient = Ingredient::find($request->id);
-        }
-
-        $request->user()->ingredients()
-            ->save($ingredient);
-
-        $ingredient->units()->saveMany($units);
-        $ingredient->attributes()->saveMany($attributes);
-
-        return response()
-            ->json([
-                'saved' => true,
-                'id' => $ingredient->id,
-                'message' => 'You have successfully created an ingredient!'
-            ]);
+        return $this->update($ingredient->id, $request);
 
     }
 
@@ -164,27 +132,43 @@ class IngredientController extends JsonApiController
      * @param  \App\Models\Ingredient  $ingredient
      * @return \Illuminate\Http\Response
      */
-//    public function show(Ingredient $ingredient)
-//    {
-//        //
-//    }
+    public function show($id, Request $request)
+    {
+        $ingredient = Ingredient::with('units', 'attributes.attributeType')->findOrFail($id)->toArray();
+
+        $ingredient['nutrients'] = $this->keyArray($ingredient['attributes'], ['attribute_type', 'safe_name']);
+        unset($ingredient['attributes']);
+
+        $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
+
+        // In the DB we store the weight of one cup - but the weight on one ml will be more useful so convert now
+        if(!empty($ingredient['weight_one_cup'])) {
+            $ingredient['weight_one_ml'] = $ingredient['weight_one_cup'] / self::ML_IN_CUP;
+        }
+
+        return response()
+            ->json([
+                'ingredient' => $ingredient,
+            ]);
+    }
 
     public function edit($id, Request $request)
     {
 
-        $ingredient = Ingredient::with('units', 'attributes.attributeType')->find($id)->toArray();
-        $ingredient['units'] = $this->keyArray($ingredient['units'], 'name');
-        $ingredient['nutrients'] = $this->keyArray($ingredient['attributes'], ['attribute_type', 'name']);
-        unset($ingredient['attributes']);
+        $form = Ingredient::with('units', 'attributes.attributeType')->find($id)->toArray();
+        $form['units'] = $this->keyArray($form['units'], 'name');
+
+        $form['nutrients'] = $this->keyArray($form['attributes'], ['attribute_type', 'safe_name']);
+        unset($form['attributes']);
 
         $attributeTypes = AttributeType::all()->toArray();
-
         $units = $this->keyArray(Unit::all()->toArray(), 'name');
 
         // Add default values for attributes that don't exist
+        // TODO: Find out if this is really necessary... seems surplus
         foreach($attributeTypes as $type) {
-          if(!isset($ingredient['nutrients'][$type['safe_name']])) {
-            $ingredient['nutrients'][$type['safe_name']] = [
+          if(!isset($form['nutrients'][$type['safe_name']])) {
+            $form['nutrients'][$type['safe_name']] = [
               'attribute_type' => $type,
               'attribute_type_id' => $type['id'],
               'id' => null,
@@ -196,28 +180,10 @@ class IngredientController extends JsonApiController
 
         return response()
             ->json([
-                'form' => $ingredient,
+                'form' => $form,
                 'units' => $units,
                 'attributeTypes' => $attributeTypes,
             ]);
-    }
-
-    private function keyArray($inArray, $pathToKey) {
-      $outArray = [];
-      $pathToKey = is_array($pathToKey) ? $pathToKey : [$pathToKey];
-      foreach($inArray as $value) {
-        $ref = $value;
-        foreach($pathToKey as $pathElement) {
-          if(!isset($ref[$pathElement])) {
-            print_r(debug_backtrace());
-            trigger_error('Key ' . $pathElement . ' is not set in this array: ' . print_r($ref, true));
-          } else {
-            $ref = $ref[$pathElement];
-          }
-        }
-        $outArray[$ref] = $value;
-      }
-      return $outArray;
     }
 
     /**
@@ -229,28 +195,24 @@ class IngredientController extends JsonApiController
      */
     public function update($id, Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|max:255',
-            'description' => 'required|max:3000',
-            'image' => 'image',
-            'weight' => 'numeric|min:0',
-            'units_types' => 'array',
-            'units_types.*.name' => 'required|string',
-            'units' => 'array',
-            'units.*' => 'required|numeric|min:1',
-            'ingredientAttributes' => 'array',
-            'ingredientAttributes.*.id' => '',
-            'ingredientAttributes.*.value' => 'required|numeric',
-            'ingredientAttributes.*.attribute_type_id' => 'required|numeric|min:1',
-        ]);
+        $this->validate($request, $this->validationRules($id));
+
+//        Validator::make($data, [
+//            'email' => [
+//                'required',
+//                Rule::unique('users')->ignore($user->id),
+//            ],
+//        ]);
 
         $response = [];
 
         $ingredient = Ingredient::find($id);
 
-        $ingredient->name = $request->name;
-        $ingredient->description = $request->description;
-        $ingredient->weight = $request->weight;
+        $ingredient->name            = $request->name;
+        $ingredient->description     = $request->description;
+        $ingredient->weight_one      = $request->weight_one;
+        $ingredient->weight_one_cup  = $request->weight_one_cup;
+        $ingredient->weight_one_cm   = $request->weight_one_cm;
         $ingredient->default_unit_id = $request->default_unit_id;
 
         $ingredient->save();
@@ -258,21 +220,25 @@ class IngredientController extends JsonApiController
         $ingredient->units()->sync($request->units);
 
         // Get a list of all existing attribute ids
-        $existingAttributeIds = $ingredient->attributeIds();
-        $existingAttributeIds = array_combine($existingAttributeIds, $existingAttributeIds);
+        $idsToDelete = array_fill_keys($ingredient->attributeIds(), null);
 
-        if(!empty($request->ingredientAttributes)) {
+        if(!empty($request->nutrients)) {
 
-            foreach($request->ingredientAttributes as $attributeData) {
+            foreach($request->nutrients as $attributeData) {
 
-                $attribute = NULL;
+                // Don't create an attribute with an empty value
+                if(empty($attributeData['value'])) {
+                    continue;
+                }
+
+                $attribute = null;
 
                 // Try and load an existing attribute
                 if(!empty($attributeData['id'])) {
                     $attribute = Attribute::find($attributeData['id']);
                     $response['method'] = 'loaded existing attribute';
                     // Once we loaded an attribute remove it from the list of all ids
-                    unset($existingAttributeIds[$attribute->id]);
+                    unset($idsToDelete[$attribute->id]);
                 }
 
                 // Create a new attribute if necessary
@@ -300,9 +266,10 @@ class IngredientController extends JsonApiController
         }
 
         // If there are any attribute ids left in here then they have been deleted
-        if(!empty($existingAttributeIds)) {
-            Attribute::whereIn('id', $existingAttributeIds)->delete();
-            $response['deleted_attribute_ids'] = $existingAttributeIds;
+        if(!empty($idsToDelete)) {
+            $idsToDelete = array_keys($idsToDelete);
+            Attribute::deleteMany($idsToDelete);
+            $response['deleted_attribute_ids'] = $idsToDelete;
         }
 
         if(empty($response['error'])) {
@@ -315,14 +282,35 @@ class IngredientController extends JsonApiController
             ->json($response);
     }
 
+    private function validationRules($id = null) {
+        return [
+            'name' => 'required|max:255|unique:ingredients,name' . ($id ? ',' . $id : ''),
+            'weight_one' => 'required_if_quantity_unit|present|positive',
+            'weight_one_cup' => 'required_if_volume_unit|present|positive',
+            'weight_one_cm' => 'required_if_length_unit|present|positive',
+            'units' => 'array|required',
+            'attributes' => 'array',
+            'attributes.*.unit_id' => 'required|numeric|min:1',
+            'attributes.*.value' => 'required|numeric',
+            'attributes.*.attribute_type_id' => 'required|numeric|min:1',
+            'default_unit_id' => 'numeric|min:1|required',
+        ];
+    }
+
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Ingredient  $ingredient
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-//    public function destroy(Ingredient $ingredient)
-//    {
-//        //
-//    }
+    public function destroy($id, Request $request)
+    {
+        $ingredient = Ingredient::findOrFail($id);
+        $ingredient->delete();
+
+        return response()
+            ->json([
+                'deleted' => true
+            ]);
+    }
+
 }

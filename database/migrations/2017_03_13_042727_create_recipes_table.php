@@ -20,6 +20,7 @@ class CreateRecipesTable extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('image')->nullable();
+            $table->integer('portions')->unsigned();
             $table->timestamps();
 //            $table->foreign('row_id')->references('id')->on('rows')->onDelete('cascade');
 //            $table->foreign('recipe_directions_id')->references('id')->on('recipes')->onDelete('cascade');

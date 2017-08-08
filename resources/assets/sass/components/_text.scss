@@ -1,3 +1,31 @@
-h2 {
-  font-size: 2.5rem;
+a {
+  color: darkgreen;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 200ms;
+
+  &:hover {
+    color: darken(darkgreen, 25%);
+    text-decoration: none;
+  }
+}
+
+.btn {
+  padding: 0.6rem 1.8rem;
+  background-color: #dadada;
+  border: solid 1px #c0c0c0;
+  cursor: pointer;
+  display: inline-block;
+  min-height: 2rem;
+  transition: background-color 200ms;
+
+  &:hover {
+    text-decoration: none;
+    background-color: #cdcdcd;
+  }
+}
+
+h3 {
+  font-size: 1.4rem;
+  margin: 0.2rem 0 0.4rem 0;
 }
