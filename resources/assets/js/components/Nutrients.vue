@@ -24,9 +24,6 @@
                     </div>
 
                     <!--<nutrient-rows-->
-                    <!--:displayNutrients="displayNutrients" :category="'other'"-->
-                    <!--:parentClass="'nutrients'" :title="''" ></nutrient-rows>-->
-
                     <div class="nutrients__row" v-if="typeof displayNutrients.energy != 'undefined'">
                         <div class="nutrients__unit">
                             <select v-model="energyUnit" @change="recalculateEnergy()" class="nutrients__select">
@@ -34,7 +31,7 @@
                             </select>
                         </div>
                         <div class="nutrients__value">
-                            {{ displayNutrients.energy.value }} {{ displayNutrients.energy.unit }}
+                            {{ displayNutrients.energy.value }}
                         </div>
                     </div>
 

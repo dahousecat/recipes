@@ -42,8 +42,6 @@ class GenerateRecipeSeeder extends Command
         $recipes = Recipe::with(
             'rows.ingredient',
             'rows.unit',
-//            'rows.ingredient.attributes.attributeType',
-//            'rows.ingredient.units',
             'directions'
         )->get()->toArray();
 
@@ -58,9 +56,10 @@ class GenerateRecipeSeeder extends Command
             foreach($recipe['rows'] as &$row) {
                 $rows[] = [
                     'ingredient' => $row['ingredient']['name'],
-                    'delta' => $row['delta'],
-                    'unit' => $row['unit']['name'],
-                    'value' => $row['value'],
+                    'delta'      => $row['delta'],
+                    'unit'       => $row['unit']['name'],
+                    'value'      => $row['value'],
+                    'weight'     => $row['weight'],
                 ];
             }
             $recipe['rows'] = $rows;

@@ -18,11 +18,17 @@ a {
   display: inline-block;
   min-height: 2rem;
   transition: background-color 200ms;
+  line-height: 1;
+  color: lighten(black, 10);
 
   &:hover {
     text-decoration: none;
     background-color: #cdcdcd;
   }
+}
+
+h1 {
+  margin: 0;
 }
 
 h2 {

@@ -1,67 +1,74 @@
 <template>
 	<div class="recipe">
-		<div class="recipe__header">
 
-			<div class="recipe__header-group">
-				<h1 class="recipe__title">{{recipe.name}}</h1>
-				<div v-if="recipe.description" class="recipe__description">{{recipe.description}}</div>
-				<small>Submitted by: {{recipe.user.name}}</small>
+		<div class="row--m">
+			<div class="col-1">
+
+				<div class="panel recipe__header">
+					<div class="recipe__header-group">
+						<h1 class="recipe__title">{{recipe.name}}</h1>
+						<div v-if="recipe.description" class="recipe__description">{{recipe.description}}</div>
+						<small>Submitted by: {{recipe.user.name}}</small>
+					</div>
+
+					<div v-if="authState.api_token && authState.user_id === recipe.user_id">
+						<router-link :to="`/recipes/${recipe.id}/edit`" class="btn btn-primary">
+							Edit
+						</router-link>
+						<button class="btn btn__danger" @click="remove" :disabled="isRemoving">Delete</button>
+					</div>
+				</div>
+
 			</div>
-
-
-			<div v-if="authState.api_token && authState.user_id === recipe.user_id">
-				<router-link :to="`/recipes/${recipe.id}/edit`" class="btn btn-primary">
-					Edit
-				</router-link>
-				<button class="btn btn__danger" @click="remove" :disabled="isRemoving">Delete</button>
-			</div>
-
 		</div>
 
-		<div class="flex-row">
-
-			<div class="recipe__panel">
-				<h3 class="recipe__sub_title">Ingredients</h3>
-
-				<!--@rowUpdated="rowUpdated(row)"-->
-
-				<ingredient-row
-						v-for="(row, index) in recipe.rows"
-						:row="row"
-						:draggable="false"
-						@rowUpdated="rowUpdated(row)"
-						@removeIngredient="removeIngredient(index)">
-				</ingredient-row>
-
+		<div class="row--m">
+			<div class="col-1">
+				<div class="panel">
+					<h3 class="recipe__sub_title">Directions</h3>
+					<ul class="recipe__display-list">
+						<li v-for="(direction, i) in recipe.directions">
+							<p>
+								<strong>{{i + 1}}: </strong>
+								{{direction.description}}
+							</p>
+						</li>
+					</ul>
+				</div>
 			</div>
-
-			<div class="recipe__panel">
-				<h3 class="recipe__sub_title">Directions</h3>
-				<ul class="recipe__display-list">
-					<li v-for="(direction, i) in recipe.directions">
-						<p>
-							<strong>{{i + 1}}: </strong>
-							{{direction.description}}
-						</p>
-					</li>
-				</ul>
-			</div>
-
 		</div>
 
-		<div class="flex-row">
+		<div class="row--m">
 
-			<!-- Nutrients -->
-			<nutrients
-					@nutritionUpdated="recalculateNutrition=false"
-					:rows="recipe.rows"
-					:units="units"
-					:recalculate="recalculateNutrition"
-					class="recipe__panel"></nutrients>
+			<div class="col-1">
+				<div class="panel">
+					<h3 class="recipe__sub_title">Ingredients</h3>
+					<ingredient-row
+							v-for="(row, index) in recipe.rows"
+							:row="row"
+							:draggable="false"
+							@rowUpdated="rowUpdated(row)"
+							@removeIngredient="removeIngredient(index)">
+					</ingredient-row>
+				</div>
+			</div>
+
+			<div class="col-1">
+				<div class="panel">
+					<!-- Nutrients -->
+					<nutrients
+							@nutritionUpdated="recalculateNutrition=false"
+							:rows="recipe.rows"
+							:units="units"
+							:recalculate="recalculateNutrition"></nutrients>
+				</div>
+			</div>
+
 		</div>
 
 	</div>
 </template>
+
 <script type="text/javascript">
     import Vue from 'vue';
 	import Auth from '../../store/auth'

@@ -321,6 +321,8 @@
     .ingredient-row__unit {
         order: 3;
         margin-bottom: 1rem;
+        flex: 0 0 28%;
+        text-align: right;
 
         @include mq($from: l) {
             margin-bottom: 0;

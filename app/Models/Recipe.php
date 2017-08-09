@@ -42,7 +42,6 @@ class Recipe extends Model
 
     public static function recipesSortedByAttribute($attributeSafeName, $limit = 10)
     {
-
         $recipes = DB::table('recipes as r')
             ->selectRaw("r.id, r.`name`, SUM((a.`value` / 100) * o.weight) as val", [$attributeSafeName])
             ->leftJoin('rows as o',             'o.recipe_id',      '=', 'r.id')
