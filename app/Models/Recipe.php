@@ -59,6 +59,19 @@ class Recipe extends Model
 
     }
 
+    public static function withIngredients($ingredient_ids)
+    {
+        $recipes = DB::table('recipes as r')
+            ->leftJoin('rows as o', 'o.recipe_id', '=', 'r.id')
+            ->whereIn('o.ingredient_id', $ingredient_ids)
+            ->groupBy('o.recipe_id')
+            ->havingRaw('COUNT(*) = ' . count($ingredient_ids))
+            ->get(['r.id', 'r.name', 'r.image', 'r.portions']);
+
+        return $recipes;
+
+    }
+
     public static function form()
     {
         return [
