@@ -1,6 +1,6 @@
 <template>
 	<div class="image__preview" v-if="image">
-		<img :src="image">
+		<img class="image" :src="image">
 		<button class="btn btn__danger image__close" @click="close">
 			&times;
 		</button>
@@ -45,3 +45,9 @@
 		}
 	}
 </script>
+<style lang="scss">
+	.image {
+		max-width: 100%;
+		max-height: 20rem;
+	}
+</style>

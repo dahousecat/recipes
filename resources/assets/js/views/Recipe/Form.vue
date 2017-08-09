@@ -1,54 +1,80 @@
 <template>
 	<div class="recipe">
 
-		<div class="recipe__header">
-			<h2>{{action}} Recipe</h2>
-			<div>
-				<button class="btn btn__primary" @click="save" :disabled="isProcessing">Save</button>
-				<button class="btn" @click="$router.back()" :disabled="isProcessing">Cancel</button>
+		<div class="row--m">
+			<div class="col-1">
+				<div class="panel recipe__header">
+					<h2>{{action}} Recipe</h2>
+					<div class="recipe__button-group">
+						<button class="btn" @click="save" :disabled="isProcessing">Save</button>
+						<button class="btn" @click="$router.back()" :disabled="isProcessing">Cancel</button>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div class="flex-row">
+
+
+		<div class="row--m">
 
 			<!-- Image -->
-			<div class="recipe__panel">
-				<image-upload v-model="form.image"></image-upload>
-				<small class="error__control" v-if="error.image">{{error.image[0]}}</small>
+			<div class="col-1 col--center">
+				<div class="panel recipe__image">
+					<image-upload v-model="form.image"></image-upload>
+					<small class="error__control" v-if="error.image">{{error.image[0]}}</small>
+				</div>
 			</div>
 
 			<!-- Basic details -->
-			<div class="recipe__panel">
-				<div class="form__group">
-					<label>Name</label>
-					<input type="text" class="form__control" v-model="form.name">
-					<small class="error__control" v-if="error.name">{{error.name[0]}}</small>
-				</div>
-				<div class="form__group">
-					<label>Description</label>
-					<textarea class="form__control form__description" v-model="form.description"></textarea>
-					<small class="error__control" v-if="error.description">{{error.description[0]}}</small>
-				</div>
-				<div class="form__group">
-					<label>How many portions is this recipe for?</label>
-					<input type="text" class="form__control" v-model="form.portions">
-					<small class="error__control" v-if="error.portions">{{error.portions[0]}}</small>
+			<div class="col-1">
+				<div class="panel">
+					<h3>Basic details</h3>
+
+					<div class="form-group recipe__form-group">
+						<label class="form-group__label">Name</label>
+						<input type="text" class="form-group__input" v-model="form.name">
+						<small class="error__control" v-if="error.name">{{error.name[0]}}</small>
+					</div>
+					<div class="form-group recipe__form-group">
+						<label class="form-group__label">Description</label>
+						<textarea class="form-group__input" v-model="form.description"></textarea>
+						<small class="error__control" v-if="error.description">{{error.description[0]}}</small>
+					</div>
+					<div class="form-group recipe__form-group">
+						<label class="form-group__label">Number of portions?</label>
+						<input type="text" class="form-group__input" v-model="form.portions">
+						<small class="error__control" v-if="error.portions">{{error.portions[0]}}</small>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="flex-row">
+		<div class="row--m">
 
 			<!-- Ingredients -->
-			<div class="recipe__panel">
-				<div class="recipe__box">
-					<h3 class="recipe__sub_title">Ingredients</h3>
+			<div class="col-1">
+				<div class="panel recipe__ingredients-panel">
+					<h3>Ingredients</h3>
 
-					<draggable v-model="form.rows"
-							   :class="{ 'drop-zone': this.isDragging, 'ingredient-row--empty': !form.rows.length }"
-							   :options='{group:"recipe", handle:".ingredient-row__handle", filter: ".empty-message"}'
-							   @start="dragStart" @end="dragEnd"
-							   class="recipe__rows">
+					<div class="recipe__ingredient-search-input-wrapper"
+						 :class="searchingForIngredient? 'loading loading--input' : ''">
+						<input class="recipe__ingredient-search-input" type="text"
+							   v-model="ingredientSearchTerm" placeholder="Search for an ingredient...">
+					</div>
+
+					<ul class="recipe__ingredient-search-results" v-if="ingredientSearchResults">
+						<li v-for="item in ingredientSearchResults"
+							class="recipe__ingredient-search-result"
+							@click="addIngredient(item)">
+							{{item.ingredient.name}}
+						</li>
+					</ul>
+
+					<!--<draggable v-model="form.rows"-->
+							   <!--:class="{ 'drop-zone': this.isDragging, 'ingredient-row&#45;&#45;empty': !form.rows.length }"-->
+							   <!--:options='{group:"recipe", handle:".ingredient-row__handle", filter: ".empty-message"}'-->
+							   <!--@start="dragStart" @end="dragEnd"-->
+							   <!--class="recipe__rows">-->
 
 						<ingredient-row
 								v-for="(row, index) in form.rows"
@@ -57,33 +83,10 @@
 								@removeIngredient="removeIngredient(index)">
 						</ingredient-row>
 
-					</draggable>
+					<!--</draggable>-->
 
 				</div>
 			</div>
-
-			<!-- Pantry -->
-			<div class="recipe__panel">
-				<div class="recipe__pantry_inner">
-					<h3 class="recipe__sub_title">Pantry</h3>
-
-					<div class="form__group">
-						<label for="search">Search</label>
-						<input id="search" type="text" class="form__control" v-model="ingredient">
-					</div>
-
-					<draggable v-model="ingredients" :options='{group:"recipe"}' @start="dragStart" @end="dragEnd">
-						<div v-for="item in ingredients" class="recipe__ingredient grabber">
-							{{item.ingredient.name}}
-						</div>
-					</draggable>
-
-				</div>
-			</div>
-
-		</div>
-
-		<div class="flex-row">
 
 			<!-- Nutrients -->
 			<nutrients
@@ -93,17 +96,21 @@
 					:recalculate="recalculateNutrition"
 					class="recipe__panel"></nutrients>
 
+		</div>
+
+		<div class="row--m">
+
 			<!-- Directions -->
-			<div class="recipe__panel">
-				<div class="">
-					<h3 class="recipe__sub_title">Directions</h3>
+			<div class="col-1">
+				<div class="panel">
+					<h3>Directions</h3>
 					<div v-for="(direction, index) in form.directions" class="recipe__directions-inner">
-						<textarea class="form__control form__margin" v-model="direction.description"
+						<textarea class="recipe__direction" v-model="direction.description"
 								  :class="[error[`directions.${index}.description`] ? 'error__bg' : '']"
 						></textarea>
-						<button @click="remove('directions', index)" class="recipe__directions-button">&times;</button>
+						<button @click="remove('directions', index)" class="recipe__remove-direction-btn">&times;</button>
 					</div>
-					<button @click="addDirection" class="btn">Add Direction</button>
+					<button @click="addDirection" class="btn recipe__add-direction-btn">Add Direction</button>
 				</div>
 			</div>
 		</div>
@@ -138,7 +145,9 @@
 					rows: [],
 					directions: []
 				},
+                ingredientSearchTerm: '',
 				ingredients: [],
+                ingredientSearchResults: [],
 				nutrients: {},
 				units: [],
 				amountPer: 'recipe',
@@ -170,17 +179,27 @@
 				showIngredientModal: false,
                 attributeTypes: [],
 				recalculateNutrition: false,
+				searchingForIngredient: false,
 			}
 		},
 		watch: {
-			// For ingredient filter
-			ingredient: function(str){
-				let url = str.length > 1 ? '/api/ingredients/search/' + str : '/api/ingredients';
-				get(url)
-						.then((res) => {
-                            this.prepareIngredients(res.data);
-						})
-			},
+            ingredientSearchTerm: function(str){
+
+			    if(!str.length) {
+			        this.ingredientSearchResults = [];
+			        return;
+				}
+
+                this.searchingForIngredient = true;
+			    let _this = this;
+
+                let url = '/api/ingredients/search/' + str;
+                get(url)
+                    .then((res) => {
+                        this.prepareIngredients(res.data, 'ingredientSearchResults');
+                        _this.searchingForIngredient = false;
+                    })
+            },
             '$route' (to, from) {
 			    console.log('route change');
                 this.init();
@@ -210,7 +229,7 @@
                         Vue.set(this.$data, 'units', res.data.units);
                         Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
 
-                        this.prepareIngredients(res.data);
+                        this.prepareIngredients(res.data, 'ingredients');
 
 						// Just set data so wait till next tick to update the recipe rows
 						let _this = this;
@@ -230,7 +249,7 @@
 
                     });
 			},
-			prepareIngredients(data) {
+			prepareIngredients(data, saveTo) {
                 // Ingredients can turn into rows when they are dragged there.
                 // Because of this we need to put the ingredient properties in their own namespace.
                 let ingredients = [];
@@ -258,52 +277,30 @@
                         recalculateRecipeNutrition: false,
                     });
                 }
-                Vue.set(this.$data, 'ingredients', ingredients);
+                Vue.set(this.$data, saveTo, ingredients);
 			},
-			dragStart(){
+            addIngredient(item) {
 
-				this.isDragging = true;
-				// let item = this.ingredients[evt.oldIndex];
+			    // Make new row from item
+                let row = item;
+                this.ingredientSearchResults = [];
+                this.ingredientSearchTerm = '';
+                let _this = this;
 
-			},
-			dragEnd(evt){
+                // Make sure the nutrients for this ingredient are set
+                this.fetchIngredientDetails(row).then(function(){
 
-				this.isDragging = false;
+                    _this.form.rows.push(row);
 
-				let row = this.editIngredient.length === 1 ? this.editIngredient[0] :  this.form.rows[evt.newIndex];
-				let _this = this;
+                    // Ingredient added to recipe
+                    // Recalculate this row - this will trigger recalculating the recipe nutrients
+                    _this.form.rows[ _this.form.rows.length - 1 ].recalculate = true;
 
-				// Make sure the nutrients for this ingredient are set
-				this.fetchIngredientDetails(row).then(function(){
+                    // If this is set to true after the now nutrients are updated it will trigger a recipe
+                    // nutrition update
+                    _this.form.rows[ _this.form.rows.length - 1 ].recalculateRecipeNutrition = true;
 
-                    if(_this.editIngredient.length === 1) {
-                        // Ingredient dropped on the edit ingredient zone
-                        _this.showIngredientModal = true;
-
-                        console.log('ingredient dropped in edit zone');
-
-                    } else if(typeof _this.form.rows[evt.newIndex] === 'object') {
-
-                        console.log('ingredient added to recipe');
-
-                        // Ingredient added to recipe
-						// Recalculate this row - this will trigger recalculating the recipe nutrients
-                        _this.form.rows[evt.newIndex].recalculate = true;
-
-                        // If this is set to true after the now nutrients are updated it will trigger a recipe
-						// nutrition update
-                        _this.form.rows[evt.newIndex].recalculateRecipeNutrition = true;
-
-                    } else {
-
-                        console.log('ingredient returned to pantry');
-
-                        // Ingredient returned to pantry
-						// No need to recalculate this row - just recalculate the recipe nutrients
-                        _this.recalculateNutrition = true;
-                    }
-
-				});
+                });
 
 			},
 			fetchIngredientDetails(row) {
@@ -342,37 +339,6 @@
                         })
                         .catch(function (error) {
                             loading(false);
-                            console.log(error);
-                            reject();
-                        });
-                });
-			},
-            setIngredientNutrients(item) {
-                return new Promise(function(resolve, reject){
-
-                    if(typeof item === 'undefined') {
-                        // This item doesn't even have an ingredient. Get outa here.
-                        resolve();
-                        return;
-                    }
-                    let ingredient = item.ingredient;
-
-                    if(ingredient.nutrients.length) {
-                        // They have already been fetched. Nothing to do.
-                        resolve();
-                        return;
-                    }
-
-                    document.getElementById('overlay').classList.add('loading');
-
-                    get('/api/ingredient/' + ingredient.id + '/attributes')
-                        .then((res) => {
-                            ingredient.nutrients = res.data.attributes;
-                            document.getElementById('overlay').classList.remove('loading');
-                            resolve();
-                        })
-                        .catch(function (error) {
-                            document.getElementById('overlay').classList.remove('loading');
                             console.log(error);
                             reject();
                         });
@@ -451,3 +417,135 @@
 		}
 	}
 </script>
+
+<style lang="scss">
+	@import "../../../sass/variables/breakpoints";
+
+	div.recipe__header {
+		padding: 0.8rem 1.2rem;
+
+		@include mq($from: xs) {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+	}
+
+	.recipe__button-group {
+		margin-top: 1rem;
+
+		@include mq($from: xs) {
+			margin-top: 0;
+		}
+	}
+
+	.recipe__image {
+		display: flex;
+		align-items: center;
+	}
+
+	.recipe__box {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		flex: 1;
+	}
+
+	.recipe__rows {
+		min-height: 10rem;
+		position: relative;
+		flex: 1;
+	}
+
+	.recipe__rows--empty::after {
+		content: 'Drag some ingredients here to start your recipe.';
+		margin: auto;
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		height: 4rem;
+		text-align: center;
+	}
+
+	.recipe__form-group {
+		@include mq($from: m) {
+			flex-direction: column;
+		}
+		@include mq($from: l) {
+			flex-direction: row;
+		}
+	}
+
+	.recipe__ingredients-panel {
+		position: relative;
+	}
+
+	.recipe__directions-inner {
+		display: flex;
+		align-content: space-between;
+	}
+
+	.recipe__directions-button {
+		width: 3rem;
+		height: 3rem;
+		padding: 0px;
+		line-height: 1;
+		margin: 1.3rem 1rem 0 1rem;
+	}
+
+	.recipe__ingredient-search-input-wrapper {
+		margin-bottom: 1rem;
+	}
+
+	.recipe__ingredient-search-input {
+		width: 100%;
+		padding: 0.6rem;
+	}
+
+	.recipe__ingredient-search-results {
+		position: absolute;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		min-width: 19.8rem;
+		left: 0;
+		right: 0;
+		z-index: 20;
+		border: 1px solid lightgray;
+	}
+
+	.recipe__ingredient-search-result {
+		padding: 0.6rem 1rem;
+		background-color: white;
+		border-bottom: 1px solid lightgray;
+		transition: background-color 200ms;
+		cursor: pointer;
+
+		&:hover {
+			background-color: darkcyan;
+			color: white;
+		}
+	}
+
+	.recipe__direction {
+		width: 100%;
+	}
+
+	.recipe__remove-direction-btn {
+		border: none;
+		background-color: grey;
+		margin-left: 1rem;
+		min-width: 3rem;
+
+		&:hover {
+			color: red;
+		}
+	}
+
+	.recipe__add-direction-btn {
+		margin-top: 1rem;
+	}
+
+</style>

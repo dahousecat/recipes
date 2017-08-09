@@ -1,6 +1,8 @@
 <template>
 	<div class="wrapper">
 
+		<div class="scrim" :class="contentLoading ? 'scrim--loading' : ''"></div>
+
 		<header class="header">
 			<div class="container header__container">
 				<h1 class="header__title">
@@ -50,8 +52,7 @@
 			</div>
 		</header>
 
-		<div class="container"
-			 :class="contentLoading ? 'container--loading' : ''">
+		<div class="container">
 
 			<div class="mobile-nav-scrim" :class="menuExpanded ? 'mobile-nav-scrim--visible' : ''"></div>
 

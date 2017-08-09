@@ -1,37 +1,52 @@
-.flex {
-  display: flex;
+.container {
+  max-width: 97rem;
+  margin: 0 auto;
+  position: relative;
+  padding-top: $gutter;
 }
 
-.flex-row {
+@mixin row {
   display: flex;
-  margin-bottom: 1.6rem;
-  margin-left: -($gutter / 2);
-  margin-right: -($gutter / 2);
+  margin-bottom: $gutter;
+  padding: 0 $gutter;
 }
 
-.row--s {
-  @include mq($from: s) {
-    display: flex;
-    margin-bottom: 1.6rem;
-    margin-left: -($gutter / 2);
-    margin-right: -($gutter / 2);
+@mixin col {
+  margin: 0 $gutter 0 0;
+
+  &:last-of-type {
+    margin-right: 0;
   }
 }
 
-@mixin panel {
-  background-color: $color__alto;
-  padding: 1rem;
-  border-left: 0.8rem solid $color__background;
-  border-right: 0.8rem solid $color__background;
+.row--s { @include mq($from: s) { @include row; } }
+.row--m { @include mq($from: m) { @include row; } }
+.row--l { @include mq($from: l) { @include row; } }
+
+div[class^="col"] {
+  margin: 0 $gutter $gutter;
+  background-color: lightgray;
   display: flex;
-  flex-direction: column;
   align-items: stretch;
 
-  @include mq($from: l) {
-    width: 50%;
-  }
+  .row--s & { @include mq($from: s) { @include col; } }
+  .row--m & { @include mq($from: m) { @include col; } }
+  .row--l & { @include mq($from: l) { @include col; } }
+
+}
+
+.col-1 { flex: 1; }
+.col-2 { flex: 2; }
+
+.col--center {
+  justify-content: center;
 }
 
 .panel {
-  @include panel;
+  padding: 1rem;
+  width: 100%;
+
+  .col--center & {
+    width: auto;
+  }
 }

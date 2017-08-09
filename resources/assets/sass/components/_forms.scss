@@ -1,44 +1,20 @@
-select,
-textarea,
-input,
-.readonly {
-  height: auto;
-  padding: 0.6rem 1rem;
-}
-
-select {
-  -webkit-appearance: menulist;
-  background-image: none;
-}
-
-button {
-  padding: 0.6rem 1.8rem;
-}
-
-.form {
-  margin-bottom: 4rem;
-}
-
-.form__group {
-  margin-bottom: 2rem;
-}
-
-.form__panel {
-  background-color: $color__alto;
-  padding: 1rem;
-}
-
-.form__title {
-  margin-bottom: 1.4rem;
-  font-weight: bold;
-}
-
-.form__actions {
+.form-group {
   margin-bottom: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+
+  @include mq($from: xs) {
+    flex-direction: row;
+  }
 }
 
-.error-msg {
-  color: red;
-  margin-bottom: 1rem;
-  display: block;
+.form-group__label {
+  flex: 1;
+  margin-right: 2rem;
+}
+
+.form-group__input {
+  flex: 2;
 }

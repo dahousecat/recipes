@@ -1,5 +1,12 @@
 html {
   font-size: 62.5%; /* Now 10px = 1rem! */
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
 }
 
 body {
@@ -8,6 +15,9 @@ body {
   line-height: 1.5; /* a nice line-height */
   background-color: $color__background;
   font-family: Tahoma, Helvetica, Arial, sans-serif;
+  color: lighten(black, 20);
+  min-width: 30rem;
+  overflow-x: hidden;
 
   &.noscroll {
     overflow: hidden;
@@ -36,11 +46,7 @@ body {
   padding-top: 4.4rem;
 }
 
-.panel {
-  box-shadow: rgba(0, 0, 0, 0.09) 0 1px 0;
-  background: white;
-  padding: 15px;
-}
+
 
 .grabber {
   &::before {
@@ -58,31 +64,23 @@ body {
   }
 }
 
-.container {
-  max-width: 97rem;
-  margin: 0 auto;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 500ms;
-    z-index: 9;
-  }
+.scrim {
+  position: fixed;
+  top: 5rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms;
+  z-index: 11;
 }
 
-.container--loading {
-  &::before {
-    opacity: 1;
-    pointer-events: all;
-  }
+.scrim--loading {
+  opacity: 1;
+  pointer-events: all;
+
   &::after {
     content: '';
     margin: auto;

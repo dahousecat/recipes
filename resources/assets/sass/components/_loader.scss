@@ -32,6 +32,16 @@
     z-index: 20;
   }
 }
+
+.loading--input {
+  &::after {
+    font-size: 0.4rem;
+    top: 1.5rem;
+    left: auto;
+    right: 1.6rem;
+  }
+}
+
 @-webkit-keyframes spinney {
   0%,
   100% {

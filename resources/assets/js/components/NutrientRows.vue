@@ -1,6 +1,10 @@
 <template>
-    <div :class="parentClass + '__nutrients-group ingredient-row__nutrients-group--' + category">
-        <h3 v-if="getTitle()" :class="parentClass + '__nutrient-group-title'">{{getTitle()}}</h3>
+    <div :class="getClass()">
+        <h3 v-if="getTitle()"
+            :class="this.parentClass + '__nutrient-group-title'"
+            @click="active=!active">
+            {{getTitle()}}
+        </h3>
 
         <div :class="parentClass + '__nutrient' + ' ' + parentClass + '__nutrient--' + name"
              v-for="(nutrient, name) in displayNutrients"
@@ -19,6 +23,11 @@
     import { capitalize } from '../helpers/misc';
 
     export default {
+        data() {
+            return {
+                active: false
+            }
+        },
         props: {
             displayNutrients: {
                 type: [Object],
@@ -40,6 +49,17 @@
         methods: {
             getTitle() {
                 return this.title !== null ? this.title : capitalize(this.category)
+            },
+            getClass() {
+                let classes = [];
+                classes.push(this.parentClass + '__nutrients-group');
+                classes.push(this.parentClass + '__nutrients-group--' + this.category);
+
+                if(this.active) {
+                    classes.push(this.parentClass + '__nutrients-group--active');
+                }
+
+                return classes;
             }
         }
     }

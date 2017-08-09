@@ -16,6 +16,7 @@ class CreateUnitsTable extends Migration
         Schema::create('units', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('abbr');
             $table->enum('type', ['volume', 'weight', 'length', 'quantity']);
             $table->float('ml', 10, 5)->unsigned()->nullable();
             $table->float('gram', 10, 5)->unsigned()->nullable();

@@ -1,57 +1,60 @@
 <template>
-    <div class="nutrients" :class="[updating ? 'loading' : '']">
+    <div class="col-1 nutrients" :class="[updating ? 'loading' : '', panelOpen ? 'nutrients--panel-open' : '']">
 
-        <h3 class="nutrients__title">Nutrition</h3>
+        <div class="panel">
+            <h3 class="nutrients__title" @click="panelOpen=!panelOpen">Nutrition</h3>
 
-        <div class="nutrients__inner">
+            <div class="nutrients__inner">
 
-            <div class="nutrients__empty-msg" v-if="Object.keys(nutrients).length == 0">
-                Add some ingredients to see the recipe nutrients
-            </div>
-
-            <div class="nutrients__top" v-if="Object.keys(nutrients).length > 0">
-
-                <div class="nutrients__row">
-                    <div class="nutrients__unit">
-                        Amount per
-                    </div>
-                    <div class="nutrients__value">
-                        <select v-model="amountPer" @change="updatNutrition()" class="nutrients__select">
-                            <option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
-                        </select>
-                    </div>
+                <div class="nutrients__empty-msg" v-if="Object.keys(nutrients).length == 0">
+                    Add some ingredients to see the recipe nutrients
                 </div>
 
-                <!--<nutrient-rows-->
-                        <!--:displayNutrients="displayNutrients" :category="'other'"-->
-                        <!--:parentClass="'nutrients'" :title="''" ></nutrient-rows>-->
+                <div class="nutrients__top" v-if="Object.keys(nutrients).length > 0">
 
-                <div class="nutrients__row" v-if="typeof displayNutrients.energy != 'undefined'">
-                    <div class="nutrients__unit">
-                        <select v-model="energyUnit" @change="recalculateEnergy()" class="nutrients__select">
-                            <option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
-                        </select>
+                    <div class="nutrients__row">
+                        <div class="nutrients__unit">
+                            Amount per
+                        </div>
+                        <div class="nutrients__value">
+                            <select v-model="amountPer" @change="updatNutrition()" class="nutrients__select">
+                                <option v-for="(option, index) in amountPerOptions" :value="option.value">{{option.name}}</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="nutrients__value">
-                        {{ displayNutrients.energy.value }} {{ displayNutrients.energy.unit }}
+
+                    <!--<nutrient-rows-->
+                    <!--:displayNutrients="displayNutrients" :category="'other'"-->
+                    <!--:parentClass="'nutrients'" :title="''" ></nutrient-rows>-->
+
+                    <div class="nutrients__row" v-if="typeof displayNutrients.energy != 'undefined'">
+                        <div class="nutrients__unit">
+                            <select v-model="energyUnit" @change="recalculateEnergy()" class="nutrients__select">
+                                <option v-for="(option, index) in energyUnitOptions" :value="option.value">{{option.name}}</option>
+                            </select>
+                        </div>
+                        <div class="nutrients__value">
+                            {{ displayNutrients.energy.value }} {{ displayNutrients.energy.unit }}
+                        </div>
                     </div>
+
+                </div>
+
+                <div class="nutrients__columns" v-if="Object.keys(nutrients).length > 0">
+                    <nutrient-rows :displayNutrients="displayNutrients" :category="'macronutrients'"
+                                   :parentClass="'nutrients'"></nutrient-rows>
+                    <nutrient-rows :displayNutrients="displayNutrients" :category="'minerals'"
+                                   :parentClass="'nutrients'"></nutrient-rows>
+                    <nutrient-rows :displayNutrients="displayNutrients" :category="'vitamins'"
+                                   :parentClass="'nutrients'"></nutrient-rows>
                 </div>
 
             </div>
-
-            <div class="nutrients__columns" v-if="Object.keys(nutrients).length > 0">
-                <nutrient-rows :displayNutrients="displayNutrients" :category="'macronutrients'"
-                               :parentClass="'nutrients'"></nutrient-rows>
-                <nutrient-rows :displayNutrients="displayNutrients" :category="'minerals'"
-                               :parentClass="'nutrients'"></nutrient-rows>
-                <nutrient-rows :displayNutrients="displayNutrients" :category="'vitamins'"
-                               :parentClass="'nutrients'"></nutrient-rows>
-            </div>
-
         </div>
 
     </div>
 </template>
+
 <script type="text/javascript">
     import { convertEnergyUnit, formatNumber, getUnit } from '../helpers/misc';
     import NutrientRows from '../components/NutrientRows.vue';
@@ -110,6 +113,7 @@
                     caloriesInKj: 0.239006,
                 },
                 recipeWeight: 0,
+                panelOpen: true,
             }
         },
         methods: {
@@ -222,3 +226,193 @@
         }
     }
 </script>
+
+<style lang="scss">
+    @import "../../sass/variables/breakpoints";
+
+    .nutrients {
+        font-size: 1.4rem;
+    }
+
+    .nutrients__title {
+        position: relative;
+        cursor: pointer;
+        transition: color 200ms;
+
+        &:hover {
+            color: black;
+        }
+
+        &::after {
+            content: "\f0d7";
+            color: black;
+            font-family: FontAwesome;
+            transition: all 200ms;
+            display: inline-block;
+            position: absolute;
+            right: 0;
+
+            .nutrients--panel-open & {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    .nutrients__inner {
+        display: none;
+
+        .nutrients--panel-open & {
+            display: block;
+        }
+    }
+
+    .nutrients__top {
+        margin: 0 auto;
+    }
+
+    .nutrients__row {
+        border-bottom: 1px solid darken(lightgrey, 10);
+        display: Flex;
+        line-height: 2;
+        justify-content: space-between;
+        padding: 0rem 0 0.8rem 0;
+    }
+
+    .nutrients__select {
+        display: inline-block;
+        background-color: lightgrey;
+        padding: 0.2rem;
+        position: relative;
+        top: 0.4rem;
+    }
+
+    .nutrients__columns {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 2rem;
+        flex-direction: column;
+
+        @include mq($from: s) {
+            flex-direction: row;
+        }
+
+        @include mq($from: m) {
+            flex-direction: column;
+        }
+
+        @include mq($from: xl) {
+            flex-direction: row;
+        }
+    }
+
+    .nutrients__nutrients-group {
+        flex: 1;
+
+        &:first-child {
+            margin-left: 0;
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        @include mq($from: s) {
+            margin: 0 1rem;
+        }
+
+        @include mq($from: m) {
+            margin: 0;
+        }
+
+        @include mq($from: xl) {
+            margin: 0 1rem;
+        }
+    }
+
+    .nutrients__nutrient-group-title {
+        position: relative;
+        transition: color 200ms;
+        cursor: pointer;
+        padding: 0rem 0.4rem;
+        margin-left: -0.4rem;
+        margin-right: -0.4rem;
+
+        &:hover {
+            color: black;
+            background-color: darken(lightgrey, 10);
+
+            @include mq($from: s) {
+                background-color: transparent;
+            }
+
+            @include mq($from: m) {
+                background-color: darken(lightgrey, 10);
+            }
+
+            @include mq($from: xl) {
+                background-color: transparent;
+            }
+        }
+
+        &::after {
+            content: "\f0d7";
+            color: black;
+            font-family: FontAwesome;
+            transition: all 200ms;
+            display: inline-block;
+            position: absolute;
+            right: 0.4rem;
+
+            @include mq($from: s) {
+                display: none;
+            }
+
+            @include mq($from: m) {
+                display: inline-block;
+            }
+
+            @include mq($from: xl) {
+                display: none;
+            }
+
+            .nutrients__nutrients-group--active & {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    .nutrients__nutrient {
+        justify-content: space-between;
+        border-bottom: 1px solid grey;
+        display: none;
+
+        @include mq($from: s) {
+            display: flex;
+        }
+
+        @include mq($from: m) {
+            display: none;
+        }
+
+        @include mq($from: xl) {
+            display: flex;
+        }
+
+        .nutrients__nutrients-group--active & {
+            display: flex;
+        }
+    }
+
+    .nutrients__unit {
+
+    }
+
+    .nutrients__value {
+        text-align: right;
+    }
+
+    .nutrients__empty-msg {
+        text-align: center;
+    }
+
+</style>
