@@ -13,3 +13,4 @@ public/js
 public/css
 *.sql
 *.sql.gz
+.vagrant

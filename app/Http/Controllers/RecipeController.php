@@ -34,8 +34,14 @@ class RecipeController extends Controller
         if(isset($_GET['sortBy'])) {
             $recipes = Recipe::recipesSortedByAttribute($_GET['sortBy']);
         } else {
-            $recipes = Recipe::orderBy('created_at', 'desc')
-                ->get(['id', 'name', 'image', 'portions']);
+
+            if(!empty($_GET['contains'])) {
+                $recipes = Recipe::withIngredients($_GET['contains']);
+            } else {
+                $recipes = Recipe::orderBy('created_at', 'desc')
+                    ->get(['id', 'name', 'image', 'portions']);
+            }
+
         }
 
         $data = ['recipes' => $recipes];
