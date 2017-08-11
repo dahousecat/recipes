@@ -10,7 +10,7 @@
 								 @click.native="navClick" class="header__link">Smoothie Recipes</router-link>
 				</h1>
 				<nav role="navigation" data-navigation="" class="navigation" id="main-nav"
-					 :class="menuExpanded ? 'navigation--active' : ''"
+					 :class="[menuExpanded ? 'navigation--active' : '', menuAnimating ? 'navigation--animating' : '']"
 					 :aria-expanded="menuExpanded ? 'true' : 'false'">
 					<button aria-controls="main-nav"
 							class="navigation__button"
@@ -97,6 +97,7 @@
 				authState: Auth.state,
 				flash: Flash.state,
 				menuExpanded: false,
+                menuAnimating: false,
 				contentLoading: false,
 				body: document.querySelector('body'),
 			}
@@ -119,15 +120,19 @@
             toggleMenu() {
 		        this.menuExpanded = !this.menuExpanded;
                 this.body.classList.toggle('noscroll', this.menuExpanded);
+                this.menuAnimating = true;
+                setTimeout(() => { this.menuAnimating = false; }, 500);
 			},
 		    navClick() {
                 this.menuExpanded = false;
                 this.contentLoading = true;
                 this.body.classList.remove('noscroll');
+                setTimeout(() => { this.menuAnimating = false; }, 500);
 			},
 			logout() {
 			    this.menuExpanded = false;
                 this.contentLoading = true;
+                setTimeout(() => { this.menuAnimating = false; }, 500);
 				post('/api/logout')
 				    .then((res) => {
 				        if(res.data.done) {

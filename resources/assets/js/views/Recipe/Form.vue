@@ -41,7 +41,7 @@
 						<small class="error__control" v-if="error.description">{{error.description[0]}}</small>
 					</div>
 					<div class="form-group recipe__form-group">
-						<label class="form-group__label">Number of portions?</label>
+						<label class="form-group__label">Num portions</label>
 						<input type="text" class="form-group__input" v-model="form.portions">
 						<small class="error__control" v-if="error.portions">{{error.portions[0]}}</small>
 					</div>

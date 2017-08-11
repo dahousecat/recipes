@@ -1,20 +1,29 @@
 <template>
-    <form class="form" @submit.prevent="login">
-        <h1 class="form__title">Welcome back!</h1>
-        <div class="form__group">
-            <label>Email</label>
-            <input type="email" class="form__control" v-model="form.email">
-            <small class="error__control" v-if="error.email">{{error.email[0]}}</small>
+
+    <div class="row--m">
+        <div class="col-1">
+            <div class="panel">
+                <form class="form" @submit.prevent="login">
+                    <h1>Welcome back!</h1>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form__control" v-model="form.email" id="email">
+                        <small class="error__control" v-if="error.email">{{error.email[0]}}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form__control" v-model="form.password" id="password">
+                        <small class="error__control" v-if="error.password">{{error.password[0]}}</small>
+                    </div>
+                    <div class="form-group">
+                        <button :disabled="isProcessing" class="btn btn__primary">Login</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="form__group">
-            <label>Password</label>
-            <input type="password" class="form__control" v-model="form.password">
-            <small class="error__control" v-if="error.password">{{error.password[0]}}</small>
-        </div>
-        <div class="form__group">
-            <button :disabled="isProcessing" class="btn btn__primary">Login</button>
-        </div>
-    </form>
+    </div>
+
+
 </template>
 <script type="text/javascript">
     import Flash from '../../helpers/flash'

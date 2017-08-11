@@ -6,7 +6,7 @@
   top: 0;
   right: 10rem;
   left: 0;
-  z-index: 10;
+  z-index: 0;
 
   @include mq($from: m) {
     position: static;
@@ -17,10 +17,15 @@
 
 .navigation--active {
   transform: translateX(-10rem);
+  z-index: 10;
 
   @include mq($from: m) {
     transform: translateX(0);
   }
+}
+
+.navigation--animating {
+  z-index: 10;
 }
 
 .navigation__button {

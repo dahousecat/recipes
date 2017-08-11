@@ -4,6 +4,7 @@
   display: flex;
   justify-content: space-between;
   flex-direction: column;
+  max-width: 46rem;
 
   @include mq($from: xs) {
     flex-direction: row;
@@ -17,4 +18,10 @@
 
 .form-group__input {
   flex: 2;
+  padding: 1.2rem 1rem;
+
+  &[type="text"] {
+    height: 2.4rem;
+  }
 }
+

@@ -322,7 +322,7 @@
         }
 
         @include mq($from: xl) {
-            margin: 0 1rem;
+            margin: 0 0.5rem;
         }
     }
 

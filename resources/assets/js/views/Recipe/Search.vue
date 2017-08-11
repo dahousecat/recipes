@@ -1,36 +1,59 @@
 <template>
     <div class="search">
 
-        <div class="search__header">
-            <label for="search">Add ingredients to filter by</label>
+        <div class="row--m">
+            <div class="col-1">
+                <div class="panel">
 
-            <div class="search__field-wrapper">
-                <input class="search__input" id="search" v-model="searchTerm">
-                <ul class="search__auto-complete-results">
-                    <li class="search__auto-complete-result"
-                        v-for="(ingredient, index) in searchResults"
-                        @click="addFilter(ingredient)">
-                        {{ingredient.name}}
-                    </li>
-                </ul>
+                    <div class="search__header">
+                        <label for="search">Add ingredients to filter by</label>
+
+                        <div class="search__field-wrapper">
+                            <input class="search__input" id="search" v-model="searchTerm">
+                            <ul class="search__auto-complete-results" v-if="searchResults.length">
+                                <li class="search__auto-complete-result"
+                                    v-for="(ingredient, index) in searchResults"
+                                    @click="addFilter(ingredient)">
+                                    {{ingredient.name}}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="search__filter-items">
+                            <div class="search__filter-item"
+                                 v-for="(ingredient, index) in filters"
+                                 @click="removeFilter(ingredient)">
+                                {{ingredient.name}} <i class="fa fa-times" aria-hidden="true"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
+            <div class="col-1">
+                <div class="panel">
 
-            <div class="search__filter-item"
-                 v-for="(ingredient, index) in filters"
-                 @click="removeFilter(ingredient)">
-                {{ingredient.name}} <i class="fa fa-times" aria-hidden="true"></i>
+                    <label for="sort-by">Sort by</label>
+                    <select v-model="sortBy" @change="updateRecipes" id="sort-by">
+                        <option v-for="(option, index) in sortableBy" :value="index">{{option}}</option>
+                    </select>
+
+                    <ul class="search__recipes">
+                        <li v-for="(recipe, index) in recipes" class="search__recipes-row">
+
+                            <router-link :to="`/recipes/${recipe.id}`">
+                                {{recipe.name}}
+                            </router-link>
+
+                            <div class="value" v-if="recipe.val">
+                                {{formatNumber(recipe.val)}} {{sortByAttribute.unit}}
+                            </div>
+
+                        </li>
+                    </ul>
+                </div>
             </div>
-
         </div>
-
-        <ul class="search__recipes">
-            <li v-for="(recipe, index) in recipes">
-                <router-link :to="`/recipes/${recipe.id}`">
-                    {{recipe.name}}
-                </router-link>
-
-            </li>
-        </ul>
 
     </div>
 </template>
@@ -38,27 +61,30 @@
 <script type="text/javascript">
     import Vue from 'vue';
     import { get } from '../../helpers/api';
+    import { formatNumber } from '../../helpers/misc';
 
     export default {
         data() {
             return {
-                initializeURL: 'api/recipes',
                 recipes: [],
                 searchTerm: '',
                 searchResults: [],
                 filters: [],
+                sortableBy: {},
+                sortBy: 'recipe_name',
+                sortByAttribute: null,
             }
         },
         created() {
-            get(this.initializeURL)
+            get('api/recipes?showSortableBy=true')
                 .then((res) => {
                     Vue.set(this.$data, 'recipes', res.data.recipes);
+                    Vue.set(this.$data, 'sortableBy', res.data.sortableBy);
                 });
-
         },
         watch: {
             // For ingredient filter
-            searchTerm: function(str){
+            searchTerm: function(str) {
                 if(str.length) {
                     let url = '/api/ingredients/search/' + str;
                     get(url)
@@ -96,6 +122,7 @@
                 }
             },
             updateRecipes() {
+
                 let url = '/api/recipes?';
 
                 for(let i = 0; i < this.filters.length; i++) {
@@ -103,10 +130,20 @@
                     url = url + 'contains[]=' + ingredient.id + '&';
                 }
 
+                url = url + 'sortBy=' + this.sortBy;
+
                 get(url)
                     .then((res) => {
                         Vue.set(this.$data, 'recipes', res.data.recipes);
+
+                        if(typeof res.data.sortByAttribute) {
+                            Vue.set(this.$data, 'sortByAttribute', res.data.sortByAttribute);
+                        }
+
                     });
+            },
+            formatNumber(number) {
+                return formatNumber(number);
             }
         }
     }
@@ -145,6 +182,9 @@
             border-bottom: none;
         }
     }
+    .search__filter-items {
+        margin-top: 1rem;
+    }
     .search__filter-item {
         display: inline-block;
         padding: 0.4rem 1.2rem;
@@ -158,5 +198,9 @@
         &:hover {
             background-color: darken(darkcyan, 10);
         }
+    }
+    .search__recipes-row {
+        display: flex;
+        justify-content: space-between;
     }
 </style>

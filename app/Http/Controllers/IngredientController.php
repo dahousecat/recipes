@@ -17,7 +17,7 @@ class IngredientController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api')
-            ->except(['index', 'show']);
+            ->except(['index', 'show', 'search']);
     }
 
     /**

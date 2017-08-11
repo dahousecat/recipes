@@ -31,17 +31,26 @@ class RecipeController extends Controller
 
     public function index()
     {
-        if(isset($_GET['sortBy'])) {
+        if(!empty($_GET['sortBy']) && $_GET['sortBy'] == 'recipe_name') {
+            unset($_GET['sortBy']);
+        }
+
+        if(!empty($_GET['sortBy']) && !empty($_GET['contains'])) {
+
+            $recipe_ids = Recipe::withIngredients($_GET['contains'], ['r.id']);
+            $recipes = Recipe::recipesSortedByAttribute($_GET['sortBy'], 10, $recipe_ids);
+
+        } elseif(!empty($_GET['sortBy'])) {
+
             $recipes = Recipe::recipesSortedByAttribute($_GET['sortBy']);
+
+        } elseif(!empty($_GET['contains'])) {
+
+            $recipes = Recipe::withIngredients($_GET['contains']);
+
         } else {
-
-            if(!empty($_GET['contains'])) {
-                $recipes = Recipe::withIngredients($_GET['contains']);
-            } else {
-                $recipes = Recipe::orderBy('created_at', 'desc')
-                    ->get(['id', 'name', 'image', 'portions']);
-            }
-
+            $recipes = Recipe::orderBy('name', 'asc')
+                ->get(['id', 'name', 'image', 'portions']);
         }
 
         $data = ['recipes' => $recipes];
@@ -54,6 +63,16 @@ class RecipeController extends Controller
                     $data[$with]['attributeType'] = $attributeType;
                 }
             }
+        }
+
+        // Also attach a list of values that these recipes can be sorted by
+        if(!empty($_GET['showSortableBy']) && $_GET['showSortableBy'] == 'true') {
+            $data['sortableBy'] = Recipe::sortableBy();
+        }
+
+        // If recipes are sorted by an attribute attach information about that attribute
+        if(!empty($_GET['sortBy'])) {
+            $data['sortByAttribute'] = AttributeType::where('safe_name', $_GET['sortBy'])->first();
         }
 
     	return response()
