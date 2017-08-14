@@ -1,7 +1,8 @@
 ******* TODO *******
 
-1. Re-do menu
-2. Search page
+
+1. Check permissions
+2. All DB relationships
 3. Create ingredient in modal from recipe page
 4. Responsive styling
 5. Host
@@ -11,3 +12,5 @@
 ******* DONE *******
 
 1. The whole site so far! :)
+1. Re-do menu
+2. Search page

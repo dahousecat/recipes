@@ -30,6 +30,23 @@ class Recipe extends Model
     	return $this->hasMany(RecipeDirection::class);
     }
 
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
+    }
+
+    public function getScore() {
+        return $this->votes()->sum('score');
+    }
+
+    public function likes() {
+        return $this->votes()->where('score', 1)->count();
+    }
+
+    public function dislikes() {
+        return $this->votes()->where('score', -1)->count();
+    }
+
     public function rowIds() {
 
         return $this->rows()->pluck('id')->toArray();

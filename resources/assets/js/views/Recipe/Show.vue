@@ -8,15 +8,30 @@
 					<div class="recipe__header-group">
 						<h1 class="recipe__title">{{recipe.name}}</h1>
 						<div v-if="recipe.description" class="recipe__description">{{recipe.description}}</div>
-						<small>Submitted by: {{recipe.user.name}}</small>
+						<small>Submitted by: {{recipe.user.name}}</small><br>
+						<small>Likes: {{recipe.score.likes}}, dislikes: {{recipe.score.dislikes}}</small>
+
 					</div>
 
-					<div v-if="authState.api_token && authState.user_id === recipe.user_id">
-						<router-link :to="`/recipes/${recipe.id}/edit`" class="btn btn-primary">
-							Edit
-						</router-link>
-						<button class="btn btn__danger" @click="remove" :disabled="isRemoving">Delete</button>
+					<div class="recipe__header-group">
+						<div v-if="authState.api_token" class="recipe__votes">
+							Have your tried this recipe?
+							<button class="btn recipe__vote-btn-like"
+									:class="recipe.user_score > 0 ? 'recipe__vote-btn-like--active' : ''"
+									@click="upVote">I liked it :)</button>
+							<button class="btn recipe__vote-btn-dislike"
+									:class="recipe.user_score < 0 ? 'recipe__vote-btn-dislike--active' : ''"
+									@click="downVote">I didn't like it :(</button>
+						</div>
+
+						<div v-if="authState.api_token && authState.user_id === recipe.user_id" class="recipe__actions">
+							<router-link :to="`/recipes/${recipe.id}/edit`" class="btn btn-primary">
+								Edit
+							</router-link>
+							<button class="btn btn__danger" @click="remove" :disabled="isRemoving">Delete</button>
+						</div>
 					</div>
+
 				</div>
 
 			</div>
@@ -73,7 +88,7 @@
     import Vue from 'vue';
 	import Auth from '../../store/auth'
 	import Flash from '../../helpers/flash'
-	import { get, del } from '../../helpers/api'
+	import { get, del, post } from '../../helpers/api'
     import Nutrients from '../../components/Nutrients.vue';
     import IngredientRow from '../../components/IngredientRow.vue';
 
@@ -142,6 +157,22 @@
                     this.recalculateNutrition = true;
                 }
             },
+            upVote() {
+                this.vote(1);
+			},
+			downVote() {
+				this.vote(-1);
+			},
+			vote(score) {
+                post('/api/recipes/' + this.recipe.id + '/vote', {score: score})
+                    .then((res) => {
+                    	this.recipe.score = res.data.score;
+                        this.recipe.user_score = score;
+                    })
+                    .catch((err) => {
+
+                    })
+			}
 		}
 	}
 </script>
@@ -168,7 +199,33 @@
 	.recipe__display-list-value {
 		margin-right: 1rem;
 	}
-	.recipe__display-list-unit {
+	.recipe__actions {
+		text-align: right;
+	}
+	.recipe__votes {
+		font-size: 1.2rem;
+		margin-bottom: 2rem;
+	}
+	.recipe__vote-btn-like {
 
+	}
+	.recipe__vote-btn-like--active {
+		background-color: darkgreen;
+		color: white;
+
+		&:hover {
+			background-color: darken(darkgreen, 10);
+		}
+	}
+	.recipe__vote-btn-dislike {
+
+	}
+	.recipe__vote-btn-dislike--active {
+		background-color: darkred;
+		color: white;
+
+		&:hover {
+			background-color: darken(darkred, 10);
+		}
 	}
 </style>

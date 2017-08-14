@@ -4,6 +4,8 @@ Route::post('login', 'AuthController@login');
 Route::post('logout', 'AuthController@logout');
 Route::post('register', 'AuthController@register');
 
+Route::post('recipes/{id}/vote', 'RecipeController@vote');
+
 Route::resource('recipes', 'RecipeController');
 Route::resource('ingredients', 'IngredientController');
 

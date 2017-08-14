@@ -12,6 +12,7 @@ use App\Models\Recipe;
 use App\Models\User;
 use App\Models\Row;
 use File;
+use Illuminate\Support\Facades\Auth;
 
 use Neomerx\JsonApi\Document\Error;
 use Neomerx\JsonApi\Document\Link;
@@ -25,8 +26,8 @@ class RecipeController extends Controller
 {
     public function __construct()
     {
-    	$this->middleware('auth:api')
-    		->except(['index', 'show']);
+        $this->middleware('auth:api')
+            ->except(['index', 'show']);
     }
 
     public function index()
@@ -113,23 +114,35 @@ class RecipeController extends Controller
     	return str_random(32).'.'.$file->extension();
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
-
         $recipe = Recipe::with(
             'user',
             'rows.ingredient.attributes.attributeType',
             'rows.ingredient.units',
             'directions'
-        )->findOrFail($id)->toArray();
+        )->findOrFail($id);
 
-        $this->prepareRows($recipe['rows']);
+        $recipeArr = $recipe->toArray();
+
+        $this->prepareRows($recipeArr['rows']);
+
+        $recipeArr['score'] = [
+            'total' => $recipe->getScore(),
+            'likes' => $recipe->likes(),
+            'dislikes' => $recipe->dislikes(),
+        ];
+
+        $user = Auth::guard('api')->user();
+        if ($user) {
+            $recipeArr['user_score'] = $recipe->votes()->where('user_id', $user->id)->value('score');
+        }
 
         $units = Unit::all()->toArray();
 
         return response()
             ->json([
-                'recipe' => $recipe,
+                'recipe' => $recipeArr,
                 'units' => $units,
             ]);
     }
@@ -299,5 +312,42 @@ class RecipeController extends Controller
             ->json([
                 'deleted' => true
             ]);
+    }
+
+    public function vote($id, Request $request) {
+
+        $recipe = Recipe::findOrFail($id);
+        $user = $request->user();
+
+        // Whatever is posted either save 1 or -1.
+        $score = $request->score > 0 ? 1 : -1;
+
+        // Check for existing vote
+        $vote = $user->votes()->where('recipe_id', $recipe->id)->first();
+
+        if(!count($vote)) {
+            $vote = $user->votes()->create([
+                'recipe_id' => $recipe->id,
+                'score' => $score,
+            ]);
+            $response['method'] = 'Created new vote';
+        } else {
+
+            $vote->score = $score;
+            $vote->save();
+
+            $response['method'] = 'Updated existing vote';
+        }
+
+        $response['success'] = true;
+
+        $response['score'] = [
+            'total'     => $recipe->getScore(),
+            'likes'     => $recipe->likes(),
+            'dislikes'  => $recipe->dislikes(),
+        ];
+
+        return response()->json($response);
+
     }
 }
