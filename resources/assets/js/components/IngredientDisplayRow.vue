@@ -159,7 +159,7 @@
             },
             changeUnit() {
                 let fromUnit = this.row.unit;
-                let toUnit = this.getUnit(this.displayUnit);
+                let toUnit = getUnit(this.displayUnit, this.units);
 
                 switch(toUnit.type) {
                     case 'quantity':
@@ -174,17 +174,6 @@
                         let ml = fromUnit.ml;
                         this.convertedValue = formatNumber(ml / toUnit.ml);
                         break;
-                }
-
-                console.log(fromUnit, 'fromUnit');
-                console.log(toUnit, 'toUnit');
-
-            },
-            getUnit(id) {
-                for (let i = 0; i < this.units.length; i++) {
-                    if(this.units[i].id == id) {
-                        return this.units[i];
-                    }
                 }
             },
             updateDisplayNutrients() {
