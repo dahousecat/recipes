@@ -3,16 +3,6 @@
 
         <div class="ingredient-row__controls">
 
-            <!--grabber and dropdown toggle-->
-            <!--<div class="ingredient-row__toggles">-->
-                <!--<div v-if="draggable" class="grabber ingredient-row__handle"></div>-->
-
-                <!--<div class="ingredient-row__nutrients-toggle"-->
-                     <!--@click="showNutrients=!showNutrients"-->
-                     <!--:class="showNutrients?'ingredient-row__nutrients-toggle&#45;&#45;active':''">-->
-                <!--</div>-->
-            <!--</div>-->
-
             <!--nutrients toggle-->
             <div class="ingredient-row__nutrients-toggle"
                  title="Show nutrients"
@@ -26,40 +16,17 @@
             </div>
 
             <!--amount-->
-            <div class="ingredient-row__amount" v-if="editable">
-                <input type="text" class="ingredient-row__amount-input"
-                       v-model="row.value"
-                       @change="calculateNutrition()">
-                <div class="ingredient-row__steppers">
-                    <i class="fa fa-caret-up ingredient-row__stepper"
-                       :class="canStep(row.value, 'up') ? '' : 'ingredient-row__stepper--disabled'"
-                       @click="step(row, 'up')"
-                       :title="getStep(row.value, 'up')">
-
-                    </i>
-                    <i class="fa fa-caret-down ingredient-row__stepper"
-                       :class="canStep(row.value, 'down') ? '' : 'ingredient-row__stepper--disabled'"
-                       @click="step(row, 'down')"
-                       :title="getStep(row.value, 'down')">
-                    </i>
-                </div>
-            </div>
-            <div class="ingredient-row__amount" v-else>
-                {{row.value}}
+            <div class="ingredient-row__amount">
+                {{convertedValue}}
             </div>
 
             <!--unit-->
             <div class="ingredient-row__unit">
-                <select v-model="row.unit_id" @change="calculateNutrition()" class="ingredient-row__control">
+                <select v-model="displayUnit" @change="changeUnit()" class="ingredient-row__control">
                     <option v-for="(unit, index) in row.ingredient.units" :value="unit.id">{{unit.abbr}}</option>
                 </select>
             </div>
 
-            <!--remove-->
-            <div class="ingredient-row__remove" v-if="editable">
-                <button class="ingredient-row__remove_button" :title="'Remove ' + row.ingredient.name"
-                        @click="$emit('removeIngredient')">&times;</button>
-            </div>
         </div>
 
         <div class="ingredient-row__nutrients" :class="showNutrients?'ingredient-row__nutrients--active':''">
@@ -68,7 +35,7 @@
                 <div class="ingredient-row__nutrient ingredient-row__nutrient--weight">
                     <div class="ingredient-row__nutrient-unit">Weight</div>
                     <div class="ingredient-row__nutrient-value" :title="weightDescription"
-                        v-if="typeof row.weight !== 'undefined'">
+                         v-if="typeof row.weight !== 'undefined'">
                         {{formatNumber(row.weight)}}g
                     </div>
                 </div>
@@ -99,13 +66,9 @@
                 type: [Object],
                 default: () => {},
             },
-            draggable: {
-                type: Boolean,
-                default: true,
-            },
-            editable: {
-                type: Boolean,
-                default: true,
+            units: {
+                type: [Array],
+                default: [],
             },
         },
         data() {
@@ -113,6 +76,8 @@
                 displayNutrients: {},
                 showNutrients: false,
                 weightDescription: '',
+                convertedValue: '',
+                displayUnit: '',
             };
         },
         computed: {
@@ -123,6 +88,8 @@
         },
         created() {
             this.calculateNutrition();
+            this.convertedValue = this.row.value;
+            this.displayUnit = this.row.unit_id;
         },
         watch: {
             recalculate: function() {
@@ -190,6 +157,36 @@
                 this.row.recalculateRecipeNutrition = true;
                 this.$emit('rowUpdated');
             },
+            changeUnit() {
+                let fromUnit = this.row.unit;
+                let toUnit = this.getUnit(this.displayUnit);
+
+                switch(toUnit.type) {
+                    case 'quantity':
+                        let quantity = this.row.value;
+                        this.convertedValue = quantity;
+                        break;
+                    case 'weight':
+                        let grams = this.row.weight;
+                        this.convertedValue = formatNumber(grams / toUnit.gram);
+                        break;
+                    case 'volume':
+                        let ml = fromUnit.ml;
+                        this.convertedValue = formatNumber(ml / toUnit.ml);
+                        break;
+                }
+
+                console.log(fromUnit, 'fromUnit');
+                console.log(toUnit, 'toUnit');
+
+            },
+            getUnit(id) {
+                for (let i = 0; i < this.units.length; i++) {
+                    if(this.units[i].id == id) {
+                        return this.units[i];
+                    }
+                }
+            },
             updateDisplayNutrients() {
                 this.displayNutrients = {};
                 for (let nutrientName in this.row.nutrients) {
@@ -203,30 +200,6 @@
                         };
                     }
                 }
-            },
-            getStep(value, direction) {
-                let mod;
-                if(value < 1 && direction == 'up' || value <= 1 && direction == 'down') {
-                    mod = 0.25;
-                } else if(value < 2) {
-                    mod = 0.5;
-                } else {
-                    mod = 1;
-                }
-                if(direction === 'up') {
-                    return value + mod;
-                } else {
-                    return value - mod < 0 ? 0 : value - mod;
-                }
-
-            },
-            canStep(value, direction) {
-                let newValue = this.getStep(value, direction);
-                return value !== newValue;
-            },
-            step(row, direction) {
-                row.value = this.getStep(row.value, direction);
-                this.calculateNutrition();
             },
             formatNumber(number) {
                 return formatNumber(number);

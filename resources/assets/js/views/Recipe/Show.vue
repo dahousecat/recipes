@@ -9,7 +9,7 @@
 						<h1 class="recipe__title">{{recipe.name}}</h1>
 						<div v-if="recipe.description" class="recipe__description">{{recipe.description}}</div>
 						<small>Submitted by: {{recipe.user.name}}</small><br>
-						<small>Likes: {{recipe.score.likes}}, dislikes: {{recipe.score.dislikes}}</small>
+						<small v-if="typeof recipe.score !== 'undefined'">Likes: {{recipe.score.likes}}, dislikes: {{recipe.score.dislikes}}</small>
 
 					</div>
 
@@ -61,7 +61,9 @@
 					<ingredient-row
 							v-for="(row, index) in recipe.rows"
 							:row="row"
+							:units="units"
 							:draggable="false"
+							:editable="false"
 							@rowUpdated="rowUpdated(row)"
 							@removeIngredient="removeIngredient(index)">
 					</ingredient-row>
@@ -90,7 +92,7 @@
 	import Flash from '../../helpers/flash'
 	import { get, del, post } from '../../helpers/api'
     import Nutrients from '../../components/Nutrients.vue';
-    import IngredientRow from '../../components/IngredientRow.vue';
+    import IngredientRow from '../../components/IngredientDisplayRow.vue';
 
 	export default {
         components: {
