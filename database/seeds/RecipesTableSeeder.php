@@ -14,6 +14,10 @@ class RecipesTableSeeder extends Seeder
      */
     public function run()
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        Recipe::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
         $recipes = json_decode(file_get_contents(__DIR__ . '/recipeTableSeederData.json'));
 
         foreach($recipes as $i => $data) {

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRecipeDirectionsTable extends Migration
+class CreateDirectionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateRecipeDirectionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('recipe_directions', function (Blueprint $table) {
+        Schema::create('directions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('recipe_id')->unsigned();
             $table->text('description');
-            // When I delete a direction I don't want to delete the recipe.
-//            $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
+            $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
         });
     }
 
@@ -29,6 +28,6 @@ class CreateRecipeDirectionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('recipe_directions');
+        Schema::dropIfExists('directions');
     }
 }

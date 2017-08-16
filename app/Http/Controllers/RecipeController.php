@@ -7,7 +7,7 @@ use App\Models\AttributeType;
 use App\Models\Ingredient;
 use Illuminate\Http\Request;
 use App\Models\RecipeIngredient;
-use App\Models\RecipeDirection;
+use App\Models\Direction;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Models\Row;
@@ -241,10 +241,10 @@ class RecipeController extends Controller
                 }
 
                 if(!empty($direction['id'])) {
-                    $direction = RecipeDirection::find($direction['id']);
+                    $direction = Direction::find($direction['id']);
                     unset($directionIdsToDelete[$direction['id']]);
                 } else {
-                    $direction = new RecipeDirection();
+                    $direction = new Direction();
                 }
 
                 $direction->recipe_id = $recipe->id;
@@ -300,7 +300,7 @@ class RecipeController extends Controller
         Row::where('recipe_id', $recipe->id)
             ->delete();
 
-        RecipeDirection::where('recipe_id', $recipe->id)
+        Direction::where('recipe_id', $recipe->id)
             ->delete();
 
         // remove image

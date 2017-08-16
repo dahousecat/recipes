@@ -23,11 +23,10 @@ class CreateIngredientsTable extends Migration
             $table->float('weight_one_cup', 10, 5)->unsigned()->nullable();
             $table->float('weight_one_cm', 10, 5)->unsigned()->nullable();
             $table->integer('user_id')->unsigned();
-//            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->integer('default_unit_id')->unsigned()->nullable();
             $table->timestamps();
-//            $table->softDeletes();
-//            $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
+            $table->softDeletes();
         });
     }
 

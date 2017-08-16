@@ -27,7 +27,7 @@ class Recipe extends Model
 
     public function directions()
     {
-    	return $this->hasMany(RecipeDirection::class);
+    	return $this->hasMany(Direction::class);
     }
 
     public function votes()
@@ -122,7 +122,7 @@ class Recipe extends Model
                 //Row::form()
             ],
             'directions' => [
-                RecipeDirection::form()
+                Direction::form()
             ]
         ];
     }

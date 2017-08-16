@@ -16,6 +16,10 @@ class IngredientsTableSeeder extends Seeder
      */
     public function run()
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        Ingredient::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
         $ingredients = json_decode(file_get_contents(__DIR__ . '/ingredientTableSeederData.json'));
 
         $units_by_type = [];

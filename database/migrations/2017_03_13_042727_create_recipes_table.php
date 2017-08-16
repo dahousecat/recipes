@@ -21,6 +21,7 @@ class CreateRecipesTable extends Migration
             $table->string('image')->nullable();
             $table->integer('portions')->unsigned();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

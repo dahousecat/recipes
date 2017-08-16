@@ -16,12 +16,12 @@ class CreateRowsTable extends Migration
         Schema::create('rows', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('recipe_id')->unsigned();
-//            $table->foreign('recipe_id')->references('id')->on('recipes');
+//            $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
             $table->integer('ingredient_id')->unsigned();
-//            $table->foreign('ingredient_id')->references('id')->on('ingredients');
+            $table->foreign('ingredient_id')->references('id')->on('ingredients');
             $table->integer('delta')->unsigned();
             $table->integer('unit_id')->unsigned();
-//            $table->foreign('unit_id')->references('id')->on('units');
+            $table->foreign('unit_id')->references('id')->on('units');
             $table->integer('value')->unsigned();
             $table->float('weight', 10, 5)->unsigned();
         });
