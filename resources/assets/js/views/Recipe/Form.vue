@@ -94,6 +94,7 @@
 					:rows="form.rows"
 					:units="units"
 					:recalculate="recalculateNutrition"
+					:servings="form.portions"
 					class="recipe__panel"></nutrients>
 
 		</div>

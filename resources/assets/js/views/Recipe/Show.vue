@@ -9,6 +9,7 @@
 						<h1 class="recipe__title">{{recipe.name}}</h1>
 						<div v-if="recipe.description" class="recipe__description">{{recipe.description}}</div>
 						<small>Submitted by: {{recipe.user.name}}</small><br>
+						<small>Servings: {{recipe.portions}}</small><br>
 						<small v-if="typeof recipe.score !== 'undefined'">Likes: {{recipe.score.likes}}, dislikes: {{recipe.score.dislikes}}</small>
 
 					</div>
@@ -77,6 +78,7 @@
 							@nutritionUpdated="recalculateNutrition=false"
 							:rows="recipe.rows"
 							:units="units"
+							:servings="recipe.portions"
 							:recalculate="recalculateNutrition"></nutrients>
 				</div>
 			</div>

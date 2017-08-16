@@ -73,6 +73,10 @@
                 type: [Boolean],
                 default: false,
             },
+            servings: {
+                type: [Number],
+                default: 1,
+            },
         },
         watch: {
             recalculate: function() {
@@ -89,7 +93,7 @@
                 amountPer: 'recipe',
                 amountPerOptions: [
                     {'value': 'recipe', 'name': 'Recipe'},
-                    {'value': 1, 'name': '1 gram'},
+                    {'value': 'serving', 'name': 'Serving'},
                     {'value': 10, 'name': '10 grams'},
                     {'value': 100, 'name': '100 grams'},
                     {'value': 1000, 'name': '1 kg'},
@@ -151,7 +155,9 @@
                     if (nutrients.hasOwnProperty(nutrientName)) {
                         let nutrient = nutrients[nutrientName];
 
-                        if(this.amountPer !== 'recipe') {
+                        if(this.amountPer === 'serving') {
+                            nutrient.value = nutrient.value / this.servings;
+                        } else if(this.amountPer !== 'recipe') {
                             let nutrientsInOneGram = nutrient.value / this.recipeWeight;
                             nutrient.value = nutrientsInOneGram * parseInt(this.amountPer);
                         }
