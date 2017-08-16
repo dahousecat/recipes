@@ -14,8 +14,8 @@
 					</div>
 
 					<div class="recipe__header-group">
-						<div v-if="authState.api_token" class="recipe__votes">
-							Have your tried this recipe?
+						<div class="recipe__votes">
+							<div>Have your tried this recipe?</div>
 							<button class="btn recipe__vote-btn-like"
 									:class="recipe.user_score > 0 ? 'recipe__vote-btn-like--active' : ''"
 									@click="upVote">I liked it :)</button>

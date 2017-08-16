@@ -65,21 +65,33 @@
 			<router-view @finishedLoading="finishedLoading"></router-view>
 		</div>
 
+		<modal :show="showLoginModal" @close="showLoginModal = false">
+			This is the login modal right here
+			<login-form></login-form>
+		</modal>
+
 	</div>
 </template>
 <script type="text/javascript">
 	import Auth from './store/auth'
 	import Flash from './helpers/flash'
 	import { post, interceptors } from './helpers/api'
+    import LoginForm from './views/Auth/Login.vue';
+    import Modal from './components/Modal.vue';
 	
 	export default {
+        components: {
+            Modal,
+            LoginForm,
+        },
 		created() {
 
 			// global error http handler
 			interceptors((err) => {
 				if(err.response.status === 401) {
-					Auth.remove()
-					this.$router.push('/login')
+					Auth.remove();
+//					this.$router.push('/login');
+					this.showLoginModal = true;
 				}
 
 				if(err.response.status === 500) {
@@ -100,6 +112,7 @@
                 menuAnimating: false,
 				contentLoading: false,
 				body: document.querySelector('body'),
+				showLoginModal: false,
 			}
 		},
 		computed: {

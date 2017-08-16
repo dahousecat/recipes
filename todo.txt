@@ -1,16 +1,17 @@
 ******* TODO *******
 
-
-1. Check permissions
-2. All DB relationships
-3. Create ingredient in modal from recipe page
-4. Responsive styling
-5. Host
-6. Add more recipes
-7. Testing
+* Front end for ingredient form
+* Login form in modal
+* Check permissions
+* Create ingredient in modal from recipe page
+* Host
+* Add more recipes
+* Testing
 
 ******* DONE *******
 
-1. The whole site so far! :)
-1. Re-do menu
-2. Search page
+* Responsive styling
+* The whole site so far! :)
+* All DB relationships
+* Re-do menu
+* Search page

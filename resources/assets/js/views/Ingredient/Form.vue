@@ -1,134 +1,139 @@
 <template>
-    <div class="form ingredient-form">
+    <div class="ingredient-form">
 
-        <h1 class="form__title">Ingredient form</h1>
-
-        <div class="form__actions">
-            <button class="btn btn__primary" @click="save()">Save</button>
-            <button class="btn" @click="$router.back()">Cancel</button>
+        <div class="row--m">
+            <div class="col-1">
+                <div class="panel recipe__header">
+                    <h2>{{action}} Ingredient</h2>
+                    <div class="recipe__button-group">
+                        <button class="btn" @click="save" :disabled="isProcessing">Save</button>
+                        <button class="btn" @click="$router.back()" :disabled="isProcessing">Cancel</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <fieldset>
+        <div class="row--l">
 
-            <div class="row equal-height">
+            <div class="col-1">
 
-                <div class="col-s-4 form__panel">
+
+                <div class="panel">
 
                     <!-- Basic Details -->
-                    <div class="">
-                        <div class="form__group">
-                            <label for="name">Name</label>
-                            <input id="name" type="text" class="form__control" v-model="form.name">
-                            <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
-                        </div>
-                    </div>
+                    <h3>Basic details</h3>
+                    <label for="name">Name</label>
+                    <input id="name" type="text" class="form__control" v-model="form.name">
+                    <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
+
 
                     <!-- Units -->
-                    <div class="">
-                        <div class="form__title">Would you measure {{form.name}} using...</div>
+                    <h3>Would you measure {{form.name}} using...</h3>
 
-                        <small class="error-msg" v-if="error.units">{{error.units[0]}}</small>
+                    <small class="error-msg" v-if="error.units">{{error.units[0]}}</small>
 
-                        <!--loop unit types-->
-                        <div class="unit-types__group" v-for="(unitType, unitTypeName) in unitTypes">
-                            <div class="row unit-types__row">
-                                <div class="col-s-1">
-                                    <input :id="unitTypeName" type="checkbox" class="form__control"
-                                           v-model="unitType.checked" @change="setUnitsFromUnitTypes()">
-                                </div>
-                                <div class="col-s-11">
-                                    <label :for="unitTypeName">{{ unitType.label }}</label>
-                                </div>
-                            </div>
-                            <div class="row unit-types__row" v-if="unitType.term && unitType.checked">
-                                <div class="col-s-8">
-                                    <label :for="unitTypeName + '_weight'" class="unit-types__label">
-                                        How much does {{unitType.term}} weight?
-                                        <a :href="getWeightUrl(unitType)" :title="getWeightTitle(unitType)" target="_blank" v-if="form.name">
-                                            <i class="fa fa-question-circle" aria-hidden="true"></i>
-                                        </a>
-                                    </label>
-                                </div>
-                                <div class="col-s-4 flex">
-                                    <input :id="unitTypeName + '_weight'" type="input" class="unit-types__weight"
-                                           v-model="form[unitType.key]" @change="setUnitsFromUnitTypes()">
-                                    <span class="unit-types__unit" title="Grams">g</span>
-                                </div>
-                            </div>
-                            <div class="row unit-types__error-row" v-if="unitType.term && unitType.checked">
-                                <div class="col-s-12">
-                                    <small class="error-msg" v-if="error[unitType.key]">{{error[unitType.key][0]}}</small>
-                                </div>
-                            </div>
+                    <!--loop unit types-->
+                    <div class="ingredient__units" v-for="(unitType, unitTypeName) in unitTypes">
+                        <div class="ingredient__unit">
 
-                        </div>
+                            <input :id="unitTypeName" type="checkbox" class="form__control"
+                                       v-model="unitType.checked" @change="setUnitsFromUnitTypes()">
 
-                        <div class="row">
-                            <div class="col-s-6">
-                                <label>Default unit id</label>
-                            </div>
-                            <div class="col-s-6">
-                                <select type="text" class="form__control" v-model="form.default_unit_id">
-                                    <option v-for="(unit, index) in form.units" :value="unit.id">{{unit.name}}</option>
-                                </select>
+                            <div class="ingredient__unit-label">
+                                <label :for="unitTypeName">{{ unitType.label }}</label>
                             </div>
                         </div>
-                        <div class="row unit-types__error-row" v-if="error.default_unit_id">
+                        <div class="row unit-types__row" v-if="unitType.term && unitType.checked">
+                            <div class="col-s-8">
+                                <label :for="unitTypeName + '_weight'" class="unit-types__label">
+                                    How much does {{unitType.term}} weight?
+                                    <a :href="getWeightUrl(unitType)" :title="getWeightTitle(unitType)" target="_blank" v-if="form.name">
+                                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                    </a>
+                                </label>
+                            </div>
+                            <div class="col-s-4 flex">
+                                <input :id="unitTypeName + '_weight'" type="input" class="unit-types__weight"
+                                       v-model="form[unitType.key]" @change="setUnitsFromUnitTypes()">
+                                <span class="unit-types__unit" title="Grams">g</span>
+                            </div>
+                        </div>
+                        <div class="row unit-types__error-row" v-if="unitType.term && unitType.checked">
                             <div class="col-s-12">
-                                <small class="error-msg">{{error.default_unit_id[0]}}</small>
+                                <small class="error-msg" v-if="error[unitType.key]">{{error[unitType.key][0]}}</small>
                             </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-s-6">
+                            <label>Default unit id</label>
+                        </div>
+                        <div class="col-s-6">
+                            <select type="text" class="form__control" v-model="form.default_unit_id">
+                                <option v-for="(unit, index) in form.units" :value="unit.id">{{unit.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row unit-types__error-row" v-if="error.default_unit_id">
+                        <div class="col-s-12">
+                            <small class="error-msg">{{error.default_unit_id[0]}}</small>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Nutrients 1 -->
-                <div class="col-s-4 form__panel ingredient-form__unit-types unit-types">
+            <!-- Nutrients 1 -->
+            <div class="col-1">
 
-                    <div class="">
+                <div class="panel">
 
-                        <div class="form__title">Nutritional information (per {{nutritionPer}}g)</div>
+                    <div class="form__title">Nutritional information (per {{nutritionPer}}g)</div>
 
-                        <button @click="searchNdb()" :disabled="form.name.length ? false : true">Autofill</button>
+                    <button @click="searchNdb()" :disabled="form.name.length ? false : true">Autofill</button>
 
-                        <h3>Energy</h3>
-                        <nutrients-form
-                                :attributeTypes="attributeTypes"
-                                :form="form"
-                                :category="'other'">
-                        </nutrients-form>
-
-                        <h3>Macronutrients</h3>
-                        <nutrients-form
+                    <h3>Energy</h3>
+                    <nutrients-form
                             :attributeTypes="attributeTypes"
                             :form="form"
-                            :category="'macronutrients'">
-                        </nutrients-form>
+                            :category="'other'">
+                    </nutrients-form>
 
-                        <h3>Minerals</h3>
-                        <nutrients-form
-                                :attributeTypes="attributeTypes"
-                                :form="form"
-                                :category="'minerals'">
-                        </nutrients-form>
+                    <h3>Macronutrients</h3>
+                    <nutrients-form
+                        :attributeTypes="attributeTypes"
+                        :form="form"
+                        :category="'macronutrients'">
+                    </nutrients-form>
 
-                    </div>
+                    <h3>Minerals</h3>
+                    <nutrients-form
+                            :attributeTypes="attributeTypes"
+                            :form="form"
+                            :category="'minerals'">
+                    </nutrients-form>
 
                 </div>
 
-                <!-- Nutrients 2 -->
-                <div class="col-s-4 form__panel" id="nutrients-panel">
+            </div>
 
+            <!-- Nutrients 2 -->
+            <div class="col-1" id="nutrients-panel">
+
+                <div class="panel">
                     <h3>Vitamins</h3>
                     <nutrients-form
                             :attributeTypes="attributeTypes"
                             :form="form"
                             :category="'vitamins'">
                     </nutrients-form>
-
                 </div>
-            </div>
 
-        </fieldset>
+            </div>
+        </div>
+
+
 
         <!-- Select NDB modal -->
         <modal :show="ndb.showPopup" @close="ndb.showPopup = false">
