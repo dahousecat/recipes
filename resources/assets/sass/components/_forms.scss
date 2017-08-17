@@ -1,3 +1,8 @@
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
 .form-group {
   margin-bottom: 1rem;
   width: 100%;
@@ -16,12 +21,37 @@
   margin-right: 2rem;
 }
 
+.form-group__label--big {
+  flex: 2;
+}
+
 .form-group__input {
   flex: 2;
   padding: 1.2rem 1rem;
 
   &[type="text"] {
     height: 2.4rem;
+    width: 100%;
   }
 }
 
+.form-group__input--small {
+  flex: 1;
+}
+
+.form-group__select {
+  flex: 2;
+  height: 3rem;
+}
+
+.form-group__select--small {
+  flex: 1;
+}
+
+.vert-form-group {
+  margin-bottom: 1rem;
+}
+
+.checkbox {
+  margin: 0.4rem 1rem 0 0;
+}

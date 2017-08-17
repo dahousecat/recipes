@@ -21,65 +21,67 @@
                 <div class="panel">
 
                     <!-- Basic Details -->
-                    <h3>Basic details</h3>
-                    <label for="name">Name</label>
-                    <input id="name" type="text" class="form__control" v-model="form.name">
-                    <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
+                    <div class="form-section">
+                        <h3>Basic details</h3>
+                        <div class="form-group">
+                            <label for="name" class="form-group__label ingredient__label">Name</label>
+                            <input id="name" type="text" class="form-group__input" v-model="form.name">
+                        </div>
+
+                        <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
+                    </div>
 
 
                     <!-- Units -->
-                    <h3>Would you measure {{form.name}} using...</h3>
+                    <div class="form-section">
+                        <h3>Would you measure {{form.name}} using...</h3>
 
-                    <small class="error-msg" v-if="error.units">{{error.units[0]}}</small>
+                        <small class="error-msg" v-if="error.units">{{error.units[0]}}</small>
 
-                    <!--loop unit types-->
-                    <div class="ingredient__units" v-for="(unitType, unitTypeName) in unitTypes">
-                        <div class="ingredient__unit">
+                        <!--loop unit types-->
+                        <div class="ingredient__units" v-for="(unitType, unitTypeName) in unitTypes">
 
-                            <input :id="unitTypeName" type="checkbox" class="form__control"
+                            <div class="ingredient__unit">
+                                <input :id="unitTypeName" type="checkbox" class="checkbox"
                                        v-model="unitType.checked" @change="setUnitsFromUnitTypes()">
+                                <label :for="unitTypeName" class="ingredient__label">{{ unitType.label }}</label>
+                            </div>
 
-                            <div class="ingredient__unit-label">
-                                <label :for="unitTypeName">{{ unitType.label }}</label>
+                            <div class="vert-form-group" v-if="unitType.term && unitType.checked">
+
+                                    <label :for="unitTypeName + '_weight'" class="ingredient__label">
+                                        How much does {{unitType.term}} weight?
+                                        <a :href="getWeightUrl(unitType)" :title="getWeightTitle(unitType)" target="_blank" v-if="form.name">
+                                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                        </a>
+                                    </label>
+
+                                    <input :id="unitTypeName + '_weight'" type="input" class="ingredient__weight"
+                                           v-model="form[unitType.key]" @change="setUnitsFromUnitTypes()">
+                                    <span class="unit-types__unit" title="Grams">g</span>
+
                             </div>
-                        </div>
-                        <div class="row unit-types__row" v-if="unitType.term && unitType.checked">
-                            <div class="col-s-8">
-                                <label :for="unitTypeName + '_weight'" class="unit-types__label">
-                                    How much does {{unitType.term}} weight?
-                                    <a :href="getWeightUrl(unitType)" :title="getWeightTitle(unitType)" target="_blank" v-if="form.name">
-                                        <i class="fa fa-question-circle" aria-hidden="true"></i>
-                                    </a>
-                                </label>
-                            </div>
-                            <div class="col-s-4 flex">
-                                <input :id="unitTypeName + '_weight'" type="input" class="unit-types__weight"
-                                       v-model="form[unitType.key]" @change="setUnitsFromUnitTypes()">
-                                <span class="unit-types__unit" title="Grams">g</span>
-                            </div>
-                        </div>
-                        <div class="row unit-types__error-row" v-if="unitType.term && unitType.checked">
-                            <div class="col-s-12">
+
+                            <div class="row unit-types__error-row" v-if="unitType.term && unitType.checked">
                                 <small class="error-msg" v-if="error[unitType.key]">{{error[unitType.key][0]}}</small>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-s-6">
-                            <label>Default unit id</label>
-                        </div>
-                        <div class="col-s-6">
-                            <select type="text" class="form__control" v-model="form.default_unit_id">
-                                <option v-for="(unit, index) in form.units" :value="unit.id">{{unit.name}}</option>
+                    <div class="form-section" v-if="Object.keys(form.units).length">
+
+                        <div class="form-group">
+                            <label class="form-group__label form-group__label--big ingredient__label" for="default-unit-id">Default unit id</label>
+                            <select type="text" class="form-group__select form-group__select--small" v-model="form.default_unit_id" id="default-unit-id">
+                                <option v-for="(unit, index) in form.units" :value="unit.id">{{unit.name.replace('_', ' ')}}</option>
                             </select>
                         </div>
+
+
                     </div>
                     <div class="row unit-types__error-row" v-if="error.default_unit_id">
-                        <div class="col-s-12">
-                            <small class="error-msg">{{error.default_unit_id[0]}}</small>
-                        </div>
+                        <small class="error-msg">{{error.default_unit_id[0]}}</small>
                     </div>
                 </div>
             </div>
@@ -89,25 +91,25 @@
 
                 <div class="panel">
 
-                    <div class="form__title">Nutritional information (per {{nutritionPer}}g)</div>
+                    <h3>Nutritional information (per {{nutritionPer}}g)</h3>
 
-                    <button @click="searchNdb()" :disabled="form.name.length ? false : true">Autofill</button>
+                    <button @click="searchNdb()" :disabled="form.name.length ? false : true" class="btn">Autofill</button>
 
-                    <h3>Energy</h3>
+                    <h4>Energy</h4>
                     <nutrients-form
                             :attributeTypes="attributeTypes"
                             :form="form"
                             :category="'other'">
                     </nutrients-form>
 
-                    <h3>Macronutrients</h3>
+                    <h4>Macronutrients</h4>
                     <nutrients-form
                         :attributeTypes="attributeTypes"
                         :form="form"
                         :category="'macronutrients'">
                     </nutrients-form>
 
-                    <h3>Minerals</h3>
+                    <h4>Minerals</h4>
                     <nutrients-form
                             :attributeTypes="attributeTypes"
                             :form="form"
@@ -119,7 +121,7 @@
             </div>
 
             <!-- Nutrients 2 -->
-            <div class="col-1" id="nutrients-panel">
+            <div class="col-1">
 
                 <div class="panel">
                     <h3>Vitamins</h3>
@@ -366,3 +368,30 @@
         },
     }
 </script>
+
+<style lang="scss">
+    @import "../../../sass/variables/breakpoints";
+
+    .ingredient__weight {
+        width: 6rem;
+    }
+
+    .ingredient__label {
+        font-size: 1.4rem;
+
+        @include mq($from: xl) {
+
+        }
+    }
+
+    .ingredient__units {
+        border-bottom: 1px solid darken(lightgrey, 10);
+        margin-bottom: 1rem;
+    }
+
+    .ingredient__unit {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+
+</style>
