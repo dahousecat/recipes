@@ -3,14 +3,13 @@ import VueRouter from 'vue-router'
 import Login from '../views/Auth/Login.vue'
 import Register from '../views/Auth/Register.vue'
 import Home from '../views/Home.vue'
-import RecipeSearch from '../views/Recipe/Search.vue'
+import RecipeIndex from '../views/Recipe/Index.vue'
 import RecipeShow from '../views/Recipe/Show.vue'
 import RecipeForm from '../views/Recipe/Form.vue'
 import IngredientIndex from '../views/Ingredient/Index.vue'
 import IngredientEditForm from '../views/Ingredient/Form.vue'
 import IngredientCreateForm from '../views/Ingredient/Form.vue'
 import NotFound from '../views/NotFound.vue'
-
 
 Vue.use(VueRouter)
 
@@ -19,8 +18,7 @@ const router = new VueRouter({
 	routes: [
 		{ path: '/', component: Home },
 
-        { path: '/search', component: RecipeSearch },
-
+        { path: '/recipes', component: RecipeIndex},
 		{ path: '/recipes/create', component: RecipeForm, meta: { mode: 'create' }},
 		{ path: '/recipes/:id/edit', component: RecipeForm, meta: { mode: 'edit' }},
 		{ path: '/recipes/:id', component: RecipeShow },

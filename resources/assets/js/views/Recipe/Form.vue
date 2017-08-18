@@ -14,16 +14,7 @@
 		</div>
 
 
-
 		<div class="row--m">
-
-			<!-- Image -->
-			<div class="col-1 col--center">
-				<div class="panel recipe__image">
-					<image-upload v-model="form.image"></image-upload>
-					<small class="error__control" v-if="error.image">{{error.image[0]}}</small>
-				</div>
-			</div>
 
 			<!-- Basic details -->
 			<div class="col-1">
@@ -45,6 +36,15 @@
 						<input type="text" class="form-group__input" v-model="form.portions">
 						<small class="error__control" v-if="error.portions">{{error.portions[0]}}</small>
 					</div>
+				</div>
+			</div>
+
+
+			<!-- Image -->
+			<div class="col-1 col--center">
+				<div class="panel recipe__image">
+					<image-upload v-model="form.image"></image-upload>
+					<small class="error__control" v-if="error.image">{{error.image[0]}}</small>
 				</div>
 			</div>
 		</div>

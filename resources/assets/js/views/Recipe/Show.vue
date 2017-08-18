@@ -4,7 +4,7 @@
 		<div class="row--m">
 			<div class="col-1">
 
-				<div class="panel recipe__header">
+				<div class="panel panel--header">
 					<div class="recipe__header-group">
 						<h1 class="recipe__title">{{recipe.name}}</h1>
 						<div v-if="recipe.description" class="recipe__description">{{recipe.description}}</div>

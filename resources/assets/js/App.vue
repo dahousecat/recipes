@@ -32,17 +32,13 @@
 							<router-link to="/register"
 										 @click.native="navClick" class="navigation__link">Register</router-link>
 						</li>
-						<li class="navigation__item" v-if="auth">
-							<router-link to="/recipes/create"
-										 @click.native="navClick" class="navigation__link">Create recipe</router-link>
+						<li class="navigation__item">
+							<router-link to="/recipes"
+										 @click.native="navClick" class="navigation__link">Recipes</router-link>
 						</li>
 						<li class="navigation__item">
 							<router-link to="/ingredients"
 										 @click.native="navClick" class="navigation__link">Ingredients</router-link>
-						</li>
-						<li class="navigation__item" v-if="auth">
-							<router-link to="/ingredients/create"
-										 @click.native="navClick" class="navigation__link">Create ingredient</router-link>
 						</li>
 						<li class="navigation__item" v-if="auth">
 							<a @click.stop="logout" class="navigation__link">Logout</a>
