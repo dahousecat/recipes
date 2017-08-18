@@ -3,7 +3,7 @@
 
         <div class="row--m">
             <div class="col-1">
-                <div class="panel recipe__header">
+                <div class="panel panel--header">
                     <h2>{{action}} Ingredient</h2>
                     <div class="recipe__button-group">
                         <button class="btn" @click="save" :disabled="isProcessing">Save</button>
@@ -16,7 +16,6 @@
         <div class="row--l">
 
             <div class="col-1">
-
 
                 <div class="panel">
 
@@ -49,7 +48,7 @@
 
                             <div class="vert-form-group" v-if="unitType.term && unitType.checked">
 
-                                    <label :for="unitTypeName + '_weight'" class="ingredient__label">
+                                    <label :for="unitTypeName + '_weight'" class="ingredient__label vert-form-group__label">
                                         How much does {{unitType.term}} weight?
                                         <a :href="getWeightUrl(unitType)" :title="getWeightTitle(unitType)" target="_blank" v-if="form.name">
                                             <i class="fa fa-question-circle" aria-hidden="true"></i>
@@ -140,6 +139,8 @@
         <!-- Select NDB modal -->
         <modal :show="ndb.showPopup" @close="ndb.showPopup = false">
 
+            <h1 class="modal-title" slot="title">Pick ingredient to load nutrients info</h1>
+
             <ndb-ingredients :ndb="ndb"
                              :ingredient="form.name"
                              @close="ndb.showPopup = false"
@@ -160,6 +161,7 @@
     import Modal from '../../components/Modal.vue';
     import NutrientsForm from '../../components/NutrientsForm.vue';
     import NdbIngredients from '../../components/NdbIngredients.vue';
+    import { EventBus } from '../../event-bus';
 
     export default {
         components: {
@@ -230,7 +232,8 @@
         },
         methods: {
             init() {
-                loading(true);
+                EventBus.$emit('contentLoading', true);
+
                 if(this.$route.meta.mode === 'edit') {
                     this.initializeURL = `/api/ingredients/${this.$route.params.id}/edit`;
                     this.storeURL = `/api/ingredients/${this.$route.params.id}?_method=PUT`;
@@ -247,7 +250,7 @@
                         Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
 
                         this.setUnitTypesFromUnits();
-                        loading(false);
+                        EventBus.$emit('contentLoading', false);
                         this.$emit('finishedLoading');
                     });
             },
@@ -297,15 +300,15 @@
                 }
             },
             searchNdb() {
-                loading(true);
+                EventBus.$emit('contentLoading', true);
                 get('/api/ndb/search/' + this.form.name)
                     .then((res) => {
-                        loading(false);
+                        EventBus.$emit('contentLoading', false);
                         this.ndb.groups = res.data.groups;
                         this.ndb.showPopup = true;
                     })
                     .catch(function (error) {
-                        loading(false);
+                        EventBus.$emit('contentLoading', false);
                         console.log(error);
                     });
             },
@@ -319,7 +322,7 @@
                 }
             },
             save() {
-                loading(true);
+                EventBus.$emit('contentLoading', true);
 
                 // Clone the form so we don't alter the original
                 let data = JSON.parse(JSON.stringify(this.form));
@@ -344,12 +347,12 @@
 
                 post(this.storeURL, data)
                     .then((res) => {
-                        loading(false);
+                        EventBus.$emit('contentLoading', false);
                         Flash.setSuccess('Ingredient saved.');
                         this.$router.push('/ingredients');
                     })
                     .catch((err) => {
-                        loading(false);
+                        EventBus.$emit('contentLoading', false);
                         if(typeof err.response !== 'undefined' && err.response.status === 422) {
                             this.error = err.response.data
                         }

@@ -1,14 +1,13 @@
 <template>
     <div id="ingredient-list">
-        <h2 slot="title">Select the closest match</h2>
 
         <div class="ingredient-list__form">
 
             <div class="ingredient-list__form-row">
                 <label for="search-term" class="ingredient-list__form-label">Search term</label>
                 <input type="text" id="search-term" v-model="term" class="ingredient-list__form-text" />
-                <button @click="refresh" class="ingredient-list__form-button">
-                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                <button @click="refresh" class="ingredient-list__form-button" title="Reload ingredient list">
+                    <i class="fa fa-refresh ingredient-list__form-button-icon" aria-hidden="true"></i>
                 </button>
             </div>
 
@@ -25,7 +24,11 @@
         <ul class="ingredient-list">
             <li v-for="(group, key, index) in ndb.groups">
 
-                <span class="ingredient-list__heading" @click="groupClick(key)">{{key}}</span>
+                <span class="ingredient-list__heading"
+                      :title="'Show just ' + key"
+                      @click="groupClick(key)">
+                    {{key}}
+                </span>
 
                 <ul class="ingredient-list__child-list">
                     <li v-for="(item, index) in group" class="ingredient-list__row">
@@ -41,6 +44,7 @@
 <script type="text/javascript">
     import { loading } from '../helpers/misc';
     import { get, post } from '../helpers/api';
+    import { EventBus } from '../event-bus';
 
     export default {
         data() {
@@ -66,10 +70,14 @@
         methods: {
             groupClick(key) {
                 this.group = key;
-                this.refresh();
+                this.fetch();
             },
             refresh() {
-                loading(true, 'ingredient-list');
+                this.group = false;
+                this.fetch();
+            },
+            fetch() {
+                EventBus.$emit('modalLoading', true);
                 let url = '/api/ndb/search/' + this.term;
                 if(this.group) {
                     url = url + '?group=' + this.group;
@@ -77,24 +85,24 @@
                 get(url)
                     .then((res) => {
                         this.lastSearchedTerm = this.term;
-                        loading(false, 'ingredient-list');
+                        EventBus.$emit('modalLoading', false);
                         this.ndb.groups = res.data.groups;
                     })
                     .catch(function (error) {
-                        loading(false, 'ingredient-list');
+                        EventBus.$emit('modalLoading', false);
                         console.log(error);
                     });
             },
             selectNdbIngredient(item) {
-                loading(true, 'ingredient-list');
+                EventBus.$emit('modalLoading', true);
                 get('/api/ndb/view/' + item.id)
                     .then((res) => {
-                        loading(false, 'ingredient-list');
+                        EventBus.$emit('modalLoading', false);
                         this.$emit('updateNutrients', res.data);
                         this.$emit('close');
                     })
                     .catch(function (error) {
-                        loading(false, 'ingredient-list');
+                        EventBus.$emit('modalLoading', false);
                         console.log(error);
                         this.$emit('close');
 
@@ -103,3 +111,98 @@
         }
     }
 </script>
+
+<style lang="scss">
+    @import "../../sass/variables/breakpoints";
+
+    .ingredient-list {
+        margin: 0;
+        list-style-type: none;
+        padding: 0;
+
+        @include mq($from: l) {
+            column-count: 2;
+        }
+    }
+
+    .ingredient-list__heading {
+        background-color: darken(darkgreen, 3);
+        padding: 0.4rem 0.8rem;
+        display: block;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 200ms;
+
+        &:hover {
+            background-color: darken(darkgreen, 6);
+        }
+    }
+
+    .ingredient-list__row {
+
+        a {
+            padding: 0.4rem;
+            cursor: pointer;
+            display: block;
+
+            &:hover {
+                background-color: lighten(lightgrey, 10);
+            }
+        }
+    }
+
+    .ingredient-list__child-list {
+        list-style-type: none;
+        margin: 0.5rem 0;
+        padding: 0rem 0 0 1rem;
+    }
+
+    .ingredient-list__form {
+        background-color: lighten(lightgrey, 10);
+        margin: -2rem -2rem 1rem -2rem;
+        padding: 1.6rem 3rem;
+    }
+
+    .ingredient-list__form-row {
+
+    }
+
+    .ingredient-list__form-label {
+        margin: 0;
+        line-height: 1.8;
+    }
+
+    .ingredient-list__form-text {
+        max-width: 20rem;
+        padding: 0.4rem 0.5rem;
+        border: 1px solid lightgrey;
+    }
+
+    .ingredient-list__form-button {
+        height: 2.8rem;
+        width: 3rem;
+        border: none;
+        background-color: darkgrey;
+        cursor: pointer;
+        transition: 200ms background-color;
+
+        &:hover {
+            background-color: darken(darkgrey, 5);
+        }
+    }
+
+    .ingredient-list__form-button-icon {
+        transition: transform 800ms ease-in-out;
+
+        .ingredient-list__form-button:hover & {
+            transform: rotate(360deg);
+        }
+    }
+
+    .ingredient-list__form-desc {
+        font-size: 1.2rem;
+        margin-top: 0.4rem;
+    }
+
+</style>

@@ -1,31 +1,57 @@
 <template>
     <div class="ingredient-index">
-        <button @click="$router.push('/ingredients/create')">Create Ingredient</button>
 
-        <div class="ingredient__list">
-
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Actions</th>
-                </tr>
-                <tr v-for="ingredient in ingredients">
-                    <td>{{ingredient.name}}</td>
-                    <td>
-                        <router-link class="ingredient__inner" :to="`/ingredients/${ingredient.id}/edit`">Edit</router-link> |
-                        <a @click="deleteClick(ingredient.id)">Delete</a>
-                    </td>
-                </tr>
-            </table>
-
+        <div class="row--m">
+            <div class="col-1">
+                <div class="panel panel--header">
+                    <h2>Ingredients</h2>
+                    <div class="recipe__button-group">
+                        <button @click="$router.push('/ingredients/create')" class="btn">Create Ingredient</button>
+                    </div>
+                </div>
+            </div>
         </div>
+
+
+        <div class="row--l">
+            <div class="col-1">
+                <div class="panel">
+
+                    <div class="ingredient__list">
+
+                        <table class="minimal-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr v-for="ingredient in ingredients">
+                                    <td>{{ingredient.name}}</td>
+                                    <td>
+                                        <router-link class="ingredient__inner" :to="`/ingredients/${ingredient.id}/edit`">Edit</router-link> |
+                                        <a @click="deleteClick(ingredient.id)">Delete</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
 
         <!-- Confirm delete modal -->
         <modal :show="showDeleteIngredientModal" @close="hideDeleteModal()">
             <h2 slot="title">Are you sure you want to delete {{ingredientToDeleteName}}</h2>
 
-            <button @click="deleteIngredient(ingredientToDeleteId)">Yes</button>
-            <button @click="hideDeleteModal()">No</button>
+            <button @click="deleteIngredient(ingredientToDeleteId)" class="btn">Yes</button>
+            <button @click="hideDeleteModal()" class="btn">No</button>
         </modal>
     </div>
 </template>
@@ -33,6 +59,7 @@
     import { get, post } from '../../helpers/api'
     import { loading } from '../../helpers/misc';
     import Modal from '../../components/Modal.vue';
+    import { EventBus } from '../../event-bus';
 
     export default {
         components: {
@@ -47,11 +74,11 @@
             }
         },
         created() {
-            loading(true);
+            EventBus.$emit('contentLoading', true);
             get('/api/ingredients')
                 .then((res) => {
                     this.ingredients = res.data.ingredients
-                    loading(false);
+                    EventBus.$emit('contentLoading', false);
                     this.$emit('finishedLoading');
                 })
         },
@@ -68,11 +95,10 @@
                 this.ingredientToDeleteId = null;
             },
             deleteIngredient(id) {
-                loading(true);
-//                let data = {'_method': 'DELETE'};
+                EventBus.$emit('contentLoading', true);
                 post('/api/ingredients/' + id + '?_method=DELETE')
                     .then((res) => {
-                        loading(false);
+                        EventBus.$emit('contentLoading', false);
 
                         // Remove the ingredient just deleted from the ingredient array
                         let index = this.getIngredientIndex(id);
@@ -83,7 +109,7 @@
                         Flash.setSuccess('Ingredient deleted.');
                     })
                     .catch((err) => {
-                        loading(false);
+                        EventBus.$emit('contentLoading', false);
                         if(typeof err.response !== 'undefined' && err.response.status === 422) {
                             this.error = err.response.data
                         }

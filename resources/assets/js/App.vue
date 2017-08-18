@@ -1,5 +1,5 @@
 <template>
-	<div class="wrapper">
+	<div class="wrapper" :class="blurWrapper ? 'wrapper--blur' : ''">
 
 		<div class="scrim" :class="contentLoading ? 'scrim--loading' : ''"></div>
 
@@ -78,7 +78,8 @@
 	import { post, interceptors } from './helpers/api'
     import LoginForm from './views/Auth/Login.vue';
     import Modal from './components/Modal.vue';
-	
+    import { EventBus } from './event-bus';
+
 	export default {
         components: {
             Modal,
@@ -101,8 +102,17 @@
 				if(err.response.status === 404) {
 					this.$router.push('/not-found')
 				}
-			})
-			Auth.initialize()
+			});
+
+            EventBus.$on('blurWrapper', value => {
+                this.blurWrapper = value;
+            });
+
+            EventBus.$on('contentLoading', value => {
+                this.contentLoading = value;
+            });
+
+            Auth.initialize();
 		},
 		data() {
 			return {
@@ -113,6 +123,7 @@
 				contentLoading: false,
 				body: document.querySelector('body'),
 				showLoginModal: false,
+				blurWrapper: false,
 			}
 		},
 		computed: {
@@ -138,7 +149,7 @@
 			},
 		    navClick() {
                 this.menuExpanded = false;
-                this.contentLoading = true;
+//                this.contentLoading = true;
                 this.body.classList.remove('noscroll');
                 setTimeout(() => { this.menuAnimating = false; }, 500);
 			},

@@ -3,7 +3,7 @@
 
 		<div class="row--m">
 			<div class="col-1">
-				<div class="panel recipe__header">
+				<div class="panel panel--header">
 					<h2>{{action}} Recipe</h2>
 					<div class="recipe__button-group">
 						<button class="btn" @click="save" :disabled="isProcessing">Save</button>
@@ -94,7 +94,7 @@
 					:rows="form.rows"
 					:units="units"
 					:recalculate="recalculateNutrition"
-					:servings="form.portions"
+					:servings="typeof form.portions == 'number' ? form.portions : 0"
 					class="recipe__panel"></nutrients>
 
 		</div>
@@ -129,7 +129,7 @@
 	import draggable from 'vuedraggable';
 	import Nutrients from '../../components/Nutrients.vue';
 	import IngredientRow from '../../components/IngredientRow.vue';
-    import { loading } from '../../helpers/misc';
+    import { EventBus } from '../../event-bus';
 
 	Vue.use(draggable);
 
@@ -323,7 +323,7 @@
                         return;
                     }
 
-					loading(true);
+                    EventBus.$emit('contentLoading', true);
 
                     console.log('Fetching ' + ingredient.name + ' details');
 
@@ -335,11 +335,11 @@
                             ingredient.weight_one_cup = res.data.ingredient.weight_one_cup;
                             ingredient.weight_one_ml = res.data.ingredient.weight_one_ml;
                             ingredient.weight_one_cm = res.data.ingredient.weight_one_cm;
-                            loading(false);
+                            EventBus.$emit('contentLoading', false);
                             resolve();
                         })
                         .catch(function (error) {
-                            loading(false);
+                            EventBus.$emit('contentLoading', false);
                             console.log(error);
                             reject();
                         });
@@ -422,16 +422,6 @@
 <style lang="scss">
 	@import "../../../sass/variables/breakpoints";
 
-	div.recipe__header {
-		padding: 0.8rem 1.2rem;
-
-		@include mq($from: xs) {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-		}
-	}
-
 	.recipe__button-group {
 		margin-top: 1rem;
 
@@ -503,6 +493,7 @@
 	.recipe__ingredient-search-input {
 		width: 100%;
 		padding: 0.6rem;
+		border: none;
 	}
 
 	.recipe__ingredient-search-results {
@@ -532,6 +523,7 @@
 
 	.recipe__direction {
 		width: 100%;
+		border: none;
 	}
 
 	.recipe__remove-direction-btn {

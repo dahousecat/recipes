@@ -18,10 +18,20 @@ body {
   color: lighten(black, 20);
   min-width: 30rem;
   overflow-x: hidden;
+  overflow-y: scroll;
 
   &.noscroll {
     overflow: hidden;
   }
+}
+
+.wrapper {
+  filter: blur(0);
+  transition: filter 200ms;
+}
+
+.wrapper--blur {
+  filter: blur(0.1rem);
 }
 
 #overlay {
@@ -42,12 +52,6 @@ body {
   }
 }
 
-.modal-overlay {
-  padding-top: 4.4rem;
-}
-
-
-
 .grabber {
   &::before {
     content: "\f142 \f142";
@@ -66,7 +70,7 @@ body {
 
 .scrim {
   position: fixed;
-  top: 5rem;
+  top: 0;
   right: 0;
   bottom: 0;
   left: 0;
@@ -88,7 +92,6 @@ body {
     width: 1em;
     height: 1em;
     border-radius: 50%;
-    position: relative;
     text-indent: -9999em;
     -webkit-animation: spinney 1.1s infinite ease;
     animation: spinney 1.1s infinite ease;
@@ -100,4 +103,14 @@ body {
     left: 50%;
     z-index: 20;
   }
+}
+
+.visuallyhidden {
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

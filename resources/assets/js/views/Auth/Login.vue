@@ -30,6 +30,7 @@
     import Auth from '../../store/auth'
     import { post } from '../../helpers/api'
     import { loading } from '../../helpers/misc';
+    import { EventBus } from '../../event-bus';
 
     export default {
         data() {
@@ -43,7 +44,7 @@
             }
         },
         created() {
-            loading(false);
+            EventBus.$emit('contentLoading', false);
         },
         methods: {
             login() {
