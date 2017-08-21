@@ -1,10 +1,10 @@
 <template>
 
-    <div class="row--m">
+    <div class="row row--m">
         <div class="col-1">
             <div class="panel">
                 <form class="form" @submit.prevent="login">
-                    <h1>Welcome back!</h1>
+                    <h2>Please login to continue</h2>
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" class="form__control" v-model="form.email" id="email">
@@ -15,8 +15,10 @@
                         <input type="password" class="form__control" v-model="form.password" id="password">
                         <small class="error__control" v-if="error.password">{{error.password[0]}}</small>
                     </div>
+                    <p>Don't have an account? <a @click="$emit('showRegisterForm')">Register</a>.</p>
+
                     <div class="form-group">
-                        <button :disabled="isProcessing" class="btn btn__primary">Login</button>
+                        <button :disabled="isProcessing" class="btn">Login</button>
                     </div>
                 </form>
             </div>
@@ -43,6 +45,12 @@
                 isProcessing: false
             }
         },
+        props: {
+            inModal: {
+                type: [Boolean],
+                default: false,
+            },
+        },
         created() {
             EventBus.$emit('contentLoading', false);
         },
@@ -50,13 +58,19 @@
             login() {
                 this.isProcessing = true
                 this.error = {}
-                post('api/login', this.form)
+                post('/api/login', this.form)
                     .then((res) => {
                         if(res.data.authenticated) {
                             // set token
-                            Auth.set(res.data.api_token, res.data.user_id)
-                            Flash.setSuccess('You have successfully logged in.')
-                            this.$router.push('/')
+                            Auth.set(res.data.api_token, res.data.user_id);
+                            Flash.setSuccess('You have successfully logged in.');
+
+                            if(this.inModal) {
+                                this.$emit('close');
+                            } else {
+                                this.$router.push('/');
+                            }
+
                         }
                         this.isProcessing = false
                     })
@@ -66,7 +80,7 @@
                         }
                         this.isProcessing = false
                     })
-            }
+            },
         }
     }
 </script>

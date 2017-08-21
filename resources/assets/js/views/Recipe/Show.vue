@@ -1,7 +1,7 @@
 <template>
 	<div class="recipe">
 
-		<div class="row--m">
+		<div class="row row--m">
 			<div class="col-1">
 
 				<div class="panel panel--header">
@@ -38,7 +38,7 @@
 			</div>
 		</div>
 
-		<div class="row--m">
+		<div class="row row--m">
 			<div class="col-1">
 				<div class="panel">
 					<h3 class="recipe__sub_title">Directions</h3>
@@ -54,7 +54,7 @@
 			</div>
 		</div>
 
-		<div class="row--m">
+		<div class="row row--m">
 
 			<div class="col-1">
 				<div class="panel">

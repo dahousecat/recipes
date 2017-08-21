@@ -5,9 +5,9 @@
 
             <div class="modal__header">
 
-                <h1 class="modal__title" :id="labelId">{{this.$slots.title['0'].children['0'].text}}</h1>
+                <h1 class="modal__title" :id="labelId">{{title}}</h1>
 
-                <button @click="close()" type="button" class="modal__close">
+                <button @click="close()" type="button" class="modal__close" v-if="dismissible">
                     <i class="fa fa-times"></i> <span class="visuallyhidden">Close (Esc)</span>
                 </button>
             </div>
@@ -37,6 +37,18 @@
             show: {
                 type: [Boolean],
                 default: false,
+            },
+            dismissible: {
+                type: [Boolean],
+                default: true,
+            },
+        },
+        computed: {
+            title() {
+                if(typeof this.$slots.title === 'undefined') {
+                    return '';
+                }
+                return this.$slots.title['0'].children['0'].text;
             },
         },
         watch: {
@@ -95,6 +107,7 @@
         max-width: 97rem;
         max-height: calc(100vh - 4rem);
         position: relative;
+        outline: none;
 
         @include mq($from: xs) {
             top: 50%;

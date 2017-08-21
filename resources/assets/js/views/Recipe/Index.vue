@@ -1,7 +1,7 @@
 <template>
 	<div class="search">
 
-		<div class="row--m">
+		<div class="row row--m">
 			<div class="col-1">
 				<div class="panel panel--header">
 					<h2>Recipes</h2>
@@ -12,7 +12,7 @@
 			</div>
 		</div>
 
-		<div class="row--m">
+		<div class="row row--m">
 			<div class="col-1">
 				<div class="panel">
 
@@ -53,7 +53,7 @@
 						<thead>
 							<tr>
 								<th>Name</th>
-								<th>Actions</th>
+								<th v-if="$root.auth">Actions</th>
 								<th v-if="sortByAttribute !== null">
 									{{sortByAttribute.name}}
 								</th>
@@ -65,7 +65,7 @@
 								<td>
 									<router-link class="ingredient__inner" :to="`/recipes/${recipe.id}`">{{recipe.name}}</router-link>
 								</td>
-								<td>
+								<td v-if="$root.auth">
 									<router-link class="ingredient__inner" :to="`/recipes/${recipe.id}/edit`">Edit</router-link> |
 									<a @click="deleteClick(recipe.id)">Delete</a>
 								</td>

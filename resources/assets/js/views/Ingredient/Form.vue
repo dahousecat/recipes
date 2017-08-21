@@ -1,7 +1,7 @@
 <template>
     <div class="ingredient-form">
 
-        <div class="row--m">
+        <div class="row row--m">
             <div class="col-1">
                 <div class="panel panel--header">
                     <h2>{{action}} Ingredient</h2>
@@ -13,7 +13,7 @@
             </div>
         </div>
 
-        <div class="row--l">
+        <div class="row row--l">
 
             <div class="col-1">
 

@@ -24,13 +24,9 @@
 						</div>
 					</button>
 					<ul class="navigation__list">
-						<li class="navigation__item" v-if="guest">
+						<li class="navigation__item" v-if="$root.guest">
 							<router-link to="/login"
 										 @click.native="navClick" class="navigation__link">Login</router-link>
-						</li>
-						<li class="navigation__item" v-if="guest">
-							<router-link to="/register"
-										 @click.native="navClick" class="navigation__link">Register</router-link>
 						</li>
 						<li class="navigation__item">
 							<router-link to="/recipes"
@@ -40,7 +36,7 @@
 							<router-link to="/ingredients"
 										 @click.native="navClick" class="navigation__link">Ingredients</router-link>
 						</li>
-						<li class="navigation__item" v-if="auth">
+						<li class="navigation__item" v-if="$root.auth">
 							<a @click.stop="logout" class="navigation__link">Logout</a>
 						</li>
 					</ul>
@@ -61,9 +57,20 @@
 			<router-view @finishedLoading="finishedLoading"></router-view>
 		</div>
 
-		<modal :show="showLoginModal" @close="showLoginModal = false">
-			This is the login modal right here
-			<login-form></login-form>
+		<modal :show="showLoginModal" @close="showLoginModal=false">
+
+			<div slot="title">Authorisation required</div>
+
+			<login-form v-if="showLoginForm"
+						:inModal="true"
+						@showRegisterForm="showLoginForm=false"
+						@close="showLoginModal=false"></login-form>
+
+			<register-form v-if="!showLoginForm"
+						   :inModal="true"
+						   @showLoginForm="showLoginForm=true"
+						   @close="showLoginModal=false"></register-form>
+
 		</modal>
 
 	</div>
@@ -73,6 +80,7 @@
 	import Flash from './helpers/flash'
 	import { post, interceptors } from './helpers/api'
     import LoginForm from './views/Auth/Login.vue';
+    import RegisterForm from './views/Auth/Register.vue';
     import Modal from './components/Modal.vue';
     import { EventBus } from './event-bus';
 
@@ -80,6 +88,20 @@
         components: {
             Modal,
             LoginForm,
+            RegisterForm,
+        },
+        data() {
+            return {
+                authState: Auth.state,
+                flash: Flash.state,
+                menuExpanded: false,
+                menuAnimating: false,
+                contentLoading: false,
+                body: document.querySelector('body'),
+                showLoginModal: false,
+                blurWrapper: false,
+				showLoginForm: true,
+            }
         },
 		created() {
 
@@ -87,8 +109,8 @@
 			interceptors((err) => {
 				if(err.response.status === 401) {
 					Auth.remove();
-//					this.$router.push('/login');
-					this.showLoginModal = true;
+					this.$router.push('/login');
+//					this.showLoginModal = true;
 				}
 
 				if(err.response.status === 500) {
@@ -108,30 +130,12 @@
                 this.contentLoading = value;
             });
 
+            EventBus.$on('showLoginModal', value => {
+                console.log('recieve show login form');
+                this.showLoginModal = value;
+            });
+
             Auth.initialize();
-		},
-		data() {
-			return {
-				authState: Auth.state,
-				flash: Flash.state,
-				menuExpanded: false,
-                menuAnimating: false,
-				contentLoading: false,
-				body: document.querySelector('body'),
-				showLoginModal: false,
-				blurWrapper: false,
-			}
-		},
-		computed: {
-			auth() {
-				if(this.authState.api_token) {
-					return true
-				}
-				return false
-			},
-			guest() {
-				return !this.auth
-			}
 		},
 		methods: {
             finishedLoading() {
@@ -159,7 +163,7 @@
 				            // remove token
 				            Auth.remove();
 				            Flash.setSuccess('You have successfully logged out.');
-				            this.$router.push('/login');
+				            this.$router.push('/');
 				            this.finishedLoading();
 				        }
 				    })

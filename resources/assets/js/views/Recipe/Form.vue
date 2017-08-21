@@ -1,7 +1,7 @@
 <template>
 	<div class="recipe">
 
-		<div class="row--m">
+		<div class="row row--m">
 			<div class="col-1">
 				<div class="panel panel--header">
 					<h2>{{action}} Recipe</h2>
@@ -14,7 +14,7 @@
 		</div>
 
 
-		<div class="row--m">
+		<div class="row row--m">
 
 			<!-- Basic details -->
 			<div class="col-1">
@@ -49,7 +49,7 @@
 			</div>
 		</div>
 
-		<div class="row--m">
+		<div class="row row--m">
 
 			<!-- Ingredients -->
 			<div class="col-1">
@@ -99,7 +99,7 @@
 
 		</div>
 
-		<div class="row--m">
+		<div class="row row--m">
 
 			<!-- Directions -->
 			<div class="col-1">

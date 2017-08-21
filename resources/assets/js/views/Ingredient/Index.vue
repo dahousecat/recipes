@@ -1,11 +1,11 @@
 <template>
     <div class="ingredient-index">
 
-        <div class="row--m">
+        <div class="row row--m">
             <div class="col-1">
                 <div class="panel panel--header">
                     <h2>Ingredients</h2>
-                    <div class="recipe__button-group">
+                    <div class="recipe__button-group" v-if="$root.auth">
                         <button @click="$router.push('/ingredients/create')" class="btn">Create Ingredient</button>
                     </div>
                 </div>
@@ -13,7 +13,7 @@
         </div>
 
 
-        <div class="row--l">
+        <div class="row row--l">
             <div class="col-1">
                 <div class="panel">
 
@@ -23,14 +23,14 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Actions</th>
+                                    <th v-if="$root.auth">Actions</th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 <tr v-for="ingredient in ingredients">
                                     <td>{{ingredient.name}}</td>
-                                    <td>
+                                    <td v-if="$root.auth">
                                         <router-link class="ingredient__inner" :to="`/ingredients/${ingredient.id}/edit`">Edit</router-link> |
                                         <a @click="deleteClick(ingredient.id)">Delete</a>
                                     </td>
