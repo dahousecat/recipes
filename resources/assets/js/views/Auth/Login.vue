@@ -15,7 +15,7 @@
                         <input type="password" class="form__control" v-model="form.password" id="password">
                         <small class="error__control" v-if="error.password">{{error.password[0]}}</small>
                     </div>
-                    <p>Don't have an account? <a @click="$emit('showRegisterForm')">Register</a>.</p>
+                    <p>Don't have an account? <a @click="showRegisterForm">Register</a>.</p>
 
                     <div class="form-group">
                         <button :disabled="isProcessing" class="btn">Login</button>
@@ -60,27 +60,37 @@
                 this.error = {}
                 post('/api/login', this.form)
                     .then((res) => {
+                        console.log(res, 'login post reponse');
                         if(res.data.authenticated) {
                             // set token
                             Auth.set(res.data.api_token, res.data.user_id);
                             Flash.setSuccess('You have successfully logged in.');
 
-                            if(this.inModal) {
-                                this.$emit('close');
-                            } else {
-                                this.$router.push('/');
+                            if(!this.inModal || this.$root.destinaton !== null) {
+                                let destination = this.$root.destinaton === null ? '/' : this.$root.destinaton;
+                                this.$router.push(destination);
+                                this.$root.destinaton = null;
                             }
+
+                            this.$emit('close');
 
                         }
                         this.isProcessing = false
                     })
                     .catch((err) => {
-                        if(err.response.status === 422) {
+                        if(typeof err.response !== 'undefined' && err.response.status === 422) {
                             this.error = err.response.data
                         }
                         this.isProcessing = false
                     })
             },
-        }
+            showRegisterForm() {
+                if(this.inModal) {
+                    this.$emit('showRegisterForm');
+                } else {
+                    this.$router.push('register');
+                }
+            }
+        },
     }
 </script>

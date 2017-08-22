@@ -24,7 +24,7 @@
                         <label for="confirm-password">Confirm Password</label>
                         <input type="password" class="form__control" v-model="form.password_confirmation" id="confirm-password">
                     </div>
-                    <p>Already have an account? <a @click="$emit('showLoginForm')">Login</a>.</p>
+                    <p>Already have an account? <a @click="showLoginForm">Login</a>.</p>
                     <div class="form-group">
                         <button :disabled="isProcessing" class="btn">Register</button>
                     </div>
@@ -37,7 +37,9 @@
 
 <script type="text/javascript">
     import Flash from '../../helpers/flash'
+    import Auth from '../../store/auth'
     import { post } from '../../helpers/api'
+
     export default {
         data() {
             return {
@@ -63,23 +65,36 @@
                 this.error = {}
                 post('api/register', this.form)
                     .then((res) => {
-                        if(res.data.registered) {
-                            Flash.setSuccess('Congratulations! You have now successfully registered.');
-                            if(this.inModal) {
-                                this.$emit('close');
-                            } else {
-                                this.$router.push('/login')
+
+                        if(res.data.authenticated) {
+
+                            Auth.set(res.data.api_token, res.data.user_id);
+                            Flash.setSuccess('You have now successfully registered.');
+
+                            if(!this.inModal || this.$root.destinaton !== null) {
+                                let destination = this.$root.destinaton === null ? '/' : this.$root.destinaton;
+                                this.$router.push(destination);
+                                this.$root.destinaton = null;
                             }
+
+                            this.$emit('close');
                         }
                         this.isProcessing = false
                     })
                     .catch((err) => {
-                        if(err.response.status === 422) {
+                        if(typeof err.response !== 'undefined' && err.response.status === 422) {
                             this.error = err.response.data
                         }
                         this.isProcessing = false
                     })
             },
+            showLoginForm() {
+                if(this.inModal) {
+                    this.$emit('showLoginForm');
+                } else {
+                    this.$router.push('login');
+                }
+            }
         }
     }
 </script>

@@ -23,12 +23,18 @@ class AuthController extends Controller
 
         $user = new User($request->all());
         $user->password = bcrypt($request->password);
+
+        // Now we have created the user log them in
+        $user->api_token = str_random(60);
         $user->save();
 
         return response()
             ->json([
-                'registered' => true
+                'authenticated' => true,
+                'api_token' => $user->api_token,
+                'user_id' => $user->id
             ]);
+
     }
 
     public function login(Request $request)

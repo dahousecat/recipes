@@ -37,21 +37,16 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
 
-    // Wait till next tick so root variable as ready
+    // Wait till next tick so root variables are ready
     Vue.nextTick(function () {
-
-        console.log(to, 'to');
-        console.log(to.meta.auth, 'to.meta.auth');
-        console.log(router.app.$root.auth, 'router.app.$root.auth');
 
         if(typeof to.meta.auth !== 'undefined' && to.meta.auth && !router.app.$root.auth) {
             // show login form
-            console.log('emit show login form');
+            router.app.$root.destinaton = to.path;
             EventBus.$emit('showLoginModal', true);
         } else {
             next();
         }
-
 
     });
 

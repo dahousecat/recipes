@@ -13,6 +13,7 @@ const app = new Vue({
 		return {
             authState: Auth.state,
             ready: true,
+            destination: null,
 		}
 	},
     computed: {

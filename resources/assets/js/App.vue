@@ -131,7 +131,6 @@
             });
 
             EventBus.$on('showLoginModal', value => {
-                console.log('recieve show login form');
                 this.showLoginModal = value;
             });
 
