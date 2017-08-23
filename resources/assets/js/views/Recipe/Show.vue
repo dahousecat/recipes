@@ -2,7 +2,7 @@
 	<div class="recipe">
 
 		<div class="row row--m">
-			<div class="col-1">
+			<div class="col col--1">
 
 				<div class="panel panel--header">
 					<div class="recipe__header-group">
@@ -39,7 +39,7 @@
 		</div>
 
 		<div class="row row--m">
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel">
 					<h3 class="recipe__sub_title">Directions</h3>
 					<ul class="recipe__display-list">
@@ -56,7 +56,7 @@
 
 		<div class="row row--m">
 
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel">
 					<h3 class="recipe__sub_title">Ingredients</h3>
 					<ingredient-row
@@ -71,7 +71,7 @@
 				</div>
 			</div>
 
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel">
 					<!-- Nutrients -->
 					<nutrients

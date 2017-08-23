@@ -20,6 +20,11 @@ a {
   transition: background-color 200ms;
   line-height: 1;
   color: lighten(black, 10);
+  margin-right: 1rem;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
 
   &:hover {
     text-decoration: none;

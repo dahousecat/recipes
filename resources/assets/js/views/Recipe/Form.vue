@@ -2,7 +2,7 @@
 	<div class="recipe">
 
 		<div class="row row--m">
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel panel--header">
 					<h2>{{action}} Recipe</h2>
 					<div class="recipe__button-group">
@@ -17,7 +17,7 @@
 		<div class="row row--m">
 
 			<!-- Basic details -->
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel">
 					<h3>Basic details</h3>
 
@@ -41,7 +41,7 @@
 
 
 			<!-- Image -->
-			<div class="col-1 col--center">
+			<div class="col col--1 col--center">
 				<div class="panel recipe__image">
 					<image-upload v-model="form.image"></image-upload>
 					<small class="error__control" v-if="error.image">{{error.image[0]}}</small>
@@ -52,7 +52,7 @@
 		<div class="row row--m">
 
 			<!-- Ingredients -->
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel recipe__ingredients-panel">
 					<h3>Ingredients</h3>
 
@@ -102,7 +102,7 @@
 		<div class="row row--m">
 
 			<!-- Directions -->
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel">
 					<h3>Directions</h3>
 					<div v-for="(direction, index) in form.directions" class="recipe__directions-inner">
@@ -115,6 +115,22 @@
 				</div>
 			</div>
 		</div>
+
+		<modal :show="showIngredientModal" @close="showIngredientModal=false">
+
+			<div slot="title">Create ingredient</div>
+
+			<ingredient-form :inModal="true"
+                             :initialName="ingredientSearchTerm"
+                             :showHeader="false"
+                             @close="showIngredientModal=false"></ingredient-form>
+
+            <div slot="footer">
+                <button class="btn" @click="saveIngredient">Save</button>
+                <button class="btn" @click="cancelCreateIngredient">Cancel</button>
+            </div>
+
+		</modal>
 
 	</div>
 </template>
@@ -129,6 +145,8 @@
 	import draggable from 'vuedraggable';
 	import Nutrients from '../../components/Nutrients.vue';
 	import IngredientRow from '../../components/IngredientRow.vue';
+	import IngredientForm from '../Ingredient/Form.vue';
+    import Modal from '../../components/Modal.vue';
     import { EventBus } from '../../event-bus';
 
 	Vue.use(draggable);
@@ -139,6 +157,8 @@
 			draggable,
             Nutrients,
             IngredientRow,
+            IngredientForm,
+			Modal
 		},
 		data() {
 			return {
@@ -184,7 +204,7 @@
 			}
 		},
 		watch: {
-            ingredientSearchTerm: function(str){
+            ingredientSearchTerm: function(str) {
 
 			    if(!str.length) {
 			        this.ingredientSearchResults = [];
@@ -192,13 +212,22 @@
 				}
 
                 this.searchingForIngredient = true;
-			    let _this = this;
 
                 let url = '/api/ingredients/search/' + str;
                 get(url)
                     .then((res) => {
                         this.prepareIngredients(res.data, 'ingredientSearchResults');
-                        _this.searchingForIngredient = false;
+                        this.searchingForIngredient = false;
+
+                        // If no ingredients returned add link to add a new one.
+                        if(this.ingredientSearchResults.length === 0) {
+                            this.ingredientSearchResults.push({
+								addNewIngredientLink: true,
+								ingredient: {
+								    name: 'Missing ingredient? Add a new one now.'
+								},
+							});
+						}
                     })
             },
             '$route' (to, from) {
@@ -210,6 +239,10 @@
 		// Run on initialization
 		created() {
 			this.init();
+
+            EventBus.$on('ingredientSaved', item => {
+                this.addNewIngredient(item);
+            });
 
 		},
 		methods: {
@@ -236,7 +269,6 @@
 						let _this = this;
 						this.$nextTick(function () {
 							for (let i = 0; i < _this.form.rows.length; i++) {
-								console.log('Set row nutrition recalculate to true');
 								_this.form.rows[i].recalculate = true;
 							}
 
@@ -256,31 +288,39 @@
                 let ingredients = [];
                 for(let i = 0; i < data.ingredients.length; i++) {
                     let ingredient = data.ingredients[i];
-
-                    // Set an empty object here so we can fill it when needed
-                    ingredient.nutrients = {};
-                    ingredient.units = {};
-
-                    // If unit_id is not set and there is only one unit available set it as a default
-                    if(ingredient.default_unit_id === null && ingredient.units.length === 1) {
-                        ingredient.default_unit_id = ingredient.units[0].unit_id;
-                    }
-
-                    // We need a unit_id AND unit as that is the selects model. When it's updated the unit is
-                    // automatically updated.
-                    ingredients.push({
-                        ingredient: ingredient,
-                        unit_id: ingredient.default_unit_id,
-                        unit: getUnit(ingredient.default_unit_id, this.units),
-                        value: 1,
-                        nutrients: {},
-                        recalculate: false,
-                        recalculateRecipeNutrition: false,
-                    });
+                    ingredients.push(this.prepareIngredient(ingredient));
                 }
                 Vue.set(this.$data, saveTo, ingredients);
 			},
+            prepareIngredient(ingredient) {
+
+                // Set an empty object here so we can fill it when needed
+                ingredient.nutrients = {};
+                ingredient.units = {};
+
+                // If unit_id is not set and there is only one unit available set it as a default
+                if(ingredient.default_unit_id === null && ingredient.units.length === 1) {
+                    ingredient.default_unit_id = ingredient.units[0].unit_id;
+                }
+
+                // We need a unit_id AND unit as that is the selects model. When it's updated the unit is
+                // automatically updated.
+                return {
+                    ingredient: ingredient,
+                    unit_id: ingredient.default_unit_id,
+                    unit: getUnit(ingredient.default_unit_id, this.units),
+                    value: 1,
+                    nutrients: {},
+                    recalculate: false,
+                    recalculateRecipeNutrition: false,
+                };
+            },
             addIngredient(item) {
+
+		        if(typeof item.addNewIngredientLink !== 'undefined' && item.addNewIngredientLink) {
+					this.showIngredientModal = true;
+					return;
+				}
 
 			    // Make new row from item
                 let row = item;
@@ -377,8 +417,6 @@
 
                 data.rows = rowData;
 
-                console.log(data, 'save recipe data');
-
 				post(this.storeURL, objectToFormData(data))
 				    .then((res) => {
 				        if(res.data.saved) {
@@ -415,7 +453,21 @@
                     this.recalculateNutrition = true;
 				}
 			},
-		}
+            addNewIngredient(item) {
+                this.ingredientSearchResults = [];
+                this.ingredientSearchTerm = '';
+                let ingredient = this.prepareIngredient(item);
+                this.addIngredient(ingredient);
+            },
+            saveIngredient() {
+                EventBus.$emit('saveIngredient');
+            },
+            cancelCreateIngredient() {
+		        this.showIngredientModal = false;
+                this.ingredientSearchResults = [];
+                this.ingredientSearchTerm = '';
+            }
+		},
 	}
 </script>
 

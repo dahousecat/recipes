@@ -2,7 +2,7 @@
 	<div class="search">
 
 		<div class="row row--m">
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel panel--header">
 					<h2>Recipes</h2>
 					<div class="recipe__button-group">
@@ -13,7 +13,7 @@
 		</div>
 
 		<div class="row row--m">
-			<div class="col-1">
+			<div class="col col--1">
 				<div class="panel">
 
 					<label for="search">Add ingredients to filter by</label>
@@ -39,7 +39,7 @@
 
 				</div>
 			</div>
-			<div class="col-3">
+			<div class="col col--3">
 				<div class="panel">
 
 					<div class="table-controls">

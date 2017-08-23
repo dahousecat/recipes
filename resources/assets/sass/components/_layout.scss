@@ -1,8 +1,6 @@
 .container {
   max-width: 97rem;
   margin: 0 auto;
-  // Restrains modal
-  //position: relative;
   padding-top: $gutter;
 }
 
@@ -26,12 +24,12 @@
 
 .row {
   .modal & {
-    margin: 0;
-    padding: 0;
+    //margin: 0;
+    //padding: 0;
   }
 }
 
-div[class^="col"] {
+.col {
   margin: 0 $gutter $gutter;
   background-color: lightgray;
   display: flex;
@@ -40,19 +38,18 @@ div[class^="col"] {
   .row--s & { @include mq($from: s) { @include col; } }
   .row--m & { @include mq($from: m) { @include col; } }
   .row--l & { @include mq($from: l) { @include col; } }
-
-  .modal & {
-    background-color: transparent;
-  }
-
 }
 
-.col-1 { flex: 1; }
-.col-2 { flex: 2; }
-.col-3 { flex: 3; }
+.col--1 { flex: 1; }
+.col--2 { flex: 2; }
+.col--3 { flex: 3; }
 
 .col--center {
   justify-content: center;
+}
+
+.col--transparent {
+  background-color: transparent;
 }
 
 .panel {
@@ -62,10 +59,10 @@ div[class^="col"] {
   .col--center & {
     width: auto;
   }
+}
 
-  .modal & {
-    padding: 0;
-  }
+.panel--nopad {
+  padding: 0;
 }
 
 .panel--header {

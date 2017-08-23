@@ -16,6 +16,10 @@
                 <slot></slot>
             </div>
 
+            <div class="modal__footer" v-if="$slots.footer">
+                <slot name="footer"></slot>
+            </div>
+
         </div>
 
     </div>
@@ -128,12 +132,15 @@
 
     .modal__footer {
         bottom: 0;
+        background-color: white;
+        padding: 1rem;
+        text-align: right;
     }
 
     .modal__content {
         max-height: calc(100vh - 15rem);
         overflow-x: hidden;
-        padding: 2rem;
+        padding-top: $gutter;
         background-color: white;
     }
 

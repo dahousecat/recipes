@@ -2,7 +2,7 @@
     <div class="ingredient-index">
 
         <div class="row row--m">
-            <div class="col-1">
+            <div class="col col--1">
                 <div class="panel panel--header">
                     <h2>Ingredients</h2>
                     <div class="recipe__button-group" v-if="$root.auth">
@@ -14,7 +14,7 @@
 
 
         <div class="row row--l">
-            <div class="col-1">
+            <div class="col col--1">
                 <div class="panel">
 
                     <div class="ingredient__list">
@@ -50,8 +50,10 @@
         <modal :show="showDeleteIngredientModal" @close="hideDeleteModal()">
             <h2 slot="title">Are you sure you want to delete {{ingredientToDeleteName}}</h2>
 
-            <button @click="deleteIngredient(ingredientToDeleteId)" class="btn">Yes</button>
-            <button @click="hideDeleteModal()" class="btn">No</button>
+            <div class="row row--l">
+                <button @click="deleteIngredient(ingredientToDeleteId)" class="btn">Yes</button>
+                <button @click="hideDeleteModal()" class="btn">No</button>
+            </div>
         </modal>
     </div>
 </template>

@@ -1,7 +1,7 @@
 <template>
     <div class="home">
 
-        <div class="row row--s">
+        <div class="row row--m">
 
             <home-panel :recipes="recipes" :title="'All recipes'"></home-panel>
 
@@ -12,7 +12,7 @@
 
         </div>
 
-        <div class="row row--s">
+        <div class="row row--m">
 
             <home-panel
                     :recipes="fibre.recipes"

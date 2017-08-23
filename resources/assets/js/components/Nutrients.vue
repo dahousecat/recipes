@@ -1,5 +1,5 @@
 <template>
-    <div class="col-1 nutrients" :class="[updating ? 'loading' : '', panelOpen ? 'nutrients--panel-open' : '']">
+    <div class="col col--1 nutrients" :class="[updating ? 'loading' : '', panelOpen ? 'nutrients--panel-open' : '']">
 
         <div class="panel">
             <h3 class="nutrients__title" @click="panelOpen=!panelOpen">Nutrition</h3>

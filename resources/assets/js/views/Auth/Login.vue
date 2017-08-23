@@ -1,18 +1,18 @@
 <template>
 
     <div class="row row--m">
-        <div class="col-1">
-            <div class="panel">
+        <div class="col col--1" :class="inModal? 'col--transparent' : ''">
+            <div class="panel" :class="inModal? 'panel--nopad' : ''">
                 <form class="form" @submit.prevent="login">
                     <h2>Please login to continue</h2>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" class="form__control" v-model="form.email" id="email">
+                        <label for="email" class="form-group__label">Email</label>
+                        <input type="email" class="form-group__input" v-model="form.email" id="email">
                         <small class="error__control" v-if="error.email">{{error.email[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" class="form__control" v-model="form.password" id="password">
+                        <label for="password" class="form-group__label">Password</label>
+                        <input type="password" class="form-group__input" v-model="form.password" id="password">
                         <small class="error__control" v-if="error.password">{{error.password[0]}}</small>
                     </div>
                     <p>Don't have an account? <a @click="showRegisterForm">Register</a>.</p>

@@ -1,5 +1,5 @@
 <template>
-    <div class="col-1">
+    <div class="col col--1">
         <div class="panel home-panel">
             <h3 v-if="title.length">
                 {{title}}

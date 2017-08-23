@@ -1,15 +1,15 @@
 ******* TODO *******
 
-* Front end for ingredient form
-* Login form in modal
 * Check permissions
-* Create ingredient in modal from recipe page
 * Host
 * Add more recipes
 * Testing
 
 ******* DONE *******
 
+* Create ingredient in modal from recipe page
+* Front end for ingredient form
+* Login form in modal
 * Responsive styling
 * The whole site so far! :)
 * All DB relationships

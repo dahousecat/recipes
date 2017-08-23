@@ -1,13 +1,13 @@
 <template>
     <div class="ingredient-form">
 
-        <div class="row row--m">
-            <div class="col-1">
+        <div class="row row--m" v-if="showHeader">
+            <div class="col col--1">
                 <div class="panel panel--header">
                     <h2>{{action}} Ingredient</h2>
                     <div class="recipe__button-group">
                         <button class="btn" @click="save" :disabled="isProcessing">Save</button>
-                        <button class="btn" @click="$router.back()" :disabled="isProcessing">Cancel</button>
+                        <button class="btn" @click="cancelClick" :disabled="isProcessing">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -15,7 +15,7 @@
 
         <div class="row row--l">
 
-            <div class="col-1">
+            <div class="col col--1">
 
                 <div class="panel">
 
@@ -24,7 +24,7 @@
                         <h3>Basic details</h3>
                         <div class="form-group">
                             <label for="name" class="form-group__label ingredient__label">Name</label>
-                            <input id="name" type="text" class="form-group__input" v-model="form.name">
+                            <input id="name" type="text" class="form-group__input" v-model="form.name" ref="name">
                         </div>
 
                         <small class="error-msg" v-if="error.name">{{error.name[0]}}</small>
@@ -86,7 +86,7 @@
             </div>
 
             <!-- Nutrients 1 -->
-            <div class="col-1">
+            <div class="col col--1">
 
                 <div class="panel">
 
@@ -120,7 +120,7 @@
             </div>
 
             <!-- Nutrients 2 -->
-            <div class="col-1">
+            <div class="col col--1">
 
                 <div class="panel">
                     <h3>Vitamins</h3>
@@ -168,6 +168,20 @@
             Modal,
             NutrientsForm,
             NdbIngredients,
+        },
+        props: {
+            inModal: {
+                type: [Boolean],
+                default: false,
+            },
+            initialName: {
+                type: [String],
+                default: '',
+            },
+            showHeader: {
+                type: [Boolean],
+                default: true,
+            },
         },
         data() {
             return {
@@ -223,6 +237,13 @@
         },
         created() {
             this.init();
+
+            EventBus.$on('saveIngredient', value => {
+                this.save();
+            });
+        },
+        mounted() {
+            this.$refs.name.focus();
         },
         watch: {
             '$route' (to, from) {
@@ -232,6 +253,7 @@
         },
         methods: {
             init() {
+
                 EventBus.$emit('contentLoading', true);
 
                 if(this.$route.meta.mode === 'edit') {
@@ -248,6 +270,11 @@
                         Vue.set(this.$data, 'form', res.data.form);
                         Vue.set(this.$data, 'units', res.data.units);
                         Vue.set(this.$data, 'attributeTypes', res.data.attributeTypes);
+
+                        if(this.form.name.length === 0 && this.initialName.length > 0) {
+                            this.form.name = this.initialName;
+
+                        }
 
                         this.setUnitTypesFromUnits();
                         EventBus.$emit('contentLoading', false);
@@ -349,7 +376,18 @@
                     .then((res) => {
                         EventBus.$emit('contentLoading', false);
                         Flash.setSuccess('Ingredient saved.');
-                        this.$router.push('/ingredients');
+
+                        if(this.inModal) {
+                            let item = {
+                                id: res.data.id,
+                                name: data.name,
+                                default_unit_id: data.default_unit_id,
+                            };
+                            EventBus.$emit('ingredientSaved', item);
+                            this.$emit('close');
+                        } else {
+                            this.$router.push('/ingredients');
+                        }
                     })
                     .catch((err) => {
                         EventBus.$emit('contentLoading', false);
@@ -367,6 +405,13 @@
                     }
                 }
                 return ids;
+            },
+            cancelClick() {
+                if(this.inModal) {
+                    this.$emit('close');
+                } else {
+                    this.$router.back();
+                }
             }
         },
     }

@@ -1,6 +1,6 @@
 <template>
     <div class="row row--m">
-        <div class="col-1">
+        <div class="col col--1">
             <div class="panel">
 
                 <form class="form" @submit.prevent="register">
