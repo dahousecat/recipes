@@ -28,8 +28,9 @@
             <!--amount-->
             <div class="ingredient-row__amount" v-if="editable">
                 <input type="text" class="ingredient-row__amount-input"
-                       v-model="row.value"
+                       v-model="displayValue"
                        @change="calculateNutrition()">
+
                 <div class="ingredient-row__steppers">
                     <i class="fa fa-caret-up ingredient-row__stepper"
                        :class="canStep(row.value, 'up') ? '' : 'ingredient-row__stepper--disabled'"
@@ -87,7 +88,7 @@
 </template>
 
 <script type="text/javascript">
-    import { formatNumber, getUnit } from '../helpers/misc';
+    import { formatNumber, getUnit, isNumeric } from '../helpers/misc';
     import NutrientRows from '../components/NutrientRows.vue';
 
     export default {
@@ -110,6 +111,7 @@
         },
         data() {
             return {
+                displayValue: '',
                 displayNutrients: {},
                 showNutrients: false,
                 weightDescription: '',
@@ -122,6 +124,7 @@
             }
         },
         created() {
+            this.displayValue = this.row.value;
             this.calculateNutrition();
         },
         watch: {
@@ -134,6 +137,8 @@
         },
         methods: {
             calculateNutrition() {
+
+                this.setRowValue();
 
                 let row = this.row;
 
@@ -189,6 +194,41 @@
                 // (and that the whole recipe nutrition should be updated)
                 this.row.recalculateRecipeNutrition = true;
                 this.$emit('rowUpdated');
+            },
+            setRowValue() {
+                let row = this.row;
+
+                this.displayValue = String(this.displayValue);
+
+                if(this.displayValue.indexOf('/') !== -1) {
+
+                    let parts = this.displayValue.split('/');
+                    this.displayValue = this.getFraction(parts[0], parts[1]);
+
+                    if(isNumeric(parts[0]) && isNumeric(parts[1])) {
+                        row.value =  parseInt(parts[0]) / parseInt(parts[1]);
+                    }
+                } else {
+                    row.value =  this.displayValue;
+                }
+
+            },
+            getFraction(numerator, denominator) {
+                numerator = parseInt(numerator);
+                denominator = parseInt(denominator);
+                if(numerator === 1 && denominator === 2) {
+                    return '½';
+                } else if(numerator === 1 && denominator === 3) {
+                    return '⅓';
+                } else if(numerator === 2 && denominator === 3) {
+                    return '⅔';
+                } else if(numerator === 1 && denominator === 4) {
+                    return '¼';
+                } else if(numerator === 3 && denominator === 4) {
+                    return '¾';
+                } else {
+                    return numerator + '/' + denominator;
+                }
             },
             updateDisplayNutrients() {
                 this.displayNutrients = {};
