@@ -1,13 +1,14 @@
 .flash {
   padding: 1rem;
-  margin: 2rem 0;
+  margin: 2rem $gutter;
   border-radius: 0.4rem;
+  color: white;
 }
 
 .flash--error {
-  background-color: $color_stiletto;
+  background-color: darkred;
 }
 
 .flash--success {
-  background-color: $color__apple;
+  background-color: forestgreen;
 }

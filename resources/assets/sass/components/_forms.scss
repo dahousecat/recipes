@@ -28,9 +28,11 @@
 .form-group__input {
   flex: 2;
   padding: 1.2rem 1rem;
-  border: none;
+  border: 1px solid darkgrey;
 
-  &[type="text"] {
+  &[type="text"],
+  &[type="email"],
+  &[type="password"] {
     height: 2.4rem;
     width: 100%;
   }

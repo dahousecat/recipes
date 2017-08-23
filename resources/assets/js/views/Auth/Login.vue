@@ -60,14 +60,13 @@
                 this.error = {}
                 post('/api/login', this.form)
                     .then((res) => {
-                        console.log(res, 'login post reponse');
                         if(res.data.authenticated) {
                             // set token
                             Auth.set(res.data.api_token, res.data.user_id);
                             Flash.setSuccess('You have successfully logged in.');
 
                             if(!this.inModal || this.$root.destinaton !== null) {
-                                let destination = this.$root.destinaton === null ? '/' : this.$root.destinaton;
+                                let destination = typeof this.$root.destinaton === 'undefined' ? '/' : this.$root.destinaton;
                                 this.$router.push(destination);
                                 this.$root.destinaton = null;
                             }

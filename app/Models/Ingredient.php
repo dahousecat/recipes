@@ -46,19 +46,45 @@ class Ingredient extends Model
     }
 
     /**
+     * The rows with this ingredient
+     */
+    public function rows()
+    {
+        $attributes = $this->hasMany('App\Models\Row');
+        return $attributes;
+    }
+
+    /**
      * Return an array of this ingredients attributes ids
      *
      * @return mixed
      */
-    public function attributeIds() {
-
+    public function attributeIds()
+    {
         return $this->attributes()->pluck('id')->toArray();
+    }
+
+    /**
+     * Return a collection of recipes that use this ingredient
+     */
+    public function recipes()
+    {
+        // This doesn't appear to work on many to many relationships
+//        return $this->hasManyThrough('App\Models\Recipe', 'App\Models\Row');
+
+        $recipes = array();
+        foreach ($this->rows as $row) {
+            $recipes[] = $row->recipe;
+        }
+        return \Illuminate\Database\Eloquent\Collection::make($recipes);
+
     }
 
     /**
      * Return a json array of this ingredients units
      */
-    public function jsonUnits() {
+    public function jsonUnits()
+    {
         $units = [];
         foreach($this->units as $unit) {
             $units[$unit->id] = $unit->name;
@@ -69,7 +95,8 @@ class Ingredient extends Model
     /**
      * Return a json array of the ids of this ingredients units
      */
-    public function jsonUnitIds() {
+    public function jsonUnitIds()
+    {
         $units = [];
         foreach($this->units as $unit) {
             $units[] = $unit->id;
@@ -96,5 +123,4 @@ class Ingredient extends Model
             'nutrients' => []
         ];
     }
-
 }

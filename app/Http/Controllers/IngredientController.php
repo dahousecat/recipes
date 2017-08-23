@@ -313,4 +313,12 @@ class IngredientController extends Controller
             ]);
     }
 
+    public function recipes($id, Request $request)
+    {
+        $ingredient = Ingredient::findOrFail($id);
+        $recipes = $ingredient->recipes();
+        return response()
+            ->json(['recipes' => $recipes]);
+    }
+
 }

@@ -6,23 +6,23 @@
                 <form class="form" @submit.prevent="register">
                     <h2>Create an Account</h2>
                     <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" class="form__control" v-model="form.name" id="name">
+                        <label class="form-group__label" for="name">Name</label>
+                        <input type="text" class="form-group__input" v-model="form.name" id="name">
                         <small class="error__control" v-if="error.name">{{error.name[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="text" class="form__control" v-model="form.email" id="email">
+                        <label class="form-group__label" for="email">Email</label>
+                        <input type="text" class="form-group__input" v-model="form.email" id="email">
                         <small class="error__control" v-if="error.email">{{error.email[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" class="form__control" v-model="form.password" id="password">
+                        <label class="form-group__label" for="password">Password</label>
+                        <input type="password" class="form-group__input" v-model="form.password" id="password">
                         <small class="error__control" v-if="error.password">{{error.password[0]}}</small>
                     </div>
                     <div class="form-group">
-                        <label for="confirm-password">Confirm Password</label>
-                        <input type="password" class="form__control" v-model="form.password_confirmation" id="confirm-password">
+                        <label class="form-group__label" for="confirm-password">Confirm Password</label>
+                        <input type="password" class="form-group__input" v-model="form.password_confirmation" id="confirm-password">
                     </div>
                     <p>Already have an account? <a @click="showLoginForm">Login</a>.</p>
                     <div class="form-group">

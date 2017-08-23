@@ -62,6 +62,7 @@
     import { loading } from '../../helpers/misc';
     import Modal from '../../components/Modal.vue';
     import { EventBus } from '../../event-bus';
+    import Flash from '../../helpers/flash';
 
     export default {
         components: {
@@ -87,9 +88,17 @@
         methods: {
             deleteClick(id) {
                 let ingredient = this.getIngredient(id);
-                this.showDeleteIngredientModal = true;
-                this.ingredientToDeleteName = ingredient.name;
-                this.ingredientToDeleteId = id;
+
+                this.addIngredientRecipes(ingredient)
+                    .then(() => {
+                        if(ingredient.recipes.length > 0) {
+                            Flash.setError(ingredient.name + ' is used in ' + ingredient.recipes.length + ' recipes so can\'t be deleted.');
+                        } else {
+                            this.showDeleteIngredientModal = true;
+                            this.ingredientToDeleteName = ingredient.name;
+                            this.ingredientToDeleteId = id;
+                        }
+                    });
             },
             hideDeleteModal() {
                 this.showDeleteIngredientModal = false;
@@ -128,6 +137,20 @@
                         return i;
                     }
                 }
+            },
+            addIngredientRecipes(ingredient) {
+                return new Promise(function(resolve, reject) {
+                    if(typeof ingredient.recipes !== 'undefined') {
+                        console.log('already done, return');
+                        resolve();
+                        return;
+                    }
+                    get('/api/ingredient/' + ingredient.id + '/recipes')
+                        .then((res) => {
+                            ingredient.recipes = res.data.recipes;
+                            resolve();
+                        });
+                });
             }
         }
     }
