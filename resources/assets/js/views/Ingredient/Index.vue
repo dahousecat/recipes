@@ -59,7 +59,6 @@
 </template>
 <script type="text/javascript">
     import { get, post } from '../../helpers/api'
-    import { loading } from '../../helpers/misc';
     import Modal from '../../components/Modal.vue';
     import { EventBus } from '../../event-bus';
     import Flash from '../../helpers/flash';

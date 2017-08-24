@@ -23,18 +23,32 @@
 
 					<div class="form-group recipe__form-group">
 						<label class="form-group__label">Name</label>
-						<input type="text" class="form-group__input" v-model="form.name">
-						<small class="error__control" v-if="error.name">{{error.name[0]}}</small>
+                        <div class="form-group__input-wrap">
+                            <input type="text" class="form-group__input" v-model="form.name">
+                            <small class="form-group__error" v-if="error.name">{{error.name[0]}}</small>
+                        </div>
 					</div>
 					<div class="form-group recipe__form-group">
 						<label class="form-group__label">Description</label>
-						<textarea class="form-group__input" v-model="form.description"></textarea>
-						<small class="error__control" v-if="error.description">{{error.description[0]}}</small>
+                        <div class="form-group__input-wrap">
+                            <textarea class="form-group__input" v-model="form.description"></textarea>
+                            <small class="form-group__error" v-if="error.description">{{error.description[0]}}</small>
+                        </div>
 					</div>
 					<div class="form-group recipe__form-group">
 						<label class="form-group__label">Num portions</label>
-						<input type="text" class="form-group__input" v-model="form.portions">
-						<small class="error__control" v-if="error.portions">{{error.portions[0]}}</small>
+                        <div class="form-group__input-wrap">
+                            <input type="text" class="form-group__input" v-model="form.portions" @change="recalculateNutrition=true">
+                            <small class="form-group__error" v-if="error.portions">{{error.portions[0]}}</small>
+                        </div>
+					</div>
+					<div class="form-group recipe__form-group">
+						<label class="form-group__label">Citation</label>
+                        <div class="form-group__input-wrap">
+                            <input type="text" class="form-group__input" v-model="form.citation">
+                            <p class="form-group__description">Where did this recipe come from? Add a website address, the name of a book or your name if you invented it!</p>
+                        </div>
+						<small class="form-group__error" v-if="error.citation">{{error.citation[0]}}</small>
 					</div>
 				</div>
 			</div>
@@ -44,7 +58,7 @@
 			<div class="col col--1 col--center">
 				<div class="panel recipe__image">
 					<image-upload v-model="form.image"></image-upload>
-					<small class="error__control" v-if="error.image">{{error.image[0]}}</small>
+					<small class="form-group__error" v-if="error.image">{{error.image[0]}}</small>
 				</div>
 			</div>
 		</div>
@@ -94,7 +108,7 @@
 					:rows="form.rows"
 					:units="units"
 					:recalculate="recalculateNutrition"
-					:servings="typeof form.portions == 'number' ? form.portions : 0"
+					:servings="parseInt(form.portions)"
 					class="recipe__panel"></nutrients>
 
 		</div>

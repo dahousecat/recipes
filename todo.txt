@@ -1,5 +1,6 @@
 ******* TODO *******
 
+* Clientside validation
 * Check permissions
 * Host
 * Add more recipes
@@ -7,6 +8,8 @@
 
 ******* DONE *******
 
+* Loading animation for adding ingredients from modal
+* Accreditation link for recipes
 * Create ingredient in modal from recipe page
 * Front end for ingredient form
 * Login form in modal

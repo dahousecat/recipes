@@ -27,7 +27,11 @@ class IngredientsTableSeeder extends Seeder
 
         foreach($ingredients as $i => $data) {
 
-            $default_unit = Unit::loadByName($data->default_unit);
+            $default_unit = null;
+            if(!empty($data->default_unit)) {
+                $default_unit = Unit::loadByName($data->default_unit);
+            }
+
             $ingredient = Ingredient::create([
                 'name' => $data->name,
                 'weight_one' => $data->weight_one,

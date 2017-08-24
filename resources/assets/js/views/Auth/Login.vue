@@ -31,7 +31,6 @@
     import Flash from '../../helpers/flash'
     import Auth from '../../store/auth'
     import { post } from '../../helpers/api'
-    import { loading } from '../../helpers/misc';
     import { EventBus } from '../../event-bus';
 
     export default {

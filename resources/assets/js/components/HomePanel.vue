@@ -22,7 +22,6 @@
 </template>
 
 <script type="text/javascript">
-    import { loading } from '../helpers/misc';
     import { formatNumber } from '../helpers/misc';
     import { get, post } from '../helpers/api';
 

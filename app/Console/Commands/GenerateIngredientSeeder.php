@@ -49,7 +49,9 @@ class GenerateIngredientSeeder extends Command
             unset($ingredient['description']);
 
             $default_unit = Unit::find($ingredient['default_unit_id']);
-            $ingredient['default_unit'] = $default_unit->name;
+            if(!empty($default_unit)) {
+                $ingredient['default_unit'] = $default_unit->name;
+            }
 
             $units = [];
             foreach($ingredient['units'] as &$unit) {

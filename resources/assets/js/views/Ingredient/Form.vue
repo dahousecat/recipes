@@ -137,7 +137,7 @@
 
 
         <!-- Select NDB modal -->
-        <modal :show="ndb.showPopup" @close="ndb.showPopup = false">
+        <modal :show="ndb.showPopup" @close="ndb.showPopup = false" :activeProp="ndb.popupActive">
 
             <h1 class="modal-title" slot="title">Pick ingredient to load nutrients info</h1>
 
@@ -156,7 +156,7 @@
     import Vue from 'vue';
     import Flash from '../../helpers/flash';
     import { get, post } from '../../helpers/api';
-    import { convertEnergyUnit, formatNumber, getUnit, loading } from '../../helpers/misc';
+    import { convertEnergyUnit, formatNumber, getUnit } from '../../helpers/misc';
     import { toMulipartedForm, objectToFormData } from '../../helpers/form';
     import Modal from '../../components/Modal.vue';
     import NutrientsForm from '../../components/NutrientsForm.vue';
@@ -230,6 +230,7 @@
                     name: '',
                     groups: {},
                     showPopup: false,
+                    popupActive: false,
                 },
                 energyUnit: 'calorie',
                 nutritionPer: 100, // grams
@@ -327,15 +328,22 @@
                 }
             },
             searchNdb() {
-                EventBus.$emit('contentLoading', true);
+                let loadingTarget = this.inModal ? 'modalLoading' : 'contentLoading';
+                EventBus.$emit(loadingTarget, true);
                 get('/api/ndb/search/' + this.form.name)
                     .then((res) => {
-                        EventBus.$emit('contentLoading', false);
+                        EventBus.$emit(loadingTarget, false);
                         this.ndb.groups = res.data.groups;
                         this.ndb.showPopup = true;
+                        // Tell other modals to become inactive
+                        EventBus.$emit('modalActive', false);
+
+                        this.ndb.popupActive = true;
+
+                        console.log('emit modalInactive');
                     })
                     .catch(function (error) {
-                        EventBus.$emit('contentLoading', false);
+                        EventBus.$emit(loadingTarget, false);
                         console.log(error);
                     });
             },

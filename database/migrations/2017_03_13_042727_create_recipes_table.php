@@ -20,6 +20,7 @@ class CreateRecipesTable extends Migration
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->integer('portions')->unsigned();
+            $table->text('citation')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

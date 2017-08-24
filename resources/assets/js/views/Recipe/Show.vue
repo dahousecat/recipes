@@ -85,6 +85,16 @@
 
 		</div>
 
+		<div class="row row--m" v-if="recipe.citation">
+			<div class="col col--1">
+				<div class="panel">
+					<div>This recipe comes from:</div>
+					<a :href="recipe.citation" v-if="isURL(recipe.citation)" target="_blank">{{recipe.citation}}</a>
+					<span v-else>{{recipe.citation}}</span>
+				</div>
+			</div>
+		</div>
+
 	</div>
 </template>
 
@@ -93,6 +103,7 @@
 	import Auth from '../../store/auth'
 	import Flash from '../../helpers/flash'
 	import { get, del, post } from '../../helpers/api'
+	import { isURL } from '../../helpers/misc'
     import Nutrients from '../../components/Nutrients.vue';
     import IngredientRow from '../../components/IngredientDisplayRow.vue';
 
@@ -176,6 +187,9 @@
                     .catch((err) => {
 
                     })
+			},
+            isURL(text) {
+			    return isURL(text);
 			}
 		}
 	}

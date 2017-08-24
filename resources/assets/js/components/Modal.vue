@@ -1,7 +1,7 @@
 <template>
     <div role="document" class="modal-overlay" :aria-labelledby="labelId" v-if="show">
 
-        <div class="modal" style="" tabindex="0">
+        <div class="modal" :class="active ? 'modal--active' : 'modal--inactive'" tabindex="0">
 
             <div class="modal__header">
 
@@ -35,6 +35,7 @@
                 id: '',
                 modalLoading: false,
                 body: document.querySelector('body'),
+                active: true,
             }
         },
         props: {
@@ -43,6 +44,10 @@
                 default: false,
             },
             dismissible: {
+                type: [Boolean],
+                default: true,
+            },
+            activeProp: {
                 type: [Boolean],
                 default: true,
             },
@@ -65,6 +70,9 @@
 
                 EventBus.$emit('blurWrapper', this.show);
                 this.body.classList.toggle('noscroll', this.show);
+            },
+            activeProp() {
+                this.active = this.activeProp;
             }
         },
         created() {
@@ -74,12 +82,18 @@
             EventBus.$on('modalLoading', value => {
                 this.modalLoading = value;
             });
+
+            EventBus.$on('modalActive', value => {
+                this.active = value;
+                console.log('receive modalActive');
+            });
         },
         methods: {
             close() {
                 EventBus.$emit('blurWrapper', false);
+                EventBus.$emit('modalActive', true);
                 this.$emit('close');
-            }
+            },
         }
     }
 </script>
@@ -117,6 +131,10 @@
             top: 50%;
             transform: translateY(-50%);
         }
+    }
+
+    .modal--inactive {
+        filter: blur(0.1rem);
     }
 
     .modal__header {

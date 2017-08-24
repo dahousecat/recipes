@@ -26,6 +26,7 @@ class RecipesTableSeeder extends Seeder
                 'name' => $data->name,
                 'description' => $data->description,
                 'portions' => empty($data->portions) ? 2 : $data->portions,
+                'citation' => $data->citation,
             ]);
 
             foreach($data->rows as $row) {

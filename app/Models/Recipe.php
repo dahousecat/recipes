@@ -13,6 +13,7 @@ class Recipe extends Model
         'description',
         'image',
         'portions',
+        'citation',
     ];
 
     public function user()
@@ -118,6 +119,7 @@ class Recipe extends Model
             'image' => '',
             'description' => '',
             'portions' => '',
+            'citation' => '',
             'rows' => [
                 //Row::form()
             ],

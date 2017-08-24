@@ -101,7 +101,7 @@ class RecipeController extends Controller
     {
     	$this->validate($request, $this->validationRules());
 
-        $recipe = new Recipe($request->only('name', 'description', 'portions'));
+        $recipe = new Recipe($request->only('name', 'description', 'portions', 'citation'));
         $request->user()->recipes()->save($recipe);
 
         $message = 'You have successfully created a recipe!';
@@ -128,9 +128,9 @@ class RecipeController extends Controller
         $this->prepareRows($recipeArr['rows']);
 
         $recipeArr['score'] = [
-            'total' => $recipe->getScore(),
-            'likes' => $recipe->likes(),
-            'dislikes' => $recipe->dislikes(),
+            'total'     => $recipe->getScore(),
+            'likes'     => $recipe->likes(),
+            'dislikes'  => $recipe->dislikes(),
         ];
 
         $user = Auth::guard('api')->user();
@@ -195,6 +195,7 @@ class RecipeController extends Controller
         $recipe->name = $request->name;
         $recipe->description = $request->description;
         $recipe->portions = $request->portions;
+        $recipe->citation = $request->citation;
 
         $response = [];
 
@@ -271,7 +272,8 @@ class RecipeController extends Controller
 
     }
 
-    private function validationRules($id = null) {
+    private function validationRules($id = null)
+    {
         return [
             'name' => 'required|max:255',
             'description' => 'max:3000',
@@ -314,7 +316,8 @@ class RecipeController extends Controller
             ]);
     }
 
-    public function vote($id, Request $request) {
+    public function vote($id, Request $request)
+    {
 
         $recipe = Recipe::findOrFail($id);
         $user = $request->user();

@@ -42,7 +42,6 @@
 </template>
 
 <script type="text/javascript">
-    import { loading } from '../helpers/misc';
     import { get, post } from '../helpers/api';
     import { EventBus } from '../event-bus';
 
@@ -98,6 +97,7 @@
                 get('/api/ndb/view/' + item.id)
                     .then((res) => {
                         EventBus.$emit('modalLoading', false);
+                        EventBus.$emit('modalActive', true);
                         this.$emit('updateNutrients', res.data);
                         this.$emit('close');
                     })
@@ -118,7 +118,7 @@
     .ingredient-list {
         margin: 0;
         list-style-type: none;
-        padding: 0;
+        padding: 1rem 2rem 2rem;
 
         @include mq($from: l) {
             column-count: 2;
@@ -160,12 +160,16 @@
 
     .ingredient-list__form {
         background-color: lighten(lightgrey, 10);
-        margin: -2rem -2rem 1rem -2rem;
+        margin: -2rem 0rem 1rem 0rem;
         padding: 1.6rem 3rem;
     }
 
     .ingredient-list__form-row {
 
+    }
+
+    .ingredient-list__empty-msg {
+        padding: 1rem 2rem 2rem 2rem;
     }
 
     .ingredient-list__form-label {
