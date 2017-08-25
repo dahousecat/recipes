@@ -1,5 +1,12 @@
 ******* TODO *******
 
+* Add soft delete on recipes
+* Lock down delete to recipe author
+* Add confirm on recipe delete
+* Have a base model and put deleteMany in base model
+* Autofill then close then autofill and active modal is blured
+* Allow quanity to convert 1 1/2 to 1.5
+* Changing ingredient unit on create screen breaks nutrients
 * Clientside validation
 * Check permissions
 * Host
@@ -8,6 +15,10 @@
 
 ******* DONE *******
 
+* Multiple row styles
+* Recipe only saves final direction step
+* Check rows are updated, not destroyed and recreated.
+* https://www.prevention.com/food/20-super-healthy-smoothie-recipes/slide/3 - why don't nutrients match?
 * Loading animation for adding ingredients from modal
 * Accreditation link for recipes
 * Create ingredient in modal from recipe page

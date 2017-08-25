@@ -129,25 +129,26 @@
 			get(`/api/recipes/${this.$route.params.id}`)
 				.then((res) => {
 
-                    if(res.data.recipe.directions.length == 0) {
+                    if(res.data.recipe.directions.length === 0) {
                         res.data.recipe.directions.push({description: 'Blend all ingredients together.'});
                     }
 
                     Vue.set(this.$data, 'recipe', res.data.recipe);
                     Vue.set(this.$data, 'units', res.data.units);
 
-                    // Just set data so wait till next tick to update the recipe rows
-                    let _this = this;
-                    this.$nextTick(function () {
-                        for (let i = 0; i < _this.recipe.rows.length; i++) {
-                            _this.recipe.rows[i].recalculate = true;
+                    // We've just set data so wait till next tick to update the recipe rows
+					this.$nextTick(() => {
+                        for (let i = 0; i < this.recipe.rows.length; i++) {
+                            console.log('== Flag row to recalculate');
+                            this.recipe.rows[i].recalculate = true;
                         }
 
                         // And then the tick after that to update the recipe nutrients
-                        Vue.nextTick(function () {
-                            _this.recalculateNutrition = true;
+                        Vue.nextTick(() => {
+                            console.log('== Flag recipe to recalculate');
+                            this.recalculateNutrition = true;
                         });
-                    });
+					});
 
 				})
 		},

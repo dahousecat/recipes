@@ -1,4 +1,4 @@
-import { getUnit } from '../helpers/misc';
+import { getUnit, formatNumber } from '../helpers/misc';
 
 export function calculateRowNutrition(row) {
 
@@ -47,4 +47,58 @@ export function calculateRowNutrition(row) {
         }
     }
 
+}
+
+export function updateDisplayNutrients(displayNutrients, row) {
+    displayNutrients = {};
+    for (let nutrientName in row.nutrients) {
+        if (row.nutrients.hasOwnProperty(nutrientName)) {
+            let nutrient = row.nutrients[nutrientName];
+            displayNutrients[nutrientName] = {
+                'value': formatNumber(nutrient.value),
+                'unit': nutrient.unit,
+                'name': nutrient.name,
+                'category': nutrient.category,
+            };
+        }
+    }
+}
+
+export function getWeightDescription(row) {
+
+    // If the row is defined in grams it needs no explanation.
+    if(row.unit.type === 'weight') {
+        return '';
+    }
+
+    let desc = '1 ';
+    let weight_this_unit;
+
+    if(row.unit.type !== 'quantity') {
+        desc = desc + row.unit.name + ' ';
+    }
+
+    switch(row.unit.type) {
+        case 'length':
+            desc = desc + row.ingredient.name + ' weighs ' + row.ingredient.weight_one_cm + 'g per cm. ';
+            break;
+        case 'volume':
+
+            weight_this_unit = formatNumber(row.ingredient.weight_one_ml * row.unit.ml);
+
+            desc = desc + row.ingredient.name + ' weighs ' + weight_this_unit + 'g. ';
+            break;
+        case 'quantity':
+
+            weight_this_unit = row.ingredient.weight_one;
+
+            desc = desc + row.ingredient.name + ' weighs ' + weight_this_unit + 'g. ';
+            break;
+    }
+
+
+
+    desc = desc + row.value + ' x ' + weight_this_unit + 'g = ' + formatNumber(row.weight) + 'g';
+
+    return desc;
 }

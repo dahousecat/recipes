@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 class Attribute extends Model
 {
     public $timestamps = false;
@@ -39,14 +37,5 @@ class Attribute extends Model
         return [
             'name' => '',
         ];
-    }
-
-    public static function deleteMany($ids) {
-        foreach($ids as $id) {
-            $attribute = static::find($id);
-            if($attribute) {
-                $attribute->delete();
-            }
-        }
     }
 }

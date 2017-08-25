@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 class Row extends Model
 {
     protected $fillable = [
@@ -49,14 +47,4 @@ class Row extends Model
             'amount' => '',
         ];
     }
-
-    public static function deleteMany($ids) {
-        foreach($ids as $id) {
-            $row = static::find($id);
-            if($row) {
-                $row->delete();
-            }
-        }
-    }
-
 }

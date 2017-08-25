@@ -229,11 +229,13 @@ class RecipeController extends Controller
         if(!empty($rowIdsToDelete)) {
             $rowIdsToDelete = array_keys($rowIdsToDelete);
             Row::deleteMany($rowIdsToDelete);
-            $response['deleted_attribute_ids'] = $rowIdsToDelete;
+            $response['deleted_row_ids'] = $rowIdsToDelete;
         }
 
         // Get a list of all existing direction ids
         $directionIdsToDelete = array_fill_keys($recipe->directionIds(), null);
+
+        $response['directionIdsToDelete'] = $directionIdsToDelete;
 
         if(!empty($request->directions)) {
             foreach($request->directions as $directionData) {
@@ -241,18 +243,30 @@ class RecipeController extends Controller
                     continue;
                 }
 
-                if(!empty($direction['id'])) {
-                    $direction = Direction::find($direction['id']);
-                    unset($directionIdsToDelete[$direction['id']]);
+                if(!empty($directionData['id'])) {
+                    $direction = Direction::find($directionData['id']);
+                    unset($directionIdsToDelete[$directionData['id']]);
+                    $response['existing direction'][] = $directionData['id'];
                 } else {
                     $direction = new Direction();
+                    $response['new direction'][] = 'true';
                 }
 
                 $direction->recipe_id = $recipe->id;
                 $direction->description = $directionData['description'];
+
+                $response['saved direction'][] = $direction;
+
                 $direction->save();
 
             }
+        }
+
+        // If there are any direction ids left in here then they have been deleted
+        if(!empty($directionIdsToDelete)) {
+            $directionIdsToDelete = array_keys($directionIdsToDelete);
+            Direction::deleteMany($directionIdsToDelete);
+            $response['deleted directions'] = $directionIdsToDelete;
         }
 
         if($request->hasFile('image') && $request->file('image')->isValid()) {
@@ -263,12 +277,11 @@ class RecipeController extends Controller
 
         $request->user()->recipes()->save($recipe);
 
-        return response()
-            ->json([
-                'saved' => true,
-                'id' => $recipe->id,
-                'message' => $message
-            ]);
+        $response['saved'] = true;
+        $response['id'] = $recipe->id;
+        $response['message'] = $message;
+
+        return response()->json($response);
 
     }
 

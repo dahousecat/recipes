@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\EnumOptions;
 use Illuminate\Support\Facades\DB;
 

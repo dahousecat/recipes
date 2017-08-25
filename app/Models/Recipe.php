@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Ingredient;
 use Illuminate\Support\Facades\DB;
 
 class Recipe extends Model

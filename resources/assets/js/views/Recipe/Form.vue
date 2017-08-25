@@ -280,15 +280,14 @@
                         this.prepareIngredients(res.data, 'ingredients');
 
 						// Just set data so wait till next tick to update the recipe rows
-						let _this = this;
-						this.$nextTick(function () {
-							for (let i = 0; i < _this.form.rows.length; i++) {
-								_this.form.rows[i].recalculate = true;
+						this.$nextTick(() => {
+							for (let i = 0; i < this.form.rows.length; i++) {
+								this.form.rows[i].recalculate = true;
 							}
 
 							// And then the tick after that to update the recipe nutrients
-							Vue.nextTick(function () {
-								_this.recalculateNutrition = true;
+							Vue.nextTick(() => {
+								this.recalculateNutrition = true;
 							});
 						});
 
@@ -340,20 +339,20 @@
                 let row = item;
                 this.ingredientSearchResults = [];
                 this.ingredientSearchTerm = '';
-                let _this = this;
 
                 // Make sure the nutrients for this ingredient are set
-                this.fetchIngredientDetails(row).then(function(){
+                this.fetchIngredientDetails(row).then(() => {
 
-                    _this.form.rows.push(row);
+                    // First create the row
+                    this.form.rows.push(row);
 
                     // Ingredient added to recipe
                     // Recalculate this row - this will trigger recalculating the recipe nutrients
-                    _this.form.rows[ _this.form.rows.length - 1 ].recalculate = true;
+                    this.form.rows[ this.form.rows.length - 1 ].recalculate = true;
 
                     // If this is set to true after the now nutrients are updated it will trigger a recipe
                     // nutrition update
-                    _this.form.rows[ _this.form.rows.length - 1 ].recalculateRecipeNutrition = true;
+                    this.form.rows[ this.form.rows.length - 1 ].recalculateRecipeNutrition = true;
 
                 });
 
@@ -420,16 +419,25 @@
 				let rowData = [];
                 for (let i = 0; i < data.rows.length; i++) {
                     let row = data.rows[i];
-                    rowData.push({
-						ingredient_id: row.ingredient.id,
-						delta: i,
-						unit_id: row.unit.id,
-						value: row.value,
-						weight: row.weight,
-					});
+
+                    let thisRowData = {
+                        ingredient_id: row.ingredient.id,
+                        delta: i,
+                        unit_id: row.unit.id,
+                        value: row.value,
+                        weight: row.weight,
+                    };
+
+                    if(typeof row.id !== 'undefined') {
+                        thisRowData.id = row.id;
+                    }
+
+                    rowData.push(thisRowData);
                 }
 
                 data.rows = rowData;
+
+                console.log(data, 'saved data');
 
 				post(this.storeURL, objectToFormData(data))
 				    .then((res) => {
@@ -539,9 +547,14 @@
 		position: relative;
 	}
 
+    .recipe__direction {
+        padding: 1rem;
+    }
+
 	.recipe__directions-inner {
 		display: flex;
 		align-content: space-between;
+        margin-bottom: 0.6rem;
 	}
 
 	.recipe__directions-button {
