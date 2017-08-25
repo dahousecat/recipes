@@ -7,22 +7,30 @@
                     <h2>Create an Account</h2>
                     <div class="form-group">
                         <label class="form-group__label" for="name">Name</label>
-                        <input type="text" class="form-group__input" v-model="form.name" id="name">
-                        <small class="error__control" v-if="error.name">{{error.name[0]}}</small>
+                        <div class="form-group__input-wrap">
+                            <input type="text" class="form-group__input" v-model="form.name" id="name">
+                            <small class="form-group__error" v-if="error.name">{{error.name[0]}}</small>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-group__label" for="email">Email</label>
-                        <input type="text" class="form-group__input" v-model="form.email" id="email">
-                        <small class="error__control" v-if="error.email">{{error.email[0]}}</small>
+                        <div class="form-group__input-wrap">
+                            <input type="text" class="form-group__input" v-model="form.email" id="email">
+                            <small class="form-group__error" v-if="error.email">{{error.email[0]}}</small>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-group__label" for="password">Password</label>
-                        <input type="password" class="form-group__input" v-model="form.password" id="password">
-                        <small class="error__control" v-if="error.password">{{error.password[0]}}</small>
+                        <div class="form-group__input-wrap">
+                            <input type="password" class="form-group__input" v-model="form.password" id="password">
+                            <small class="form-group__error" v-if="error.password">{{error.password[0]}}</small>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-group__label" for="confirm-password">Confirm Password</label>
-                        <input type="password" class="form-group__input" v-model="form.password_confirmation" id="confirm-password">
+                        <div class="form-group__input-wrap">
+                            <input type="password" class="form-group__input" v-model="form.password_confirmation" id="confirm-password">
+                        </div>
                     </div>
                     <p>Already have an account? <a @click="showLoginForm">Login</a>.</p>
                     <div class="form-group">

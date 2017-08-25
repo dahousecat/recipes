@@ -29,7 +29,7 @@
 							<router-link :to="`/recipes/${recipe.id}/edit`" class="btn btn-primary">
 								Edit
 							</router-link>
-							<button class="btn btn__danger" @click="remove" :disabled="isRemoving">Delete</button>
+							<button class="btn btn__danger" @click="deleteClick" :disabled="isRemoving">Delete</button>
 						</div>
 					</div>
 
@@ -95,6 +95,16 @@
 			</div>
 		</div>
 
+		<!-- Confirm delete modal -->
+		<modal :show="showDeleteRecipeModal" @close="hideDeleteModal()">
+			<h2 slot="title">Are you sure you want to delete {{recipeToDeleteName}}</h2>
+
+			<div class="row row--l">
+				<button @click="remove(recipeToDeleteId)" class="btn">Yes</button>
+				<button @click="hideDeleteModal()" class="btn">No</button>
+			</div>
+		</modal>
+
 	</div>
 </template>
 
@@ -106,11 +116,13 @@
 	import { isURL } from '../../helpers/misc'
     import Nutrients from '../../components/Nutrients.vue';
     import IngredientRow from '../../components/IngredientDisplayRow.vue';
+    import Modal from '../../components/Modal.vue';
 
 	export default {
         components: {
             Nutrients,
             IngredientRow,
+            Modal,
         },
 		data() {
 			return {
@@ -123,6 +135,10 @@
 				},
                 units: [],
                 recalculateNutrition: false,
+
+                showDeleteRecipeModal: false,
+                recipeToDeleteName: '',
+                recipeToDeleteId: null,
 			}
 		},
 		created() {
@@ -153,12 +169,18 @@
 				})
 		},
 		methods: {
-			remove() {
-				this.isRemoving = false
-				del(`/api/recipes/${this.$route.params.id}`)
+            deleteClick() {
+                this.recipeToDeleteName = this.recipe.name;
+                this.recipeToDeleteId = this.recipe.id;
+                this.showDeleteRecipeModal = true;
+			},
+			remove(id) {
+                this.showDeleteRecipeModal = false;
+				this.isRemoving = false;
+				del('/api/recipes/' + id)
 					.then((res) => {
 						if(res.data.deleted) {
-							Flash.setSuccess('You have successfully deleted recipe!')
+							Flash.setSuccess('You have successfully deleted this recipe!');
 							this.$router.push('/')
 						}
 					})
@@ -191,8 +213,13 @@
 			},
             isURL(text) {
 			    return isURL(text);
-			}
-		}
+			},
+            hideDeleteModal() {
+                this.showDeleteRecipeModal = false;
+                this.recipeToDeleteName = '';
+                this.recipeToDeleteId = null;
+            },
+        }
 	}
 </script>
 

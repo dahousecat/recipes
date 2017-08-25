@@ -2,8 +2,6 @@
 
 * Add soft delete on recipes
 * Lock down delete to recipe author
-* Add confirm on recipe delete
-* Have a base model and put deleteMany in base model
 * Autofill then close then autofill and active modal is blured
 * Allow quanity to convert 1 1/2 to 1.5
 * Changing ingredient unit on create screen breaks nutrients
@@ -15,6 +13,8 @@
 
 ******* DONE *******
 
+* Add confirm on recipe delete
+* Have a base model and put deleteMany in base model
 * Multiple row styles
 * Recipe only saves final direction step
 * Check rows are updated, not destroyed and recreated.

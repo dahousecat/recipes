@@ -27,7 +27,7 @@ class IngredientController extends Controller
      */
     public function index()
     {
-        $ingredients = Ingredient::select('id', 'name', 'default_unit_id')->get();
+        $ingredients = Ingredient::select('id', 'name', 'default_unit_id', 'user_id')->get();
 
         return response()
             ->json([

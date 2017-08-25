@@ -65,7 +65,7 @@
 								<td>
 									<router-link class="ingredient__inner" :to="`/recipes/${recipe.id}`">{{recipe.name}}</router-link>
 								</td>
-								<td v-if="$root.auth">
+                                <td v-if="authState.api_token && authState.user_id === recipe.user_id">
 									<router-link class="ingredient__inner" :to="`/recipes/${recipe.id}/edit`">Edit</router-link> |
 									<a @click="deleteClick(recipe.id)">Delete</a>
 								</td>
@@ -89,10 +89,12 @@
     import { get } from '../../helpers/api';
     import { formatNumber } from '../../helpers/misc';
     import { capitalize } from '../../helpers/misc';
+    import Auth from '../../store/auth';
 
     export default {
         data() {
             return {
+                authState: Auth.state,
                 recipes: [],
                 searchTerm: '',
                 searchResults: [],

@@ -30,7 +30,7 @@
                             <tbody>
                                 <tr v-for="ingredient in ingredients">
                                     <td>{{ingredient.name}}</td>
-                                    <td v-if="$root.auth">
+                                    <td v-if="authState.api_token && authState.user_id === ingredient.user_id">
                                         <router-link class="ingredient__inner" :to="`/ingredients/${ingredient.id}/edit`">Edit</router-link> |
                                         <a @click="deleteClick(ingredient.id)">Delete</a>
                                     </td>
@@ -62,6 +62,7 @@
     import Modal from '../../components/Modal.vue';
     import { EventBus } from '../../event-bus';
     import Flash from '../../helpers/flash';
+    import Auth from '../../store/auth';
 
     export default {
         components: {
@@ -69,6 +70,7 @@
         },
         data() {
             return {
+                authState: Auth.state,
                 ingredients: [],
                 showDeleteIngredientModal: false,
                 ingredientToDeleteName: '',

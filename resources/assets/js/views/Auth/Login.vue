@@ -8,12 +8,12 @@
                     <div class="form-group">
                         <label for="email" class="form-group__label">Email</label>
                         <input type="email" class="form-group__input" v-model="form.email" id="email">
-                        <small class="error__control" v-if="error.email">{{error.email[0]}}</small>
+                        <small class="form-group__error" v-if="error.email">{{error.email[0]}}</small>
                     </div>
                     <div class="form-group">
                         <label for="password" class="form-group__label">Password</label>
                         <input type="password" class="form-group__input" v-model="form.password" id="password">
-                        <small class="error__control" v-if="error.password">{{error.password[0]}}</small>
+                        <small class="form-group__error" v-if="error.password">{{error.password[0]}}</small>
                     </div>
                     <p>Don't have an account? <a @click="showRegisterForm">Register</a>.</p>
 

@@ -130,6 +130,7 @@
 			</div>
 		</div>
 
+        <!-- Create ingredient modal -->
 		<modal :show="showIngredientModal" @close="showIngredientModal=false">
 
 			<div slot="title">Create ingredient</div>
@@ -547,9 +548,7 @@
 		position: relative;
 	}
 
-    .recipe__direction {
-        padding: 1rem;
-    }
+    .recipe__direction {}
 
 	.recipe__directions-inner {
 		display: flex;
