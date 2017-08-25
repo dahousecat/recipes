@@ -55,7 +55,7 @@
 								<th>Name</th>
 								<th v-if="$root.auth">Actions</th>
 								<th v-if="sortByAttribute !== null">
-									{{sortByAttribute.name}}
+									{{sortByAttribute.name}} (per 100g)
 								</th>
 							</tr>
 						</thead>
@@ -65,9 +65,11 @@
 								<td>
 									<router-link class="ingredient__inner" :to="`/recipes/${recipe.id}`">{{recipe.name}}</router-link>
 								</td>
-                                <td v-if="authState.api_token && authState.user_id === recipe.user_id">
-									<router-link class="ingredient__inner" :to="`/recipes/${recipe.id}/edit`">Edit</router-link> |
-									<a @click="deleteClick(recipe.id)">Delete</a>
+                                <td v-if="$root.auth">
+                                    <div v-if="authState.api_token && authState.user_id === recipe.user_id">
+                                        <router-link class="ingredient__inner" :to="`/recipes/${recipe.id}/edit`">Edit</router-link> |
+                                        <a @click="deleteClick(recipe.id)">Delete</a>
+                                    </div>
 								</td>
 								<td v-if="sortByAttribute !== null">
 									{{formatNumber(recipe.val)}} {{sortByAttribute.unit}}

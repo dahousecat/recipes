@@ -58,8 +58,10 @@ class Recipe extends Model
 
     public static function recipesSortedByAttribute($attributeSafeName, $limit = 10, $recipe_ids = null)
     {
+
+        // Get recipes sorted by given attribute amount per 100g
         $query = DB::table('recipes as r')
-            ->selectRaw("r.id, r.`name`, SUM((a.`value` / 100) * o.weight) as val, r.image, r.portions")
+            ->selectRaw("r.id, r.`name`, SUM((a.`value` / 100) * o.weight) / SUM(o.weight) * 100 as val, r.image, r.portions")
             ->leftJoin('rows as o',             'o.recipe_id',      '=', 'r.id')
             ->leftJoin('ingredients as i',      'i.id',             '=', 'o.ingredient_id')
             ->leftJoin('attributes as a',       'a.ingredient_id',  '=', 'i.id')
@@ -72,9 +74,14 @@ class Recipe extends Model
             $query->whereIn('r.id', $recipe_ids);
         }
 
+//        DB::enableQueryLog();
+
         $recipes = $query
             ->limit($limit)
             ->get()->toArray();
+
+//        print_r(DB::getQueryLog());
+//        die();
 
         return $recipes;
 

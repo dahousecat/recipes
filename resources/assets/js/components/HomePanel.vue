@@ -5,7 +5,7 @@
                 {{title}}
             </h3>
             <h3 v-if="!title.length">
-                Recipes <span v-if="typeof attributeType !== 'undefined'">with most {{attributeType.name}}</span>
+                Recipes <span v-if="typeof attributeType !== 'undefined'">with most {{attributeType.name}} per 100g</span>
             </h3>
 
             <div class="home-panel__item" v-for="recipe in recipes">
